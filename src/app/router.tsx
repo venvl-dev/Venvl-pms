@@ -1,11 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { ModulePlaceholder } from '@/components/common/ModulePlaceholder'
+import { DashboardView } from '@/components/dashboard/DashboardView'
 import { MODULES } from './modules'
 
 const moduleRoutes = MODULES.map((m) =>
   m.path === '/'
-    ? { index: true as const, element: <ModulePlaceholder /> }
+    ? { index: true as const, element: <DashboardView /> }
     : { path: m.path.slice(1), element: <ModulePlaceholder /> },
 )
 
