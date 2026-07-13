@@ -1,0 +1,36 @@
+.wrap {
+  position: relative;
+}
+.select {
+  display: flex;
+  height: var(--control-h);
+  width: 100%;
+  appearance: none;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--input);
+  background: var(--card);
+  padding: 0 2.25rem 0 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.select:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px var(--ring);
+}
+.select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.chevron {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--muted-foreground);
+}

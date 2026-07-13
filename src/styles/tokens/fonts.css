@@ -1,0 +1,8 @@
+/* =============================================================================
+   VENVL Go — Webfont
+   Inter is the brand typeface. Loaded from Google Fonts (weights 400/500/600/700),
+   which supplies the @font-face rules. Inter is the app's real font, not a
+   substitution. NOTE: @import must precede all other CSS — globals.css pulls
+   this file in first.
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');

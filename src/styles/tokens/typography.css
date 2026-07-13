@@ -1,0 +1,32 @@
+/* =============================================================================
+   VENVL Go — Typography tokens
+   One typeface: Inter (with a system-sans fallback). Data-dense SaaS scale.
+   Page title 24px semibold tracking-tight; card title 16px semibold; body 14px;
+   meta/labels 12px muted, often uppercase tracking-wide for section/column heads.
+   ========================================================================== */
+:root {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Size scale */
+  --text-xs: 0.75rem; /* 12px — meta, labels, column headers */
+  --text-sm: 0.875rem; /* 14px — body, table cells, controls */
+  --text-base: 1rem; /* 16px — card titles */
+  --text-lg: 1.125rem; /* 18px — dialog titles */
+  --text-xl: 1.25rem; /* 20px — auth card title */
+  --text-2xl: 1.5rem; /* 24px — page titles, KPI numbers */
+  --text-3xl: 1.875rem; /* 30px — marketing hero */
+
+  /* Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+
+  /* Line heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+
+  /* Tracking */
+  --tracking-tight: -0.015em; /* titles + KPI numbers */
+  --tracking-wide: 0.05em; /* uppercase labels / column headers */
+}

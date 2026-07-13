@@ -1,0 +1,31 @@
+/* =============================================================================
+   VENVL Go — Elevation, spacing & layout tokens
+   Elevation is deliberately subtle — flat, border-led separation over heavy
+   shadows. Borders are 1px hairlines using --border. Cards float on the gray
+   app background with only a soft shadow-sm.
+   ========================================================================== */
+:root {
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Hairline border */
+  --border-width: 1px;
+
+  /* Spacing scale (0.25rem base) */
+  --space-1: 0.25rem; /* 4px */
+  --space-1-5: 0.375rem; /* 6px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px — default gap */
+  --space-4: 1rem; /* 16px — md gap */
+  --space-5: 1.25rem; /* 20px — card padding */
+  --space-6: 1.5rem; /* 24px — section gap */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+
+  /* Layout */
+  --content-max: 1600px; /* centered max content width */
+  --control-h: 2.25rem; /* 36px — default control height (h-9) */
+  --control-h-sm: 2rem; /* 32px — sm control height (h-8) */
+}
