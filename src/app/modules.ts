@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   CalendarDays,
   CalendarCheck,
-  MessageCircle,
   Building2,
   Share2,
   Globe,
