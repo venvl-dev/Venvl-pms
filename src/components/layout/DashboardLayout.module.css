@@ -15,3 +15,10 @@
   width: 100%;
   max-width: var(--content-max);
 }
+
+@media (max-width: 768px) {
+  .shell {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+}

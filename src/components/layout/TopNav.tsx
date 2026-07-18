@@ -12,7 +12,7 @@ export function TopNav() {
   return (
     <header className={styles.bar}>
       <Link to="/" className={styles.brand}>
-        <img src="/venvl-mark.svg" alt="" className={styles.mark} />
+        <img src="/images/venvl-mark.svg" alt="" className={styles.mark} />
         <span className={styles.brandName}>VENVL Go</span>
       </Link>
 
