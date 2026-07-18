@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore } from '@/features/auth/authStore'
 import { api } from '@/lib/apiClient'
 import type { RefreshResponse, User } from './types'
 

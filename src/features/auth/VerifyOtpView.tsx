@@ -1,8 +1,8 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/core/Card'
 import { VerifyOtpForm } from '@/features/auth/VerifyOtpForm'
-import styles from './AuthPages.module.css' 
+import styles from './AuthView.module.css'
 
-export function VerifyOtpPage() {
+export function VerifyOtpView() {
   return (
     <div className={styles.wrap}>
       <Card className={styles.card}>

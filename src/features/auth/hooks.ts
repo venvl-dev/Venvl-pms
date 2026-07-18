@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { login, register, verifyOtp,  logout } from './api'
 import type { AuthResponse } from './types'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore } from '@/features/auth/authStore'
 
 function useAuthSuccess() {
   const setAuth = useAuthStore((s) => s.setAuth)

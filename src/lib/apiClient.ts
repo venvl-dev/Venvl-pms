@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { InternalAxiosRequestConfig } from 'axios'
-import { useAuthStore, getAccessToken } from '@/stores/authStore'
+import { useAuthStore, getAccessToken } from '@/features/auth/authStore'
 import type { RefreshResponse } from '@/features/auth/types'
 
 export const api = axios.create({

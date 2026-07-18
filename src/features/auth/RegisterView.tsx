@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { AuthLayout } from '@/features/auth/AuthLayout'
 import { RegisterForm } from '@/features/auth/RegisterForm'
 
-export function RegisterPage() {
+export function RegisterView() {
   return (
     <AuthLayout
       title="Create your workspace"

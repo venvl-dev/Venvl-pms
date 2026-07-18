@@ -2,13 +2,13 @@ import { createBrowserRouter } from 'react-router-dom'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { ModulePlaceholder } from '@/components/common/ModulePlaceholder'
 import { RequireAuth } from '@/features/auth/RequireAuth'
-import { LoginPage } from '@/pages/LoginPage'
-import { RegisterPage } from '@/pages/RegisterPage'
-import { VerifyOtpPage } from '@/pages/VerifyOtpPage'
-import { DashboardView } from '@/components/dashboard/DashboardView'
+import { LoginView } from '@/features/auth/LoginView'
+import { RegisterView } from '@/features/auth/RegisterView'
+import { VerifyOtpView } from '@/features/auth/VerifyOtpView'
+import { DashboardView } from '@/features/dashboard/DashboardView'
 import { MODULES } from './modules'
-import { ReservationsView } from '@/components/reservations/ReservationsView'
-import { PropertiesView } from '@/components/properties/PropertiesView'
+import { ReservationsView } from '@/features/reservations/ReservationsView'
+import { PropertiesView } from '@/features/properties/PropertiesView'
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }
@@ -18,9 +18,9 @@ const moduleRoutes = MODULES.map((m) => {
 })
 
 export const router = createBrowserRouter([
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
-  { path: '/verify-otp', element: <VerifyOtpPage /> },
+  { path: '/login', element: <LoginView /> },
+  { path: '/register', element: <RegisterView /> },
+  { path: '/verify-otp', element: <VerifyOtpView /> },
   {
     path: '/',
     element: <RequireAuth />,

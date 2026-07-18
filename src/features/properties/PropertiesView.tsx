@@ -56,6 +56,7 @@ const renderChannelCluster = (channels: BookingChannel[]) => {
     'airbnb': { color: '#FF5A5F', initial: 'A' },
     'booking.com': { color: '#003580', initial: 'B' },
     'vrbo': { color: '#00266b', initial: 'V' },
+    'expedia': { color: '#FFC72C', initial: 'E' },
     'direct': { color: 'var(--primary)', initial: 'D' },
   }
 
