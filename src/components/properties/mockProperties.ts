@@ -1,6 +1,8 @@
+import type { BookingChannel } from '@/types/domain'
+
+export type { BookingChannel }
 export type PropertyStatus = 'active' | 'draft' | 'archived'
 export type PropertyType = 'apartment' | 'villa' | 'studio' | 'chalet'
-export type BookingChannel = 'direct' | 'airbnb' | 'booking.com' | 'vrbo'
 
 export interface Property {
   id: string
@@ -32,10 +34,13 @@ const generateMocks = (): Property[] => {
   const properties: Property[] = []
   
   for (let i = 1; i <= 25; i++) {
-    // Generate a random array of channels (1 to 4 channels)
-    const channelCount = Math.floor(Math.random() * 4) + 1
-    const shuffledChannels = [...allChannels].sort(() => 0.5 - Math.random())
-    const connectedChannels = shuffledChannels.slice(0, channelCount)
+    // Deterministic channels (1 to 4), rotated by index so the mock is reproducible.
+    const channelCount = (i % allChannels.length) + 1
+    const start = i % allChannels.length
+    const connectedChannels = Array.from(
+      { length: channelCount },
+      (_, k) => allChannels[(start + k) % allChannels.length],
+    )
 
     properties.push({
       id: `PRP-${1000 + i}`,
@@ -45,8 +50,8 @@ const generateMocks = (): Property[] => {
       location: locations[i % locations.length],
       status: statuses[i % statuses.length],
       channels: connectedChannels,
-      bedrooms: Math.floor(Math.random() * 4) + 1,
-      bathrooms: Math.floor(Math.random() * 3) + 1,
+      bedrooms: (i % 4) + 1,
+      bathrooms: (i % 3) + 1,
     })
   }
   return properties

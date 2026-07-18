@@ -258,7 +258,7 @@ export function PropertiesView() {
             <tbody>
               {paginatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={10} style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--muted-foreground)' }}>
+                  <td colSpan={Object.values(visibleCols).filter(Boolean).length + 1} style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--muted-foreground)' }}>
                     No properties found matching your criteria.
                   </td>
                 </tr>

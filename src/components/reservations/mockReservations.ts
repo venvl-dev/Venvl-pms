@@ -1,5 +1,7 @@
+import type { BookingChannel } from '@/types/domain'
+
+export type { BookingChannel }
 export type ReservationStatus = 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled'
-export type BookingChannel = 'direct' | 'airbnb' | 'booking.com' | 'expedia'
 
 export interface Reservation {
   id: string
@@ -31,14 +33,17 @@ const generateMocks = (): Reservation[] => {
   
   for (let i = 1; i <= 25; i++) {
     const prop = properties[i % properties.length]
-    const amount = Math.floor(Math.random() * 1000) + 150
-    const isPaid = Math.random() > 0.3
-    
+    // Deterministic values derived from the index so the mock is reproducible.
+    const amount = 150 + ((i * 137) % 1000)
+    const isPaid = i % 3 !== 0
+    // Keep both days within 1..23 so checkOut (checkIn + 4) never overflows the month.
+    const checkInDay = (i % 23) + 1
+
     reservations.push({
       id: `RES-${1000 + i}`,
       guestName: guests[i % guests.length],
-      checkIn: `2026-07-${String((i % 28) + 1).padStart(2, '0')}`,
-      checkOut: `2026-07-${String((i % 28) + 5).padStart(2, '0')}`,
+      checkIn: `2026-07-${String(checkInDay).padStart(2, '0')}`,
+      checkOut: `2026-07-${String(checkInDay + 4).padStart(2, '0')}`,
       property: prop.p,
       unit: prop.u,
       status: statuses[i % statuses.length],
