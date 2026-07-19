@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useRef, useEffect, Fragment } from 'react'
 import { 
   Search, 
   Filter, 
@@ -8,8 +8,10 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  ChevronRight as ChevronRightIcon,
   Globe,
-  Calendar
+  Calendar,
+  ChevronUp
 } from 'lucide-react'
 import { Button } from '@/components/core/Button'
 import { Input } from '@/components/core/Input'
@@ -89,13 +91,14 @@ export function PropertiesView() {
   const [showRowsMenu, setShowRowsMenu] = useState(false)
   const [showColDropdown, setShowColDropdown] = useState(false)
   
+  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set())
+  
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {}
     ALL_COLUMNS.forEach(col => initial[col.id] = col.defaultVisible)
     return initial
   })
 
-  // Refs for outside clicks
   const statusRef = useRef<HTMLDivElement>(null)
   const channelRef = useRef<HTMLDivElement>(null)
   const rowsRef = useRef<HTMLDivElement>(null)
@@ -112,8 +115,20 @@ export function PropertiesView() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const filteredData = useMemo(() => {
+  const childrenMap = useMemo(() => {
+    const map = new Map<string, Property[]>()
+    MOCK_PROPERTIES.filter(p => p.type === 'child').forEach(child => {
+      if (!child.parentId) return
+      if (!map.has(child.parentId)) map.set(child.parentId, [])
+      map.get(child.parentId)!.push(child)
+    })
+    return map
+  }, [])
+
+  const rootProperties = useMemo(() => {
     return MOCK_PROPERTIES.filter(prop => {
+      if (prop.type === 'child') return false 
+
       const matchesSearch = prop.name.toLowerCase().includes(search.toLowerCase()) || 
                             prop.id.toLowerCase().includes(search.toLowerCase())
       const matchesStatus = statusFilter === 'all' || prop.status === statusFilter
@@ -123,8 +138,8 @@ export function PropertiesView() {
     })
   }, [search, statusFilter, channelFilter])
 
-  const totalPages = Math.ceil(filteredData.length / rowsPerPage) || 1
-  const paginatedData = filteredData.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+  const totalPages = Math.ceil(rootProperties.length / rowsPerPage) || 1
+  const paginatedRoots = rootProperties.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1)
@@ -132,6 +147,15 @@ export function PropertiesView() {
 
   const toggleColumn = (id: string) => {
     setVisibleCols(prev => ({ ...prev, [id]: !prev[id] }))
+  }
+
+  const toggleExpand = (id: string) => {
+    setExpandedParents(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
   }
 
   const activeStatusLabel = STATUS_OPTIONS.find(o => o.value === statusFilter)?.label
@@ -257,75 +281,157 @@ export function PropertiesView() {
               </tr>
             </thead>
             <tbody>
-              {paginatedData.length === 0 ? (
+              {paginatedRoots.length === 0 ? (
                 <tr>
                   <td colSpan={Object.values(visibleCols).filter(Boolean).length + 1} style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--muted-foreground)' }}>
                     No properties found matching your criteria.
                   </td>
                 </tr>
               ) : (
-                paginatedData.map(prop => (
-                  <tr key={prop.id} className={styles.tr}>
-                    {visibleCols.listing && (
-                    <td className={styles.td}>
-                        <div className={styles.listingCell}>
-                        <img src={prop.image} alt="" className={styles.thumbnail} />
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <div className={styles.cellPrimary}>{prop.name}</div>
-                            <div className={styles.cellSecondary}>{prop.location}</div>
-                        </div>
-                        </div>
-                    </td>
-                    )}
-                    
-                    {visibleCols.id && (
-                      <td className={styles.td}><span className={styles.cellSecondary}>{prop.id}</span></td>
-                    )}
-                    
-                    {visibleCols.type && (
-                      <td className={styles.td}>
-                        <span style={{ textTransform: 'capitalize' }} className={styles.cellPrimary}>{prop.type}</span>
-                      </td>
-                    )}
-                    
-                    {visibleCols.capacity && (
-                      <td className={styles.td}>
-                        <div className={styles.cellPrimary}>{prop.bedrooms} Bed</div>
-                        <div className={styles.cellSecondary}>{prop.bathrooms} Bath</div>
-                      </td>
-                    )}
-                    
-                    {visibleCols.location && (
-                      <td className={styles.td}>
-                        <span className={styles.cellSecondary}>{prop.location}</span>
-                      </td>
-                    )}
-                    
-                    {visibleCols.channels && (
-                      <td className={styles.td}>
-                        {prop.channels.length > 0 ? renderChannelCluster(prop.channels) : <span className={styles.cellSecondary}>None</span>}
-                      </td>
-                    )}
-                    
-                    {visibleCols.status && (
-                      <td className={styles.td}>{getStatusBadge(prop.status)}</td>
-                    )}
+                paginatedRoots.map(prop => {
+                  const isExpanded = expandedParents.has(prop.id)
+                  const children = childrenMap.get(prop.id) || []
+                  // const hasChildren = prop.type === 'parent' && children.length > 0
 
-                    <td className={styles.td}>
-                      <div className={styles.actionsCell}>
-                        <Button variant="secondary" size="icon" aria-label="View in Calendar">
-                          <Calendar size={14} />
-                        </Button>
-                        <Button variant="secondary" size="icon" aria-label="View Booking Site">
-                          <Globe size={14} />
-                        </Button>
-                        <Button variant="ghost" size="icon" aria-label="More actions">
-                          <MoreHorizontal size={14} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                  return (
+                    <Fragment key={prop.id}>
+                      <tr 
+                        className={cx(styles.tr, prop.type === 'parent' && styles.rowParent)}
+                        onClick={() => prop.type === 'parent' && toggleExpand(prop.id)}
+                      >
+                        {visibleCols.listing && (
+                        <td className={styles.td}>
+                            <div className={styles.listingCell}>
+                              {prop.type === 'parent' ? (
+                                <ChevronRightIcon 
+                                  size={16} 
+                                  className={cx(styles.expandIcon, isExpanded && styles.expandIconExpanded)} 
+                                />
+                              ) : (
+                                <div style={{ width: '16px', marginRight: '0.25rem', flexShrink: 0 }} /> 
+                              )}
+                              <img src={prop.image} alt="" className={styles.thumbnail} />
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <div className={styles.cellPrimary}>{prop.name}</div>
+                                  <div className={styles.cellSecondary}>{prop.location}</div>
+                              </div>
+                            </div>
+                        </td>
+                        )}
+                        
+                        {visibleCols.id && (
+                          <td className={styles.td}><span className={styles.cellSecondary}>{prop.id}</span></td>
+                        )}
+                        
+                        {visibleCols.type && (
+                          <td className={styles.td}>
+                            <span style={{ textTransform: 'capitalize' }} className={styles.cellPrimary}>{prop.type}</span>
+                          </td>
+                        )}
+                        
+                        {visibleCols.capacity && (
+                          <td className={styles.td}>
+                            <div className={styles.cellPrimary}>{prop.bedrooms} Bed</div>
+                            <div className={styles.cellSecondary}>{prop.bathrooms} Bath</div>
+                          </td>
+                        )}
+                        
+                        {visibleCols.location && (
+                          <td className={styles.td}>
+                            <span className={styles.cellSecondary}>{prop.location}</span>
+                          </td>
+                        )}
+                        
+                        {visibleCols.channels && (
+                          <td className={styles.td}>
+                            {prop.channels.length > 0 ? renderChannelCluster(prop.channels) : <span className={styles.cellSecondary}>None</span>}
+                          </td>
+                        )}
+                        
+                        {visibleCols.status && (
+                          <td className={styles.td}>{getStatusBadge(prop.status)}</td>
+                        )}
+
+                        <td className={styles.td}>
+                          <div className={styles.actionsCell} onClick={e => e.stopPropagation()}>
+                            <Button variant="secondary" size="icon" aria-label="View in Calendar">
+                              <Calendar size={14} />
+                            </Button>
+                            <Button variant="secondary" size="icon" aria-label="View Booking Site">
+                              <Globe size={14} />
+                            </Button>
+                            <Button variant="ghost" size="icon" aria-label="More actions">
+                              <MoreHorizontal size={14} />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {isExpanded && children.map((child, index) => (
+                        <tr 
+                          key={child.id} 
+                          className={cx(styles.tr, styles.rowChild, index === children.length - 1 && styles.lastChild)}
+                        >
+                          {visibleCols.listing && (
+                            <td className={styles.td}>
+                                <div className={styles.childListingCell}>
+                                  <img src={child.image} alt="" className={styles.childThumbnail} />
+                                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                      <div className={styles.cellPrimary}>{child.name}</div>
+                                      <div className={styles.cellSecondary}>Unit ID: {child.id}</div>
+                                  </div>
+                                </div>
+                            </td>
+                          )}
+                          
+                          {visibleCols.id && (
+                            <td className={styles.td}><span className={styles.cellSecondary}>{child.id}</span></td>
+                          )}
+                          
+                          {visibleCols.type && (
+                            <td className={styles.td}>
+                              <span style={{ textTransform: 'capitalize' }} className={styles.cellSecondary}>{child.type}</span>
+                            </td>
+                          )}
+                          
+                          {visibleCols.capacity && (
+                            <td className={styles.td}>
+                              <div className={styles.cellPrimary}>{child.bedrooms} Bed</div>
+                              <div className={styles.cellSecondary}>{child.bathrooms} Bath</div>
+                            </td>
+                          )}
+                          
+                          {visibleCols.location && (
+                            <td className={styles.td}>
+                              <span className={styles.cellSecondary}>{child.location}</span>
+                            </td>
+                          )}
+                          
+                          {visibleCols.channels && (
+                            <td className={styles.td}>
+                              {child.channels.length > 0 ? renderChannelCluster(child.channels) : <span className={styles.cellSecondary}>None</span>}
+                            </td>
+                          )}
+                          
+                          {visibleCols.status && (
+                            <td className={styles.td}>{getStatusBadge(child.status)}</td>
+                          )}
+
+                          <td className={styles.td}>
+                            <div className={styles.actionsCell}>
+                              <Button variant="secondary" size="icon" aria-label="View in Calendar">
+                                <Calendar size={14} />
+                              </Button>
+                              <Button variant="ghost" size="icon" aria-label="More actions">
+                                <MoreHorizontal size={14} />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </Fragment>
+                  )
+                })
               )}
             </tbody>
           </table>
@@ -341,7 +447,7 @@ export function PropertiesView() {
                 onClick={() => setShowRowsMenu(!showRowsMenu)}
                 style={{ width: '64px', justifyContent: 'space-between' }}
               >
-                {rowsPerPage} <ChevronDown size={12} className="text-muted-foreground" />
+                {rowsPerPage} <ChevronUp size={12} className="text-muted-foreground" />
               </Button>
               {showRowsMenu && (
                 <div className={cx(styles.customMenu, styles.alignTop)} style={{ minWidth: 'auto', width: '100%' }}>
@@ -367,8 +473,8 @@ export function PropertiesView() {
 
           <div className={styles.pageControls}>
             <span className={styles.pageInfo}>
-              {filteredData.length === 0 ? 0 : ((currentPage - 1) * rowsPerPage) + 1}-
-              {Math.min(currentPage * rowsPerPage, filteredData.length)} of {filteredData.length}
+              {rootProperties.length === 0 ? 0 : ((currentPage - 1) * rowsPerPage) + 1}-
+              {Math.min(currentPage * rowsPerPage, rootProperties.length)} of {rootProperties.length}
             </span>
             <div className={styles.buttons}>
               <Button 

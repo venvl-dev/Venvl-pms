@@ -274,3 +274,68 @@
   align-items: center;
   gap: var(--space-2);
 }
+
+
+.rowParent {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.rowParent:hover .td {
+  background: color-mix(in oklab, var(--muted) 80%, transparent);
+}
+
+.rowChild .td {
+  background: color-mix(in oklab, var(--muted) 30%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+}
+
+.rowChild:hover .td {
+  background: var(--muted);
+}
+
+/* Visually disconnect the last child from the next parent slightly */
+.rowChild.lastChild .td {
+  border-bottom: 1px solid var(--border);
+}
+
+.childListingCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-left: 2.75rem; 
+  position: relative;
+}
+
+/* L-shaped connector for child rows */
+.childListingCell::before {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  top: -1rem;
+  bottom: 50%;
+  width: 12px;
+  border-left: 2px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.childThumbnail {
+  width: 105px;       
+  height: 70px;      
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.expandIcon {
+  color: var(--muted-foreground);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  margin-right: 0.25rem;
+}
+
+.expandIconExpanded {
+  transform: rotate(90deg);
+}
