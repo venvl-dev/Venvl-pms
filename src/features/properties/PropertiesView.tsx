@@ -265,6 +265,7 @@ export function PropertiesView() {
         </div>
       </div>
 
+      {/* --- DESKTOP TABLE VIEW --- */}
       <div className={styles.tableCard}>
         <div className={cx(styles.tableScroll, 'no-scrollbar')}>
           <table className={styles.table}>
@@ -291,7 +292,6 @@ export function PropertiesView() {
                 paginatedRoots.map(prop => {
                   const isExpanded = expandedParents.has(prop.id)
                   const children = childrenMap.get(prop.id) || []
-                  // const hasChildren = prop.type === 'parent' && children.length > 0
 
                   return (
                     <Fragment key={prop.id}>
@@ -436,64 +436,156 @@ export function PropertiesView() {
             </tbody>
           </table>
         </div>
+      </div>
 
-        <div className={styles.pagination}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <span className={styles.pageInfo}>Rows per page</span>
-            <div className={styles.customDropdown} ref={rowsRef}>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowRowsMenu(!showRowsMenu)}
-                style={{ width: '64px', justifyContent: 'space-between' }}
-              >
-                {rowsPerPage} <ChevronUp size={12} className="text-muted-foreground" />
-              </Button>
-              {showRowsMenu && (
-                <div className={cx(styles.customMenu, styles.alignTop)} style={{ minWidth: 'auto', width: '100%' }}>
-                  {[5, 10, 20, 50].map(num => (
-                    <div 
-                      key={num}
-                      className={styles.customMenuItem}
-                      data-active={rowsPerPage === num}
-                      onClick={() => {
-                        setRowsPerPage(num)
-                        setCurrentPage(1)
-                        setShowRowsMenu(false)
-                      }}
-                      style={{ textAlign: 'center' }}
-                    >
-                      {num}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+      <div className={styles.mobileList}>
+        {paginatedRoots.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--muted-foreground)' }}>
+            No properties found matching your criteria.
           </div>
+        ) : (
+          paginatedRoots.map(prop => {
+            const isExpanded = expandedParents.has(prop.id)
+            const children = childrenMap.get(prop.id) || []
 
-          <div className={styles.pageControls}>
-            <span className={styles.pageInfo}>
-              {rootProperties.length === 0 ? 0 : ((currentPage - 1) * rowsPerPage) + 1}-
-              {Math.min(currentPage * rowsPerPage, rootProperties.length)} of {rootProperties.length}
-            </span>
-            <div className={styles.buttons}>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(p => p - 1)}
-              >
-                <ChevronLeft size={16} />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                disabled={currentPage === totalPages || totalPages === 0}
-                onClick={() => setCurrentPage(p => p + 1)}
-              >
-                <ChevronRight size={16} />
-              </Button>
-            </div>
+            return (
+              <div key={prop.id} className={styles.mobileCardWrap}>
+                <div 
+                  className={cx(prop.type === 'parent' && styles.isParent)}
+                >
+                  <div 
+                    className={styles.mobileCardTop}
+                    onClick={() => prop.type === 'parent' && toggleExpand(prop.id)}
+                  >
+                    <img src={prop.image} alt="" className={styles.mobileCardImage} />
+                    
+                    <div className={styles.mobileCardInfo}>
+                      <div className={styles.mobileCardTitleRow}>
+                        <div>
+                          <div className={styles.mobileCardTitle}>{prop.name}</div>
+                          <div className={styles.mobileCardSub}>{prop.location}</div>
+                        </div>
+                        {prop.type === 'parent' ? (
+                          <ChevronRightIcon 
+                            size={20} 
+                            className={cx(styles.expandIcon, isExpanded && styles.expandIconExpanded)} 
+                          />
+                        ) : (
+                          <Button variant="ghost" size="icon" style={{ width: '28px', height: '28px', margin: '-4px' }}>
+                            <MoreHorizontal size={16} />
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <div className={styles.mobileCardMetrics}>
+                        <div className={styles.mobileCardMetric}>
+                          <span style={{ textTransform: 'capitalize' }}>{prop.type}</span>
+                        </div>
+                        <div className={styles.mobileCardMetric}>
+                          • {prop.bedrooms} Bed, {prop.bathrooms} Bath
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.mobileCardBottom}>
+                    {prop.channels.length > 0 ? renderChannelCluster(prop.channels) : <span className={styles.mobileCardSub}>No channels</span>}
+                    {getStatusBadge(prop.status)}
+                  </div>
+                </div>
+
+                {isExpanded && children.length > 0 && (
+                  <div className={styles.mobileChildren} onClick={e => e.stopPropagation()}>
+                    {children.map((child, index) => (
+                      <div key={child.id} className={cx(styles.mobileChildCard, index === children.length - 1 && styles.lastChild)}>
+                        <img src={child.image} alt="" className={styles.mobileChildImage} />
+                        
+                        <div className={styles.mobileCardInfo}>
+                          <div className={styles.mobileCardTitleRow}>
+                            <div>
+                              <div className={styles.mobileCardTitle}>{child.name}</div>
+                              <div className={styles.mobileCardSub}>Unit ID: {child.id}</div>
+                            </div>
+                            <Button variant="ghost" size="icon" style={{ width: '24px', height: '24px', margin: '-4px' }}>
+                              <MoreHorizontal size={14} />
+                            </Button>
+                          </div>
+                          
+                          <div className={styles.mobileCardMetrics} style={{ marginTop: '0.25rem', paddingTop: 0 }}>
+                            <div className={styles.mobileCardMetric}>
+                              {child.bedrooms} Bed
+                            </div>
+                            <div style={{ transform: 'scale(0.8)', transformOrigin: 'left center' }}>
+                              {getStatusBadge(child.status)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      <div className={styles.pagination}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <span className={styles.pageInfo}>Rows per page</span>
+          <div className={styles.customDropdown} ref={rowsRef}>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowRowsMenu(!showRowsMenu)}
+              style={{ width: '64px', justifyContent: 'space-between' }}
+            >
+              {rowsPerPage} <ChevronUp size={12} className="text-muted-foreground" />
+            </Button>
+            {showRowsMenu && (
+              <div className={cx(styles.customMenu, styles.alignTop)} style={{ minWidth: 'auto', width: '100%' }}>
+                {[5, 10, 20, 50].map(num => (
+                  <div 
+                    key={num}
+                    className={styles.customMenuItem}
+                    data-active={rowsPerPage === num}
+                    onClick={() => {
+                      setRowsPerPage(num)
+                      setCurrentPage(1)
+                      setShowRowsMenu(false)
+                    }}
+                    style={{ textAlign: 'center' }}
+                  >
+                    {num}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.pageControls}>
+          <span className={styles.pageInfo}>
+            {rootProperties.length === 0 ? 0 : ((currentPage - 1) * rowsPerPage) + 1}-
+            {Math.min(currentPage * rowsPerPage, rootProperties.length)} of {rootProperties.length}
+          </span>
+          <div className={styles.buttons}>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => p - 1)}
+            >
+              <ChevronLeft size={16} />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              disabled={currentPage === totalPages || totalPages === 0}
+              onClick={() => setCurrentPage(p => p + 1)}
+            >
+              <ChevronRight size={16} />
+            </Button>
           </div>
         </div>
       </div>
