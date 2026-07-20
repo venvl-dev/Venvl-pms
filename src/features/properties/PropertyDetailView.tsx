@@ -155,33 +155,37 @@ export function PropertyDetailView() {
 
       <div className={styles.layout}>
         <div className={styles.mainCol}>
-          <section className={styles.card}>
-            <h2 className={styles.cardTitle}>About this listing</h2>
-            <details className={styles.descBox}>
-              <summary className={styles.descSummary}>
-                <span className={styles.descText}>{property.description}</span>
-                <span className={styles.seeMore} />
-              </summary>
-            </details>
-          </section>
+          {property.description && (
+            <section className={styles.card}>
+              <h2 className={styles.cardTitle}>About this listing</h2>
+              <details className={styles.descBox}>
+                <summary className={styles.descSummary}>
+                  <span className={styles.descText}>{property.description}</span>
+                  <span className={styles.seeMore} />
+                </summary>
+              </details>
+            </section>
+          )}
 
-          <section className={styles.card}>
-            <h2 className={styles.cardTitle}>Additional info</h2>
-            <div className={styles.policyGrid}>
-              {property.additionalInfo.cancellationPolicies.map((p) => (
-                <PolicyBlock key={p.channel} channel={p.channel} policy={p.policy} />
-              ))}
-            </div>
-            <div className={styles.infoList}>
-              <InfoRow label="Check-in instructions" value={property.additionalInfo.checkInInstructions} />
-              <InfoRow label="Listing address" value={property.additionalInfo.listingAddress} />
-              <InfoRow label="WiFi details" value={property.additionalInfo.wifiDetails} />
-            </div>
-          </section>
+          {property.additionalInfo && (
+            <section className={styles.card}>
+              <h2 className={styles.cardTitle}>Additional info</h2>
+              <div className={styles.policyGrid}>
+                {property.additionalInfo.cancellationPolicies.map((p) => (
+                  <PolicyBlock key={p.channel} channel={p.channel} policy={p.policy} />
+                ))}
+              </div>
+              <div className={styles.infoList}>
+                <InfoRow label="Check-in instructions" value={property.additionalInfo.checkInInstructions} />
+                <InfoRow label="Listing address" value={property.additionalInfo.listingAddress} />
+                <InfoRow label="WiFi details" value={property.additionalInfo.wifiDetails} />
+              </div>
+            </section>
+          )}
 
           <section className={styles.card}>
             <h2 className={styles.cardTitle}>Amenities</h2>
-            {property.amenities.length > 0 ? (
+            {property.amenities && property.amenities.length > 0 ? (
               <div className={styles.amenityGrid}>
                 {property.amenities.map((amenity) => (
                   <Amenity key={amenity} label={amenity} />
@@ -196,21 +200,23 @@ export function PropertyDetailView() {
         </div>
 
         <aside className={styles.sideCol}>
-          <section className={styles.card}>
-            <h2 className={styles.cardTitle}>Prices</h2>
-            <div className={styles.priceGrid}>
-              <PriceRow label="Price" value={`${property.pricing.price} $`} />
-              <PriceRow label="Price for extra person" value={property.pricing.priceForExtraPerson} />
-              <PriceRow label="Weekly Discount" value={`${property.pricing.weeklyDiscount}%`} />
-              <PriceRow label="Property rent tax %" value={pct(property.pricing.propertyRentTax)} />
-              <PriceRow label="Apply price for extra person after" value={property.pricing.applyExtraPersonAfter} />
-              <PriceRow label="Fixed guest tax per-person, per-night" value={dash(property.pricing.fixedGuestTaxPerNight)} />
-              <PriceRow label="Fixed tax per reservation" value={dash(property.pricing.fixedTaxPerReservation)} />
-              <PriceRow label="Monthly Discount" value={`${property.pricing.monthlyDiscount}%`} />
-              <PriceRow label="Fixed nightly tax" value={dash(property.pricing.fixedNightlyTax)} />
-              <PriceRow label="Refundable Damage Deposit fee" value={property.pricing.refundableDamageDeposit} />
-            </div>
-          </section>
+          {property.pricing && (
+            <section className={styles.card}>
+              <h2 className={styles.cardTitle}>Prices</h2>
+              <div className={styles.priceGrid}>
+                <PriceRow label="Price" value={`${property.pricing.price} $`} />
+                <PriceRow label="Price for extra person" value={property.pricing.priceForExtraPerson} />
+                <PriceRow label="Weekly Discount" value={`${property.pricing.weeklyDiscount}%`} />
+                <PriceRow label="Property rent tax %" value={pct(property.pricing.propertyRentTax)} />
+                <PriceRow label="Apply price for extra person after" value={property.pricing.applyExtraPersonAfter} />
+                <PriceRow label="Fixed guest tax per-person, per-night" value={dash(property.pricing.fixedGuestTaxPerNight)} />
+                <PriceRow label="Fixed tax per reservation" value={dash(property.pricing.fixedTaxPerReservation)} />
+                <PriceRow label="Monthly Discount" value={`${property.pricing.monthlyDiscount}%`} />
+                <PriceRow label="Fixed nightly tax" value={dash(property.pricing.fixedNightlyTax)} />
+                <PriceRow label="Refundable Damage Deposit fee" value={property.pricing.refundableDamageDeposit} />
+              </div>
+            </section>
+          )}
    <section className={styles.card}>
             <h2 className={styles.cardTitle}>Connected Channels</h2>
             {property.channels.length > 0 ? (
