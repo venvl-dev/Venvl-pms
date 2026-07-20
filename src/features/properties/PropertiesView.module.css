@@ -217,6 +217,9 @@
   align-items: center;
   gap: var(--space-3);
 }
+.listingCell:hover{
+  text-decoration: underline;
+}
 
 .thumbnail {
   width: 120px;

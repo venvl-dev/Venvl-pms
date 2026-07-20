@@ -1,0 +1,16 @@
+
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--icon-size, 20px);
+  height: var(--icon-size, 20px);
+  color: var(--icon-color, currentColor);
+}
+
+/* Filled variant (e.g. a solid rating star): the inner SVG inherits `fill`. */
+.filled {
+  fill: currentColor;
+}

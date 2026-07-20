@@ -9,6 +9,7 @@ import { DashboardView } from '@/features/dashboard/DashboardView'
 import { MODULES } from './modules'
 import { ReservationsView } from '@/features/reservations/ReservationsView'
 import { PropertiesView } from '@/features/properties/PropertiesView'
+import { PropertyDetailView } from '@/features/properties/PropertyDetailView'
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }
@@ -27,7 +28,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <DashboardLayout />,
-        children: [...moduleRoutes, { path: '*', element: <ModulePlaceholder /> }],
+        children: [...moduleRoutes,
+          {path:'properties/:propertyId',element:<PropertyDetailView/>},
+          { path: '*', element: <ModulePlaceholder /> }],
       },
     ],
   },

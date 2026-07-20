@@ -9,7 +9,8 @@ import {
   ChevronRight,
   ChevronDown,
   Globe,
-  Calendar
+  Calendar,
+  Pointer
 } from 'lucide-react'
 import { Button } from '@/components/core/Button'
 import { Input } from '@/components/core/Input'
@@ -17,6 +18,7 @@ import { Badge } from '@/components/core/Badge'
 import { cx } from '@/lib/cx'
 import { MOCK_PROPERTIES, type Property, type BookingChannel } from './mockProperties'
 import styles from './PropertiesView.module.css'
+import { useNavigate } from 'react-router-dom'
 
 const ALL_COLUMNS = [
   { id: 'listing', label: 'Listing', defaultVisible: true },
@@ -94,7 +96,7 @@ export function PropertiesView() {
     ALL_COLUMNS.forEach(col => initial[col.id] = col.defaultVisible)
     return initial
   })
-
+   const navigate=useNavigate()
   // Refs for outside clicks
   const statusRef = useRef<HTMLDivElement>(null)
   const channelRef = useRef<HTMLDivElement>(null)
@@ -268,7 +270,13 @@ export function PropertiesView() {
                   <tr key={prop.id} className={styles.tr}>
                     {visibleCols.listing && (
                     <td className={styles.td}>
-                        <div className={styles.listingCell}>
+                        <div  className={styles.listingCell} 
+                        tabIndex={0}
+                        style={{cursor:'Pointer'}}
+                        role='button'
+                        onClick={()=>navigate(`/properties/${prop.id}`)}
+                        onKeyDown={(e)=>{if(e.key==='Enter')navigate(`/properties/${prop.id}`)}}
+                        >
                         <img src={prop.image} alt="" className={styles.thumbnail} />
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <div className={styles.cellPrimary}>{prop.name}</div>

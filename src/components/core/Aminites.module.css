@@ -1,0 +1,27 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.muted {
+  opacity: 0.45;
+}
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--success) 12%, transparent);
+  flex: 0 0 auto;
+}
+.label {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--foreground);
+}
+.mutedLabel {
+  text-decoration: line-through;
+}
