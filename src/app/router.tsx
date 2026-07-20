@@ -10,11 +10,13 @@ import { MODULES } from './modules'
 import { ReservationsView } from '@/features/reservations/ReservationsView'
 import { PropertiesView } from '@/features/properties/PropertiesView'
 import { PropertyDetailView } from '@/features/properties/PropertyDetailView'
+import { MultiCalendarView } from '@/features/calendar/MultiCalendarView'
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }
   if (m.path === '/reservations') return { path: 'reservations', element: <ReservationsView /> }
   if (m.path === '/properties') return { path: 'properties', element: <PropertiesView /> }
+  if (m.path === '/calendar') return { path: 'calendar', element: <MultiCalendarView /> }
   return { path: m.path.slice(1), element: <ModulePlaceholder /> }
 })
 

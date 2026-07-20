@@ -1,0 +1,512 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: calc(100vh - 6rem);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+  margin-top: var(--space-1);
+}
+
+.metrics {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  background: var(--card);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.navGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dateRange {
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+  min-width: 140px;
+  text-align: center;
+}
+
+.segmentControl {
+  display: flex;
+  background: var(--muted);
+  border-radius: var(--radius-md);
+  padding: 2px;
+}
+
+.segmentBtn {
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-md) - 2px);
+  padding: 0.25rem 0.75rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.segmentBtn[data-active="true"] {
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Dropdown specifics for Toolbar */
+.customDropdown {
+  position: relative;
+}
+
+.customMenu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  min-width: 160px;
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-2);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.customMenuItem {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s;
+}
+
+.customMenuItem:hover {
+  background: var(--muted);
+}
+
+.customMenuItem[data-active="true"] {
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: var(--primary);
+  font-weight: var(--font-medium);
+}
+
+/* ==========================================================================
+   DAY VIEW (CSS GRID GANTT CHART)
+   ========================================================================== */
+
+.calendarCard {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.gridScroll {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  background: var(--background);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 260px repeat(var(--total-days), 120px);
+  grid-auto-rows: 72px; 
+  min-width: max-content;
+  background: white;
+}
+
+.stickyCol {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+}
+
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  height: 60px; 
+}
+
+.corner {
+  z-index: 30; 
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  color: var(--muted-foreground);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.dateCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+}
+
+.dateDay {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+}
+
+.dateNum {
+  font-weight: var(--font-semibold);
+  color: var(--foreground);
+}
+
+.listingCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.listingImage {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.listingInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.listingName {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listingMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--success);
+}
+
+.emptyCellWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px; /* Matches the padding of .bookingWrap to align perfectly */
+  border-bottom: 1px solid var(--border);
+  z-index: 1; 
+}
+
+.emptyCell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--muted) 60%, var(--card));
+  border-radius: var(--radius-xl);
+  font-size: 11px;
+  font-weight: var(--font-medium);
+  color: var(--muted-foreground);
+  transition: background-color 0.15s;
+}
+
+.emptyCell:hover {
+  background: var(--muted);
+  cursor: pointer;
+}
+
+.bookingWrap {
+  display: flex;
+  align-items: center;
+  padding: 6px 4px; 
+  z-index: 5; 
+  border-bottom: 1px solid var(--border);
+}
+
+.pill {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+  transition: filter 0.15s;
+}
+
+.pill:hover {
+  filter: brightness(0.95);
+}
+
+.pillClippedLeft {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 2px solid rgba(0,0,0,0.2);
+}
+
+.pillClippedRight {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 2px solid rgba(0,0,0,0.2);
+}
+
+.pillContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.guestName {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.guestCount {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.channelIcon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.channel_airbnb {
+  background: #ffe6e9;
+  color: black;
+  border-left: 4px solid #ff385c;
+}
+.channel_airbnb .channelIcon { color: #ff385c; font-family: serif; font-style: italic; }
+
+.channel_booking_com {
+  background: #e6f0ff;
+  color: black;
+  border-left: 4px solid #003580;
+}
+.channel_booking_com .channelIcon { color: #003580; font-family: sans-serif; font-weight: 900;}
+
+/* FIXED: Mixes with --card to be 100% opaque and block out the empty cell background */
+.channel_direct {
+  background: color-mix(in oklab, var(--primary) 15%, var(--card));
+  color: black;
+  border-left: 4px solid color-mix(in oklab, var(--primary) 30%, transparent);
+}
+.channel_direct .channelIcon { color: var(--primary); }
+
+/* ==========================================================================
+   MONTH VIEW (AGGREGATE CALENDAR)
+   ========================================================================== */
+
+.monthViewWrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+  background: var(--background);
+}
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.monthHeader {
+  background: var(--muted);
+  padding: var(--space-3);
+  text-align: center;
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.monthCell {
+  background: var(--card);
+  min-height: 120px;
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+}
+
+.monthCellEmpty {
+  background: color-mix(in oklab, var(--muted) 50%, var(--card));
+}
+
+.monthDate {
+  align-self: flex-end;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--foreground);
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+}
+
+.monthDateToday {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.monthData {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.monthDataBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in oklab, var(--success) 15%, var(--card));
+  color: var(--success);
+  font-weight: var(--font-semibold);
+}
+
+.monthDataBadgeEmpty {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-weight: var(--font-medium);
+}
+
+/* ==========================================================================
+   YEAR VIEW (AGGREGATE DASHBOARD)
+   ========================================================================== */
+
+.yearGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+.yearCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 180px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.yearCard:hover {
+  border-color: var(--ring);
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
+.yearMonthName {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--foreground);
+}
+
+.yearData {
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+}
