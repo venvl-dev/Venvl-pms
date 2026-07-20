@@ -357,9 +357,6 @@ export function PropertiesView() {
                             <Button variant="secondary" size="icon" aria-label="View in Calendar">
                               <Calendar size={14} />
                             </Button>
-                            <Button variant="secondary" size="icon" aria-label="View Booking Site">
-                              <Globe size={14} />
-                            </Button>
                             <Button variant="ghost" size="icon" aria-label="More actions">
                               <MoreHorizontal size={14} />
                             </Button>
@@ -531,7 +528,7 @@ export function PropertiesView() {
       </div>
 
       <div className={styles.pagination}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+        <div className={styles.rowsPerPage}>
           <span className={styles.pageInfo}>Rows per page</span>
           <div className={styles.customDropdown} ref={rowsRef}>
             <Button 
@@ -565,28 +562,28 @@ export function PropertiesView() {
         </div>
 
         <div className={styles.pageControls}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => p - 1)}
+          >
+            <ChevronLeft size={16} />
+          </Button>
+          
           <span className={styles.pageInfo}>
             {rootProperties.length === 0 ? 0 : ((currentPage - 1) * rowsPerPage) + 1}-
             {Math.min(currentPage * rowsPerPage, rootProperties.length)} of {rootProperties.length}
           </span>
-          <div className={styles.buttons}>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
-            >
-              <ChevronLeft size={16} />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              disabled={currentPage === totalPages || totalPages === 0}
-              onClick={() => setCurrentPage(p => p + 1)}
-            >
-              <ChevronRight size={16} />
-            </Button>
-          </div>
+          
+          <Button 
+            variant="outline" 
+            size="icon" 
+            disabled={currentPage === totalPages || totalPages === 0}
+            onClick={() => setCurrentPage(p => p + 1)}
+          >
+            <ChevronRight size={16} />
+          </Button>
         </div>
       </div>
     </div>

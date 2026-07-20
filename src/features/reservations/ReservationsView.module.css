@@ -204,6 +204,7 @@
   padding: var(--space-3) var(--space-4);
   background: var(--card);
   border-top: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
 }
 
 .pageControls {
@@ -271,4 +272,185 @@
   background: color-mix(in oklab, var(--primary) 10%, transparent);
   color: var(--primary);
   font-weight: var(--font-medium);
+}
+
+.rowsPerPage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+
+/* Hidden on desktop by default */
+.mobileList {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mobileCardWrap {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+  gap: var(--space-3);
+}
+
+.mobileCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.mobileCardTitle {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--foreground);
+  line-height: var(--leading-tight);
+}
+
+.mobileCardProperty {
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  font-weight: var(--font-medium);
+  margin-top: 2px;
+}
+
+.mobileCardUnit {
+  font-size: var(--text-xs);
+  color: var(--muted-foreground);
+}
+
+.mobileCardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  background: var(--muted);
+  padding: var(--space-3);
+  border-radius: var(--radius-xl);
+}
+
+.mobileCardGridCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mobileCardLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted-foreground);
+  font-weight: var(--font-semibold);
+}
+
+.mobileCardValue {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--foreground);
+}
+
+.mobileCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-1);
+}
+
+.mobileCardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mobileCardId {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--muted-foreground);
+}
+
+.mobileCardChannel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted-foreground);
+}
+
+.mobileCardActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* --- Media Queries --- */
+@media (max-width: 768px) {
+  .tableCard {
+    display: none;
+  }
+  .mobileList {
+    display: flex;
+  }
+  
+  .actions {
+    display: none;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+  
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .searchWrap {
+    max-width: 100%;
+  }
+
+  .filters > div:last-child {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+  
+  .filters .customDropdown {
+    width: 100%;
+  }
+  
+  .filters .customDropdown button {
+    width: 100% !important;
+  }
+
+  .pagination {
+    flex-direction: column-reverse; 
+    gap: 0;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-2);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .pageControls {
+    width: 100%;
+    justify-content: space-between; 
+    padding-bottom: var(--space-3);
+  }
+
+  .rowsPerPage {
+    width: 100%;
+    justify-content: space-between; 
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
+  }
 }

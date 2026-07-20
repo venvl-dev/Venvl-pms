@@ -180,6 +180,7 @@ export function ReservationsView() {
         </div>
       </div>
 
+      {/* --- DESKTOP TABLE VIEW --- */}
       <div className={styles.tableCard}>
         <div className={cx(styles.tableScroll, 'no-scrollbar')}>
           <table className={styles.table}>
@@ -256,67 +257,124 @@ export function ReservationsView() {
             </tbody>
           </table>
         </div>
+      </div>
 
-        <div className={styles.pagination}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <span className={styles.pageInfo}>Rows per page</span>
-            
-            <div className={styles.customDropdown} ref={rowsRef}>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowRowsMenu(!showRowsMenu)}
-                style={{ width: '64px', justifyContent: 'space-between' }}
-              >
-                {rowsPerPage} <ChevronDown size={12} className="text-muted-foreground" />
-              </Button>
-              {showRowsMenu && (
-                <div className={cx(styles.customMenu, styles.alignTop)} style={{ minWidth: 'auto', width: '100%' }}>
-                  {[5, 10, 20, 50].map(num => (
-                    <div 
-                      key={num}
-                      className={styles.customMenuItem}
-                      data-active={rowsPerPage === num}
-                      onClick={() => {
-                        setRowsPerPage(num)
-                        setCurrentPage(1)
-                        setShowRowsMenu(false)
-                      }}
-                      style={{ textAlign: 'center' }}
-                    >
-                      {num}
-                    </div>
-                  ))}
+      {/* --- MOBILE CARD VIEW --- */}
+      <div className={styles.mobileList}>
+        {paginatedData.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--muted-foreground)' }}>
+            No reservations found matching your criteria.
+          </div>
+        ) : (
+          paginatedData.map(res => (
+            <div key={res.id} className={styles.mobileCardWrap}>
+              <div className={styles.mobileCardHeader}>
+                <div>
+                  <div className={styles.mobileCardTitle}>{res.guestName}</div>
+                  <div className={styles.mobileCardProperty}>
+                    {res.property} <span className={styles.mobileCardUnit}>• {res.unit}</span>
+                  </div>
                 </div>
-              )}
-            </div>
+                <div>{getStatusBadge(res.status)}</div>
+              </div>
 
-          </div>
+              <div className={styles.mobileCardGrid}>
+                <div className={styles.mobileCardGridCol}>
+                  <span className={styles.mobileCardLabel}>Check-in / Out</span>
+                  <span className={styles.mobileCardValue}>{formatDate(res.checkIn)}</span>
+                  <span className={styles.mobileCardValue} style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
+                    to {formatDate(res.checkOut)}
+                  </span>
+                </div>
+                <div className={styles.mobileCardGridCol} style={{ alignItems: 'flex-end', textAlign: 'right' }}>
+                  <span className={styles.mobileCardLabel}>Balance Due</span>
+                  <span className={styles.mobileCardValue} style={{ marginTop: '2px' }}>
+                    {res.balanceDue > 0 ? (
+                      <Badge variant="warning">{formatCurrency(res.balanceDue)} Due</Badge>
+                    ) : (
+                      <Badge variant="success">Paid</Badge>
+                    )}
+                  </span>
+                </div>
+              </div>
 
-          <div className={styles.pageControls}>
-            <span className={styles.pageInfo}>
-              {filteredData.length === 0 ? 0 : ((currentPage - 1) * rowsPerPage) + 1}-
-              {Math.min(currentPage * rowsPerPage, filteredData.length)} of {filteredData.length}
-            </span>
-            <div className={styles.buttons}>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(p => p - 1)}
-              >
-                <ChevronLeft size={16} />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                disabled={currentPage === totalPages || totalPages === 0}
-                onClick={() => setCurrentPage(p => p + 1)}
-              >
-                <ChevronRight size={16} />
-              </Button>
+              <div className={styles.mobileCardFooter}>
+                <div className={styles.mobileCardMeta}>
+                  <span className={styles.mobileCardId}>{res.id}</span>
+                  <span className={styles.mobileCardChannel}>{res.channel}</span>
+                </div>
+                <div className={styles.mobileCardActions}>
+                  <Button variant="secondary" size="icon" aria-label="View in Calendar">
+                    <Calendar size={14} />
+                  </Button>
+                  <Button variant="ghost" size="icon" aria-label="More actions">
+                    <MoreHorizontal size={14} />
+                  </Button>
+                </div>
+              </div>
             </div>
+          ))
+        )}
+      </div>
+
+      <div className={styles.pagination}>
+        <div className={styles.rowsPerPage}>
+          <span className={styles.pageInfo}>Rows per page</span>
+          
+          <div className={styles.customDropdown} ref={rowsRef}>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowRowsMenu(!showRowsMenu)}
+              style={{ width: '64px', justifyContent: 'space-between' }}
+            >
+              {rowsPerPage} <ChevronDown size={12} className="text-muted-foreground" />
+            </Button>
+            {showRowsMenu && (
+              <div className={cx(styles.customMenu, styles.alignTop)} style={{ minWidth: 'auto', width: '100%' }}>
+                {[5, 10, 20, 50].map(num => (
+                  <div 
+                    key={num}
+                    className={styles.customMenuItem}
+                    data-active={rowsPerPage === num}
+                    onClick={() => {
+                      setRowsPerPage(num)
+                      setCurrentPage(1)
+                      setShowRowsMenu(false)
+                    }}
+                    style={{ textAlign: 'center' }}
+                  >
+                    {num}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        </div>
+
+        <div className={styles.pageControls}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => p - 1)}
+          >
+            <ChevronLeft size={16} />
+          </Button>
+          
+          <span className={styles.pageInfo}>
+            {filteredData.length === 0 ? 0 : ((currentPage - 1) * rowsPerPage) + 1}-
+            {Math.min(currentPage * rowsPerPage, filteredData.length)} of {filteredData.length}
+          </span>
+          
+          <Button 
+            variant="outline" 
+            size="icon" 
+            disabled={currentPage === totalPages || totalPages === 0}
+            onClick={() => setCurrentPage(p => p + 1)}
+          >
+            <ChevronRight size={16} />
+          </Button>
         </div>
       </div>
     </div>

@@ -256,6 +256,7 @@
   padding: var(--space-3) var(--space-4);
   background: var(--card);
   border-top: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
 }
 
 .pageControls {
@@ -337,6 +338,12 @@
 
 .expandIconExpanded {
   transform: rotate(90deg);
+}
+
+.rowsPerPage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 /* Mobile cards */
@@ -507,24 +514,35 @@
     width: 100%;
   }
   
-  .customDropdown button {
-    width: 100% !important;
+  .filters .customDropdown {
+    width: 100%;
   }
 
-  .pagination {
-    flex-direction: column;
-    gap: var(--space-4);
-    align-items: stretch;
-    background: transparent;
-    border: none;
-    padding: 0;
+  .filters .customDropdown button {
+    width: 100% !important;
   }
-  
-  .pagination > div:first-child {
-    justify-content: space-between;
+  .pagination {
+    flex-direction: column-reverse; 
+    gap: 0;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-2);
+    box-shadow: var(--shadow-sm);
   }
   
   .pageControls {
-    justify-content: space-between;
+    width: 100%;
+    justify-content: space-between; 
+    padding-bottom: var(--space-3);
+  }
+
+  .rowsPerPage {
+    width: 100%;
+    justify-content: space-between; 
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
   }
 }
