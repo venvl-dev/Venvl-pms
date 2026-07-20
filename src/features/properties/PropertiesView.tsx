@@ -9,7 +9,6 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronRight as ChevronRightIcon,
-  Globe,
   Calendar,
   ChevronUp
 } from 'lucide-react'
