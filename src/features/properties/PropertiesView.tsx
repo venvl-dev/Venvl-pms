@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/core/Button'
 import { Input } from '@/components/core/Input'
 import { Badge } from '@/components/core/Badge'
+import { Skeleton } from '@/components/core/Skeleton'
 import { cx } from '@/lib/cx'
 import type { Property, BookingChannel } from './types'
 import styles from './PropertiesView.module.css'
@@ -173,8 +174,144 @@ export function PropertiesView() {
   const activeStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label
   const activeChannelLabel = CHANNEL_OPTIONS.find((o) => o.value === channelFilter)?.label
 
+  if (isError) {
+    return <div className={styles.page}>Unable to load properties right now.</div>
+  }
+
   if (isLoading) {
-    return <div className={styles.page}>Loading properties…</div>
+    return (
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Properties</h1>
+          <Button>
+            <Plus size={16} /> Add Property
+          </Button>
+        </header>
+
+        <div className={styles.toolbar}>
+          <div className={styles.filters}>
+            <div className={styles.searchWrap}>
+              <Search size={16} className={styles.searchIcon} />
+              <Input
+                placeholder="Search by name or ID..."
+                className={styles.searchInput}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Filter size={16} className="text-muted-foreground" />
+              <Skeleton style={{ height: '2.5rem', width: '150px' }} />
+              <Skeleton style={{ height: '2.5rem', width: '160px' }} />
+            </div>
+          </div>
+
+          <div className={styles.actions}>
+            <Skeleton style={{ height: '2.5rem', width: '90px' }} />
+          </div>
+        </div>
+
+        <div className={styles.tableCard}>
+          <div className={cx(styles.tableScroll, 'no-scrollbar')}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  {visibleCols.listing && <th className={styles.th}>Listing</th>}
+                  {visibleCols.id && <th className={styles.th}>Property ID</th>}
+                  {visibleCols.type && <th className={styles.th}>Unit Type</th>}
+                  {visibleCols.capacity && <th className={styles.th}>Beds/Baths</th>}
+                  {visibleCols.location && <th className={styles.th}>Location</th>}
+                  {visibleCols.channels && <th className={styles.th}>Channels</th>}
+                  {visibleCols.status && <th className={styles.th}>Status</th>}
+                  <th className={styles.th} style={{ textAlign: 'right' }}>
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: 10 }).map((_, rowIndex) => (
+                  <tr key={rowIndex} className={styles.tr}>
+                    {visibleCols.listing && (
+                      <td className={styles.td}>
+                        <div className={styles.listingCell}>
+                          <Skeleton className={styles.thumbnail} />
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '0.35rem',
+                              flex: 1,
+                            }}
+                          >
+                            <Skeleton style={{ height: '0.95rem', width: '70%' }} />
+                            <Skeleton style={{ height: '0.8rem', width: '50%' }} />
+                          </div>
+                        </div>
+                      </td>
+                    )}
+                    {visibleCols.id && (
+                      <td className={styles.td}>
+                        <Skeleton
+                          className={styles.listingCell}
+                          style={{ height: '1rem', width: '80%' }}
+                        />
+                      </td>
+                    )}
+                    {visibleCols.type && (
+                      <td className={styles.td}>
+                        <Skeleton
+                          className={styles.listingCell}
+                          style={{ height: '1rem', width: '60%' }}
+                        />
+                      </td>
+                    )}
+                    {visibleCols.capacity && (
+                      <td className={styles.td}>
+                        <Skeleton
+                          className={styles.listingCell}
+                          style={{ height: '1rem', width: '70%' }}
+                        />
+                      </td>
+                    )}
+                    {visibleCols.location && (
+                      <td className={styles.td}>
+                        <Skeleton
+                          className={styles.listingCell}
+                          style={{ height: '1rem', width: '85%' }}
+                        />
+                      </td>
+                    )}
+                    {visibleCols.channels && (
+                      <td className={styles.td}>
+                        <Skeleton
+                          className={styles.listingCell}
+                          style={{ height: '1rem', width: '55%' }}
+                        />
+                      </td>
+                    )}
+                    {visibleCols.status && (
+                      <td className={styles.td}>
+                        <Skeleton
+                          className={styles.listingCell}
+                          style={{ height: '1.75rem', width: '70px' }}
+                        />
+                      </td>
+                    )}
+                    <td className={styles.td}>
+                      <Skeleton
+                        className={styles.listingCell}
+                        style={{ height: '2rem', width: '2rem', marginLeft: 'auto' }}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (isError) {

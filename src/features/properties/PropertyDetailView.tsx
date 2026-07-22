@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ChevronLeft, MapPin, BedDouble, Bath, Home, Plus } from 'lucide-react'
 import { Button } from '@/components/core/Button'
 import { Badge } from '@/components/core/Badge'
+import { Skeleton } from '@/components/core/Skeleton'
 import type { Property, BookingChannel } from './types'
 import styles from './PropertyDetailView.module.css'
 import { Amenity } from '@/components/core/Aminites'
@@ -80,7 +81,40 @@ export function PropertyDetailView() {
   const { data: property, isLoading, isError } = usePropertyById(propertyId)
 
   if (isLoading) {
-    return <div className={styles.page}>Loading property…</div>
+    return (
+      <div className={styles.page}>
+        <Button variant="ghost" className={styles.backBtn} disabled>
+          <ChevronLeft size={16} /> Back to Properties
+        </Button>
+
+        <header className={styles.header}>
+          <div className={styles.gallery}>
+            <Skeleton className={styles.heroSkeleton} />
+            <div className={styles.heroMinGroup}>
+              <Skeleton className={styles.heroMinSkeleton} />
+              <Skeleton className={styles.heroMinSkeleton} />
+            </div>
+          </div>
+
+          <div className={styles.details}>
+            <div className={styles.headerInfo}>
+              <div className={styles.titleRow}>
+                <Skeleton className={styles.titleSkeleton} />
+                <Skeleton className={styles.statusSkeleton} />
+              </div>
+              <Skeleton className={styles.locationSkeleton} />
+              <Skeleton className={styles.idSkeleton} />
+            </div>
+
+            <section className={styles.statGrid}>
+              <Skeleton className={styles.statSkeleton} />
+              <Skeleton className={styles.statSkeleton} />
+              <Skeleton className={styles.statSkeleton} />
+            </section>
+          </div>
+        </header>
+      </div>
+    )
   }
 
   if (isError || !property) {
