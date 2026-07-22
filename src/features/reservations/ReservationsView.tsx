@@ -40,21 +40,18 @@ const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
 }
 
-const CHANNEL_CONFIG: Record<string, { color: string; initial: string }> = {
-  airbnb: { color: '#FF5A5F', initial: 'A' },
-  'booking.com': { color: '#003580', initial: 'B' },
-  vrbo: { color: '#00266b', initial: 'V' },
-  expedia: { color: '#FFC72C', initial: 'E' },
-  direct: { color: 'var(--primary)', initial: 'D' },
+const CHANNEL_CONFIG: Record<string, { logo: string }> = {
+  airbnb: { logo: '/images/channels/airbnb.png' },
+  'booking.com': { logo: '/images/channels/booking.jpg' },
+  vrbo: { logo: '/images/channels/vrbo.jpg' },
+  expedia: { logo: '/images/channels/expedia.png' },
+  direct: { logo: '/images/venvl-mark.svg' },
 }
-
 const renderChannel = (channel: string) => {
-  const config = CHANNEL_CONFIG[channel.toLowerCase()] || CHANNEL_CONFIG.direct
+  const config = CHANNEL_CONFIG[channel.toLowerCase()] || { logo: '/images/venvl-mark.svg' }
   return (
     <div className={styles.channelChip}>
-      <div className={styles.channelDot} style={{ backgroundColor: config.color }} title={channel}>
-        {config.initial}
-      </div>
+      <img src={config.logo} alt={channel} className={styles.channelLogo} />
     </div>
   )
 }
