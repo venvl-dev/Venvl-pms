@@ -16,9 +16,10 @@ import { Button } from '@/components/core/Button'
 import { Input } from '@/components/core/Input'
 import { Badge } from '@/components/core/Badge'
 import { cx } from '@/lib/cx'
-import { MOCK_PROPERTIES, type Property, type BookingChannel } from './mockProperties'
+import type { Property, BookingChannel } from './types'
 import styles from './PropertiesView.module.css'
 import { useNavigate } from 'react-router-dom'
+import { useProperties } from './hooks'
 
 const ALL_COLUMNS = [
   { id: 'listing', label: 'Listing', defaultVisible: true },
@@ -83,6 +84,7 @@ const renderChannelCluster = (channels: BookingChannel[]) => {
 
 export function PropertiesView() {
   const navigate = useNavigate()
+  const { data, isLoading, isError } = useProperties()
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -95,8 +97,6 @@ export function PropertiesView() {
   const [showChannelMenu, setShowChannelMenu] = useState(false)
   const [showRowsMenu, setShowRowsMenu] = useState(false)
   const [showColDropdown, setShowColDropdown] = useState(false)
-
-  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set())
 
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {}
@@ -123,18 +123,22 @@ export function PropertiesView() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const properties = useMemo(() => data?.data ?? [], [data?.data])
+
   const childrenMap = useMemo(() => {
     const map = new Map<string, Property[]>()
-    MOCK_PROPERTIES.filter((p) => p.type === 'child').forEach((child) => {
-      if (!child.parentId) return
-      if (!map.has(child.parentId)) map.set(child.parentId, [])
-      map.get(child.parentId)!.push(child)
-    })
+    properties
+      .filter((p) => p.type === 'child')
+      .forEach((child) => {
+        if (!child.parentId) return
+        if (!map.has(child.parentId)) map.set(child.parentId, [])
+        map.get(child.parentId)!.push(child)
+      })
     return map
-  }, [])
+  }, [properties])
 
   const rootProperties = useMemo(() => {
-    return MOCK_PROPERTIES.filter((prop) => {
+    return properties.filter((prop) => {
       if (prop.type === 'child') return false
 
       const matchesSearch =
@@ -146,7 +150,7 @@ export function PropertiesView() {
 
       return matchesSearch && matchesStatus && matchesChannel
     })
-  }, [search, statusFilter, channelFilter])
+  }, [properties, search, statusFilter, channelFilter])
 
   const totalPages = Math.ceil(rootProperties.length / rowsPerPage) || 1
   const paginatedRoots = rootProperties.slice(
@@ -162,21 +166,20 @@ export function PropertiesView() {
     setVisibleCols((prev) => ({ ...prev, [id]: !prev[id] }))
   }
 
-  const toggleExpand = (id: string) => {
-    setExpandedParents((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
   const handleRowActivate = (prop: Property) => {
     navigate(`/properties/${prop.id}`)
   }
 
   const activeStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label
   const activeChannelLabel = CHANNEL_OPTIONS.find((o) => o.value === channelFilter)?.label
+
+  if (isLoading) {
+    return <div className={styles.page}>Loading properties…</div>
+  }
+
+  if (isError) {
+    return <div className={styles.page}>Unable to load properties right now.</div>
+  }
 
   return (
     <div className={styles.page}>
@@ -339,19 +342,16 @@ export function PropertiesView() {
                         {visibleCols.listing && (
                           <td className={styles.td}>
                             <div className={styles.listingCell}>
-                           {prop.type === 'parent' ? (
-  <ChevronRightIcon
-    size={16}
-    className={cx(
-      styles.expandIcon,
-       styles.expandIconExpanded,
-    )}
-  />
-) : (
-  <div
-    style={{ width: '16px', marginRight: '0.25rem', flexShrink: 0 }}
-  />
-)}
+                              {prop.type === 'parent' ? (
+                                <ChevronRightIcon
+                                  size={16}
+                                  className={cx(styles.expandIcon, styles.expandIconExpanded)}
+                                />
+                              ) : (
+                                <div
+                                  style={{ width: '16px', marginRight: '0.25rem', flexShrink: 0 }}
+                                />
+                              )}
 
                               <img src={prop.image} alt="" className={styles.thumbnail} />
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -418,98 +418,93 @@ export function PropertiesView() {
                         </td>
                       </tr>
 
-                      { 
-                        children.map((child, index) => (
-                          <tr
-                            key={child.id}
-                            className={cx(
-                              styles.tr,
-                              styles.rowChild,
-                              index === children.length - 1 && styles.lastChild,
-                            )}
-                            style={{ cursor: 'pointer' }}
-                            tabIndex={0}
-                            role="button"
-                            onClick={() => navigate(`/properties/${child.id}`)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') navigate(`/properties/${child.id}`)
-                            }}
-                          >
-                            {visibleCols.listing && (
-                              <td className={styles.td}>
-                                <div className={styles.childListingCell}>
-                                  <img src={child.image} alt="" className={styles.childThumbnail} />
-                                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <div className={styles.cellPrimary}>{child.name}</div>
-                                    <div className={styles.cellSecondary}>Unit ID: {child.id}</div>
-                                  </div>
-                                </div>
-                              </td>
-                            )}
-
-                            {visibleCols.id && (
-                              <td className={styles.td}>
-                                <span className={styles.cellSecondary}>{child.id}</span>
-                              </td>
-                            )}
-
-                            {visibleCols.type && (
-                              <td className={styles.td}>
-                                <span
-                                  style={{ textTransform: 'capitalize' }}
-                                  className={styles.cellSecondary}
-                                >
-                                  {child.type}
-                                </span>
-                              </td>
-                            )}
-
-                            {visibleCols.capacity && (
-                              <td className={styles.td}>
-                                <div className={styles.cellPrimary}>{child.bedrooms} Bed</div>
-                                <div className={styles.cellSecondary}>{child.bathrooms} Bath</div>
-                              </td>
-                            )}
-
-                            {visibleCols.location && (
-                              <td className={styles.td}>
-                                <span className={styles.cellSecondary}>{child.location}</span>
-                              </td>
-                            )}
-
-                            {visibleCols.channels && (
-                              <td className={styles.td}>
-                                {child.channels.length > 0 ? (
-                                  renderChannelCluster(child.channels)
-                                ) : (
-                                  <span className={styles.cellSecondary}>None</span>
-                                )}
-                              </td>
-                            )}
-
-                            {visibleCols.status && (
-                              <td className={styles.td}>{getStatusBadge(child.status)}</td>
-                            )}
-
+                      {children.map((child, index) => (
+                        <tr
+                          key={child.id}
+                          className={cx(
+                            styles.tr,
+                            styles.rowChild,
+                            index === children.length - 1 && styles.lastChild,
+                          )}
+                          style={{ cursor: 'pointer' }}
+                          tabIndex={0}
+                          role="button"
+                          onClick={() => navigate(`/properties/${child.id}`)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') navigate(`/properties/${child.id}`)
+                          }}
+                        >
+                          {visibleCols.listing && (
                             <td className={styles.td}>
-                              <div
-                                className={styles.actionsCell}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Button
-                                  variant="secondary"
-                                  size="icon"
-                                  aria-label="View in Calendar"
-                                >
-                                  <Calendar size={14} />
-                                </Button>
-                                <Button variant="ghost" size="icon" aria-label="More actions">
-                                  <MoreHorizontal size={14} />
-                                </Button>
+                              <div className={styles.childListingCell}>
+                                <img src={child.image} alt="" className={styles.childThumbnail} />
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <div className={styles.cellPrimary}>{child.name}</div>
+                                  <div className={styles.cellSecondary}>Unit ID: {child.id}</div>
+                                </div>
                               </div>
                             </td>
-                          </tr>
-                        ))}
+                          )}
+
+                          {visibleCols.id && (
+                            <td className={styles.td}>
+                              <span className={styles.cellSecondary}>{child.id}</span>
+                            </td>
+                          )}
+
+                          {visibleCols.type && (
+                            <td className={styles.td}>
+                              <span
+                                style={{ textTransform: 'capitalize' }}
+                                className={styles.cellSecondary}
+                              >
+                                {child.type}
+                              </span>
+                            </td>
+                          )}
+
+                          {visibleCols.capacity && (
+                            <td className={styles.td}>
+                              <div className={styles.cellPrimary}>{child.bedrooms} Bed</div>
+                              <div className={styles.cellSecondary}>{child.bathrooms} Bath</div>
+                            </td>
+                          )}
+
+                          {visibleCols.location && (
+                            <td className={styles.td}>
+                              <span className={styles.cellSecondary}>{child.location}</span>
+                            </td>
+                          )}
+
+                          {visibleCols.channels && (
+                            <td className={styles.td}>
+                              {child.channels.length > 0 ? (
+                                renderChannelCluster(child.channels)
+                              ) : (
+                                <span className={styles.cellSecondary}>None</span>
+                              )}
+                            </td>
+                          )}
+
+                          {visibleCols.status && (
+                            <td className={styles.td}>{getStatusBadge(child.status)}</td>
+                          )}
+
+                          <td className={styles.td}>
+                            <div
+                              className={styles.actionsCell}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Button variant="secondary" size="icon" aria-label="View in Calendar">
+                                <Calendar size={14} />
+                              </Button>
+                              <Button variant="ghost" size="icon" aria-label="More actions">
+                                <MoreHorizontal size={14} />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                     </Fragment>
                   )
                 })
@@ -532,7 +527,6 @@ export function PropertiesView() {
           </div>
         ) : (
           paginatedRoots.map((prop) => {
-            const isExpanded = expandedParents.has(prop.id)
             const children = childrenMap.get(prop.id) || []
 
             return (
@@ -550,10 +544,7 @@ export function PropertiesView() {
                         {prop.type === 'parent' ? (
                           <ChevronRightIcon
                             size={20}
-                            className={cx(
-                              styles.expandIcon,
-                               styles.expandIconExpanded,
-                            )}
+                            className={cx(styles.expandIcon, styles.expandIconExpanded)}
                           />
                         ) : (
                           <Button
@@ -587,7 +578,7 @@ export function PropertiesView() {
                   </div>
                 </div>
 
-                { children.length > 0 && (
+                {children.length > 0 && (
                   <div className={styles.mobileChildren}>
                     {children.map((child, index) => (
                       <div
