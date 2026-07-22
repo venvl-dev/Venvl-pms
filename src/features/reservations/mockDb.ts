@@ -72,3 +72,11 @@ export const simulateGetReservations = async (params: GetReservationsParams): Pr
     }, 500) 
   })
 }
+
+export const simulateGetAllReservations = async (): Promise<Reservation[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([...DB])
+    }, 500)
+  })
+}

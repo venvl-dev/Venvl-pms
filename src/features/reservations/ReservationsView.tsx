@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import {
   Search, Filter, SlidersHorizontal, Plus, Calendar, MoreHorizontal,
-  ChevronLeft, ChevronRight, ChevronDown
+  ChevronLeft, ChevronRight, ChevronDown, Download
 } from 'lucide-react'
 import { Button } from '@/components/core/Button'
 import { Input } from '@/components/core/Input'
@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/core/Skeleton'
 import { cx } from '@/lib/cx'
 import styles from './ReservationsView.module.css'
 
-import { useReservations } from './hooks'
+import { useExportAll, useReservations } from './hooks'
 import type { Reservation } from './types'
 
 const ALL_COLUMNS = [
@@ -40,6 +40,25 @@ const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
 }
 
+const CHANNEL_CONFIG: Record<string, { color: string; initial: string }> = {
+  airbnb: { color: '#FF5A5F', initial: 'A' },
+  'booking.com': { color: '#003580', initial: 'B' },
+  vrbo: { color: '#00266b', initial: 'V' },
+  expedia: { color: '#FFC72C', initial: 'E' },
+  direct: { color: 'var(--primary)', initial: 'D' },
+}
+
+const renderChannel = (channel: string) => {
+  const config = CHANNEL_CONFIG[channel.toLowerCase()] || CHANNEL_CONFIG.direct
+  return (
+    <div className={styles.channelChip}>
+      <div className={styles.channelDot} style={{ backgroundColor: config.color }} title={channel}>
+        {config.initial}
+      </div>
+    </div>
+  )
+}
+
 const getStatusBadge = (status: Reservation['status']) => {
   switch (status) {
     case 'confirmed': return <Badge variant="info">Confirmed</Badge>
@@ -58,6 +77,7 @@ export function ReservationsView() {
   const [showStatusMenu, setShowStatusMenu] = useState(false)
   const [showRowsMenu, setShowRowsMenu] = useState(false)
   const [showColDropdown, setShowColDropdown] = useState(false)
+  const [showExportMenu, setShowExportMenu] = useState(false)
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {}
     ALL_COLUMNS.forEach(col => initial[col.id] = col.defaultVisible)
@@ -67,12 +87,15 @@ export function ReservationsView() {
   const statusRef = useRef<HTMLDivElement>(null)
   const rowsRef = useRef<HTMLDivElement>(null)
   const colRef = useRef<HTMLDivElement>(null)
+  const exportRef = useRef<HTMLDivElement>(null)
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (statusRef.current && !statusRef.current.contains(event.target as Node)) setShowStatusMenu(false)
       if (rowsRef.current && !rowsRef.current.contains(event.target as Node)) setShowRowsMenu(false)
       if (colRef.current && !colRef.current.contains(event.target as Node)) setShowColDropdown(false)
+      if (exportRef.current && !exportRef.current.contains(event.target as Node)) setShowExportMenu(false)
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -85,6 +108,8 @@ export function ReservationsView() {
     status: statusFilter
   })
 
+  const { mutateAsync: fetchAllForExport, isPending: isExportingAll } = useExportAll()
+  
   const reservations = response?.data ?? []
   const meta = response?.meta ?? { totalCount: 0, totalPages: 1, currentPage: 1, limit: rowsPerPage }
 
@@ -100,11 +125,91 @@ export function ReservationsView() {
   const activeStatusLabel = STATUS_OPTIONS.find(o => o.value === statusFilter)?.label
   const visibleColCount = Object.values(visibleCols).filter(Boolean).length
 
+  const handleExportCSV = async (type: 'visible' | 'all') => {
+    setShowExportMenu(false) 
+    
+    try {
+      let dataToExport = []
+
+      if (type === 'visible') {
+        if (!reservations || reservations.length === 0) return
+        dataToExport = reservations
+      } else {
+        dataToExport = await fetchAllForExport()
+        if (!dataToExport || dataToExport.length === 0) return
+      }
+
+      const headers = [
+        'Booking ID', 'Guest Name', 'Check-in', 'Check-out', 
+        'Property', 'Unit', 'Channel', 'Status', 'Total Amount', 'Balance Due'
+      ]
+
+      const rows = dataToExport.map(res => [
+        res.id,
+        `"${res.guestName}"`,
+        res.checkIn,
+        res.checkOut,
+        `"${res.property}"`,
+        `"${res.unit}"`,
+        res.channel,
+        res.status,
+        res.totalAmount,
+        res.balanceDue
+      ])
+
+      const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n')
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      
+      link.href = url
+      const fileName = type === 'all' ? 'reservations_full_export' : 'reservations_page_export'
+      link.setAttribute('download', `${fileName}_${new Date().toISOString().split('T')[0]}.csv`)
+      
+      document.body.appendChild(link)
+      link.click()
+      
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Failed to export reservations:", error)
+    }
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>Reservations</h1>
-        <Button><Plus size={16} /> New Reservation</Button>
+        <div className={styles.headerActions}>
+          
+          <div className={styles.customDropdown} ref={exportRef}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowExportMenu(!showExportMenu)} 
+              disabled={isExportingAll}
+            >
+              <Download size={16} /> 
+              {isExportingAll ? 'Exporting...' : 'Export CSV'} 
+              <ChevronDown size={14} className="ml-2"/>
+            </Button>
+            
+            {showExportMenu && (
+              <div className={cx(styles.customMenu, styles.alignRight)} style={{ width: '200px' }}>
+                <div className={styles.customMenuItem} onClick={() => handleExportCSV('visible')}>
+                  Export Current Page
+                </div>
+                <div className={styles.customMenuItem} onClick={() => handleExportCSV('all')}>
+                  Export All Records
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Button>
+            <Plus size={16} /> New Reservation
+          </Button>
+        </div>
       </header>
 
       <div className={styles.toolbar}>
@@ -236,7 +341,7 @@ export function ReservationsView() {
                     )}
                     {visibleCols.channel && (
                       <td className={styles.td}>
-                        <span style={{ textTransform: 'capitalize', fontSize: 'var(--text-xs)' }}>{res.channel}</span>
+                        {renderChannel(res.channel)}
                       </td>
                     )}
                     {visibleCols.status && <td className={styles.td}>{getStatusBadge(res.status)}</td>}
@@ -267,7 +372,7 @@ export function ReservationsView() {
           </table>
         </div>
       </div>
-      
+
       {/* --- MOBILE CARD VIEW --- */}
       <div className={styles.mobileList}>
         {isLoading ? (
@@ -343,7 +448,7 @@ export function ReservationsView() {
               <div className={styles.mobileCardFooter}>
                 <div className={styles.mobileCardMeta}>
                   <span className={styles.mobileCardId}>{res.id}</span>
-                  <span className={styles.mobileCardChannel}>{res.channel}</span>
+                  {renderChannel(res.channel)}
                 </div>
                 <div className={styles.mobileCardActions}>
                   <Button variant="secondary" size="icon" aria-label="View in Calendar">

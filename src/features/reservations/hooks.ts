@@ -1,5 +1,5 @@
-import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import { getReservations } from './api'
+import { useQuery, keepPreviousData, useMutation } from '@tanstack/react-query'
+import { getAllReservations, getReservations } from './api'
 import type { GetReservationsParams } from './types'
 
 export function useReservations(params: GetReservationsParams) {
@@ -7,5 +7,11 @@ export function useReservations(params: GetReservationsParams) {
     queryKey: ['reservations', params],
     queryFn: () => getReservations(params),
     placeholderData: keepPreviousData, 
+  })
+}
+
+export function useExportAll() {
+  return useMutation({
+    mutationFn: getAllReservations,
   })
 }
