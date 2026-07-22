@@ -78,7 +78,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export function PropertyDetailView() {
   const { propertyId } = useParams<{ propertyId: string }>()
   const navigate = useNavigate()
-  const { data: property, isLoading, isError } = usePropertyById(propertyId)
+  const { data: property, isLoading, isError, refetch } = usePropertyById(propertyId)
 
   if (isLoading) {
     return (
@@ -117,7 +117,23 @@ export function PropertyDetailView() {
     )
   }
 
-  if (isError || !property) {
+  if (isError) {
+    return (
+      <div className={styles.page}>
+        <Button variant="ghost" onClick={() => navigate('/properties')}>
+          <ChevronLeft size={16} /> Back to Properties
+        </Button>
+        <div className={styles.notFound}>
+          Couldn't load this property.{' '}
+          <Button variant="outline" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!property) {
     return (
       <div className={styles.page}>
         <Button variant="ghost" onClick={() => navigate('/properties')}>
@@ -127,6 +143,7 @@ export function PropertyDetailView() {
       </div>
     )
   }
+
 
   return (
     <div className={styles.page}>

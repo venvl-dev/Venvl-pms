@@ -85,7 +85,7 @@ const renderChannelCluster = (channels: BookingChannel[]) => {
 
 export function PropertiesView() {
   const navigate = useNavigate()
-  const { data, isLoading, isError } = useProperties()
+  const { data, isLoading, isError, refetch } = useProperties()
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -174,148 +174,51 @@ export function PropertiesView() {
   const activeStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label
   const activeChannelLabel = CHANNEL_OPTIONS.find((o) => o.value === channelFilter)?.label
 
-  if (isError) {
-    return <div className={styles.page}>Unable to load properties right now.</div>
-  }
+  const skeletonRows = Array.from({ length: rowsPerPage }).map((_, i) => (
+    <tr key={`sk-${i}`} className={styles.tr}>
+      {ALL_COLUMNS.filter((c) => visibleCols[c.id]).map((c) => (
+        <td key={c.id} className={styles.td}>
+          <Skeleton style={{ height: '1rem', width: '70%' }} />
+        </td>
+      ))}
+      <td className={styles.td}>
+        <Skeleton style={{ height: '2rem', width: '2rem', marginLeft: 'auto' }} />
+      </td>
+    </tr>
+  ))
 
-  if (isLoading) {
+  const mobileSkeletonCards = Array.from({ length: 5 }).map((_, i) => (
+    <div key={`sk-${i}`} className={styles.mobileCardWrap}>
+      <div className={styles.mobileCardTop}>
+        <Skeleton className={styles.mobileCardImage} />
+        <div className={styles.mobileCardInfo}>
+          <Skeleton style={{ height: '0.9rem', width: '65%' }} />
+          <Skeleton style={{ height: '0.75rem', width: '45%', marginTop: '0.35rem' }} />
+        </div>
+      </div>
+      <div className={styles.mobileCardBottom}>
+        <Skeleton style={{ height: '1.5rem', width: '70px' }} />
+        <Skeleton style={{ height: '1.5rem', width: '60px' }} />
+      </div>
+    </div>
+  ))
+
+  if (isError) {
     return (
       <div className={styles.page}>
         <header className={styles.header}>
           <h1 className={styles.title}>Properties</h1>
-          <Button>
-            <Plus size={16} /> Add Property
-          </Button>
         </header>
-
-        <div className={styles.toolbar}>
-          <div className={styles.filters}>
-            <div className={styles.searchWrap}>
-              <Search size={16} className={styles.searchIcon} />
-              <Input
-                placeholder="Search by name or ID..."
-                className={styles.searchInput}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Filter size={16} className="text-muted-foreground" />
-              <Skeleton style={{ height: '2.5rem', width: '150px' }} />
-              <Skeleton style={{ height: '2.5rem', width: '160px' }} />
-            </div>
-          </div>
-
-          <div className={styles.actions}>
-            <Skeleton style={{ height: '2.5rem', width: '90px' }} />
-          </div>
-        </div>
-
-        <div className={styles.tableCard}>
-          <div className={cx(styles.tableScroll, 'no-scrollbar')}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  {visibleCols.listing && <th className={styles.th}>Listing</th>}
-                  {visibleCols.id && <th className={styles.th}>Property ID</th>}
-                  {visibleCols.type && <th className={styles.th}>Unit Type</th>}
-                  {visibleCols.capacity && <th className={styles.th}>Beds/Baths</th>}
-                  {visibleCols.location && <th className={styles.th}>Location</th>}
-                  {visibleCols.channels && <th className={styles.th}>Channels</th>}
-                  {visibleCols.status && <th className={styles.th}>Status</th>}
-                  <th className={styles.th} style={{ textAlign: 'right' }}>
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.from({ length: 10 }).map((_, rowIndex) => (
-                  <tr key={rowIndex} className={styles.tr}>
-                    {visibleCols.listing && (
-                      <td className={styles.td}>
-                        <div className={styles.listingCell}>
-                          <Skeleton className={styles.thumbnail} />
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '0.35rem',
-                              flex: 1,
-                            }}
-                          >
-                            <Skeleton style={{ height: '0.95rem', width: '70%' }} />
-                            <Skeleton style={{ height: '0.8rem', width: '50%' }} />
-                          </div>
-                        </div>
-                      </td>
-                    )}
-                    {visibleCols.id && (
-                      <td className={styles.td}>
-                        <Skeleton
-                          className={styles.listingCell}
-                          style={{ height: '1rem', width: '80%' }}
-                        />
-                      </td>
-                    )}
-                    {visibleCols.type && (
-                      <td className={styles.td}>
-                        <Skeleton
-                          className={styles.listingCell}
-                          style={{ height: '1rem', width: '60%' }}
-                        />
-                      </td>
-                    )}
-                    {visibleCols.capacity && (
-                      <td className={styles.td}>
-                        <Skeleton
-                          className={styles.listingCell}
-                          style={{ height: '1rem', width: '70%' }}
-                        />
-                      </td>
-                    )}
-                    {visibleCols.location && (
-                      <td className={styles.td}>
-                        <Skeleton
-                          className={styles.listingCell}
-                          style={{ height: '1rem', width: '85%' }}
-                        />
-                      </td>
-                    )}
-                    {visibleCols.channels && (
-                      <td className={styles.td}>
-                        <Skeleton
-                          className={styles.listingCell}
-                          style={{ height: '1rem', width: '55%' }}
-                        />
-                      </td>
-                    )}
-                    {visibleCols.status && (
-                      <td className={styles.td}>
-                        <Skeleton
-                          className={styles.listingCell}
-                          style={{ height: '1.75rem', width: '70px' }}
-                        />
-                      </td>
-                    )}
-                    <td className={styles.td}>
-                      <Skeleton
-                        className={styles.listingCell}
-                        style={{ height: '2rem', width: '2rem', marginLeft: 'auto' }}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className={styles.tableCard} style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
+          <p style={{ color: 'var(--muted-foreground)', marginBottom: 'var(--space-4)' }}>
+            Couldn't load properties.
+          </p>
+          <Button variant="outline" onClick={() => refetch()}>
+            Retry
+          </Button>
         </div>
       </div>
     )
-  }
-
-  if (isError) {
-    return <div className={styles.page}>Unable to load properties right now.</div>
   }
 
   return (
@@ -447,7 +350,9 @@ export function PropertiesView() {
               </tr>
             </thead>
             <tbody>
-              {paginatedRoots.length === 0 ? (
+              {isLoading ? (
+                skeletonRows
+              ) : paginatedRoots.length === 0 ? (
                 <tr>
                   <td
                     colSpan={Object.values(visibleCols).filter(Boolean).length + 1}
@@ -652,7 +557,9 @@ export function PropertiesView() {
       </div>
 
       <div className={styles.mobileList}>
-        {paginatedRoots.length === 0 ? (
+        {isLoading ? (
+          mobileSkeletonCards
+        ) : paginatedRoots.length === 0 ? (
           <div
             style={{
               textAlign: 'center',
