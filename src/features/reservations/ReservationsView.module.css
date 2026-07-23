@@ -17,6 +17,12 @@
   letter-spacing: var(--tracking-tight);
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -188,6 +194,20 @@
   font-size: var(--text-xs);
   color: var(--muted-foreground);
   margin-top: 0.125rem;
+}
+
+.channelChip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.channelLogo {
+  width: 24px;
+  height: 24px;
+  border-radius: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .actionsCell {
@@ -392,6 +412,27 @@
   .tableCard {
     display: none;
   }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .headerActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .headerActions .customDropdown {
+    width: 100%;
+  }
+
+  .headerActions button {
+    width: 100% !important;
+    justify-content: center;
+  }
+
   .mobileList {
     display: flex;
   }

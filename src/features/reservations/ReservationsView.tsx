@@ -1,21 +1,18 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { 
-  Search, 
-  Filter, 
-  SlidersHorizontal, 
-  Plus, 
-  Calendar, 
-  MoreHorizontal,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown
+import { useState, useRef, useEffect } from 'react'
+import {
+  Search, Filter, SlidersHorizontal, Plus, Calendar, MoreHorizontal,
+  ChevronLeft, ChevronRight, ChevronDown, Download
 } from 'lucide-react'
 import { Button } from '@/components/core/Button'
 import { Input } from '@/components/core/Input'
 import { Badge } from '@/components/core/Badge'
+import { Skeleton } from '@/components/core/Skeleton'
 import { cx } from '@/lib/cx'
-import { MOCK_RESERVATIONS, type Reservation } from './mockReservations'
 import styles from './ReservationsView.module.css'
+
+import { useExportAll, useReservations } from './hooks'
+import type { Reservation } from './types'
+import { toast } from 'sonner'
 
 const ALL_COLUMNS = [
   { id: 'id', label: 'Booking ID', defaultVisible: false },
@@ -44,6 +41,22 @@ const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
 }
 
+const CHANNEL_CONFIG: Record<string, { logo: string }> = {
+  airbnb: { logo: '/images/channels/airbnb.png' },
+  'booking.com': { logo: '/images/channels/booking.jpg' },
+  vrbo: { logo: '/images/channels/vrbo.jpg' },
+  expedia: { logo: '/images/channels/expedia.png' },
+  direct: { logo: '/images/venvl-mark.svg' },
+}
+const renderChannel = (channel: string) => {
+  const config = CHANNEL_CONFIG[channel.toLowerCase()] || { logo: '/images/venvl-mark.svg' }
+  return (
+    <div className={styles.channelChip}>
+      <img src={config.logo} alt={channel} className={styles.channelLogo} />
+    </div>
+  )
+}
+
 const getStatusBadge = (status: Reservation['status']) => {
   switch (status) {
     case 'confirmed': return <Badge variant="info">Confirmed</Badge>
@@ -58,11 +71,11 @@ export function ReservationsView() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
-  
   const [showStatusMenu, setShowStatusMenu] = useState(false)
   const [showRowsMenu, setShowRowsMenu] = useState(false)
   const [showColDropdown, setShowColDropdown] = useState(false)
-  
+  const [showExportMenu, setShowExportMenu] = useState(false)
+ const [debouncedSearch, setDebouncedSearch] = useState('')
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {}
     ALL_COLUMNS.forEach(col => initial[col.id] = col.defaultVisible)
@@ -72,44 +85,154 @@ export function ReservationsView() {
   const statusRef = useRef<HTMLDivElement>(null)
   const rowsRef = useRef<HTMLDivElement>(null)
   const colRef = useRef<HTMLDivElement>(null)
+  const exportRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timer)
+  }, [search])
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (statusRef.current && !statusRef.current.contains(event.target as Node)) setShowStatusMenu(false)
       if (rowsRef.current && !rowsRef.current.contains(event.target as Node)) setShowRowsMenu(false)
       if (colRef.current && !colRef.current.contains(event.target as Node)) setShowColDropdown(false)
+      if (exportRef.current && !exportRef.current.contains(event.target as Node)) setShowExportMenu(false)
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const filteredData = useMemo(() => {
-    return MOCK_RESERVATIONS.filter(res => {
-      const matchesSearch = res.guestName.toLowerCase().includes(search.toLowerCase()) || 
-                            res.id.toLowerCase().includes(search.toLowerCase())
-      const matchesStatus = statusFilter === 'all' || res.status === statusFilter
-      return matchesSearch && matchesStatus
-    })
-  }, [search, statusFilter])
+  const { data: response, isLoading, isError, refetch } = useReservations({
+    page: currentPage,
+    limit: rowsPerPage,
+    search:debouncedSearch,
+    status: statusFilter
+  })
 
-  const totalPages = Math.ceil(filteredData.length / rowsPerPage) || 1
-  const paginatedData = filteredData.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+  const { mutateAsync: fetchAllForExport, isPending: isExportingAll } = useExportAll()
+  
+  const reservations = response?.data ?? []
+  const meta = response?.meta ?? { totalCount: 0, totalPages: 1, currentPage: 1, limit: rowsPerPage }
 
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(1)
-  }, [totalPages, currentPage])
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value)
+    setCurrentPage(1) 
+  }
 
   const toggleColumn = (id: string) => {
     setVisibleCols(prev => ({ ...prev, [id]: !prev[id] }))
   }
 
   const activeStatusLabel = STATUS_OPTIONS.find(o => o.value === statusFilter)?.label
+  const visibleColCount = Object.values(visibleCols).filter(Boolean).length
+
+  const handleExportCSV = async (type: 'visible' | 'all') => {
+    setShowExportMenu(false) 
+    
+    try {
+      let dataToExport = []
+
+      if (type === 'visible') {
+        if (!reservations || reservations.length === 0) return
+        dataToExport = reservations
+      } else {
+        dataToExport = await fetchAllForExport()
+        if (!dataToExport || dataToExport.length === 0) return
+      }
+
+      const headers = [
+        'Booking ID', 'Guest Name', 'Check-in', 'Check-out', 
+        'Property', 'Unit', 'Channel', 'Status', 'Total Amount', 'Balance Due'
+      ]
+
+      const rows = dataToExport.map(res => [
+        res.id,
+        `"${res.guestName}"`,
+        res.checkIn,
+        res.checkOut,
+        `"${res.property}"`,
+        `"${res.unit}"`,
+        res.channel,
+        res.status,
+        res.totalAmount,
+        res.balanceDue
+      ])
+
+      const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n')
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      
+      link.href = url
+      const fileName = type === 'all' ? 'reservations_full_export' : 'reservations_page_export'
+      link.setAttribute('download', `${fileName}_${new Date().toISOString().split('T')[0]}.csv`)
+      
+      document.body.appendChild(link)
+      link.click()
+      
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Failed to export reservations:", error)
+         toast.error('Export failed. Please try again.')
+    }
+  }
+
+  if (isError) {
+    return (
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Reservations</h1>
+        </header>
+        <div className={styles.tableCard} style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
+          <p style={{ color: 'var(--muted-foreground)', marginBottom: 'var(--space-4)' }}>
+            Couldn't load reservations.
+          </p>
+          <Button variant="outline" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>Reservations</h1>
-        <Button><Plus size={16} /> New Reservation</Button>
+        <div className={styles.headerActions}>
+          
+          <div className={styles.customDropdown} ref={exportRef}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowExportMenu(!showExportMenu)} 
+              disabled={isExportingAll}
+            >
+              <Download size={16} /> 
+              {isExportingAll ? 'Exporting...' : 'Export CSV'} 
+              <ChevronDown size={14} className="ml-2"/>
+            </Button>
+            
+            {showExportMenu && (
+              <div className={cx(styles.customMenu, styles.alignRight)} style={{ width: '200px' }}>
+                <div className={styles.customMenuItem} onClick={() => handleExportCSV('visible')}>
+                  Export Current Page
+                </div>
+                <div className={styles.customMenuItem} onClick={() => handleExportCSV('all')}>
+                  Export All Records
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Button>
+            <Plus size={16} /> New Reservation
+          </Button>
+        </div>
       </header>
 
       <div className={styles.toolbar}>
@@ -120,7 +243,7 @@ export function ReservationsView() {
               placeholder="Search by name or ID..." 
               className={styles.searchInput}
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
           
@@ -144,7 +267,7 @@ export function ReservationsView() {
                       onClick={() => {
                         setStatusFilter(opt.value)
                         setShowStatusMenu(false)
-                        setCurrentPage(1)
+                        setCurrentPage(1) 
                       }}
                     >
                       {opt.label}
@@ -198,14 +321,28 @@ export function ReservationsView() {
               </tr>
             </thead>
             <tbody>
-              {paginatedData.length === 0 ? (
+              {isLoading ? (
+                Array.from({ length: rowsPerPage }).map((_, i) => (
+                  <tr key={`skeleton-${i}`} className={styles.tr}>
+                    {visibleCols.id && <td className={styles.td}><Skeleton style={{ height: '1.25rem', width: '80px' }}/></td>}
+                    {visibleCols.guest && <td className={styles.td}><Skeleton style={{ height: '1.25rem', width: '120px' }}/></td>}
+                    {visibleCols.dates && <td className={styles.td}><Skeleton style={{ height: '1.25rem', width: '100px' }}/><Skeleton style={{ height: '1rem', width: '80px', marginTop: '4px' }}/></td>}
+                    {visibleCols.property && <td className={styles.td}><Skeleton style={{ height: '1.25rem', width: '140px' }}/><Skeleton style={{ height: '1rem', width: '60px', marginTop: '4px' }}/></td>}
+                    {visibleCols.channel && <td className={styles.td}><Skeleton style={{ height: '1.25rem', width: '80px' }}/></td>}
+                    {visibleCols.status && <td className={styles.td}><Skeleton style={{ height: '1.5rem', width: '80px', borderRadius: '12px' }}/></td>}
+                    {visibleCols.amount && <td className={styles.td}><Skeleton style={{ height: '1.25rem', width: '60px' }}/></td>}
+                    {visibleCols.balance && <td className={styles.td}><Skeleton style={{ height: '1.5rem', width: '70px', borderRadius: '12px' }}/></td>}
+                    <td className={styles.td}><div className={styles.actionsCell}><Skeleton style={{ height: '32px', width: '32px', borderRadius: '8px' }}/><Skeleton style={{ height: '32px', width: '32px', borderRadius: '8px' }}/></div></td>
+                  </tr>
+                ))
+              ) : reservations.length === 0 ? (
                 <tr>
-                  <td colSpan={Object.values(visibleCols).filter(Boolean).length + 1} style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--muted-foreground)' }}>
+                  <td colSpan={visibleColCount + 1} style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--muted-foreground)' }}>
                     No reservations found matching your criteria.
                   </td>
                 </tr>
               ) : (
-                paginatedData.map(res => (
+                reservations.map(res => (
                   <tr key={res.id} className={styles.tr}>
                     {visibleCols.id && <td className={styles.td}><span className={styles.cellSecondary}>{res.id}</span></td>}
                     {visibleCols.guest && (
@@ -227,7 +364,7 @@ export function ReservationsView() {
                     )}
                     {visibleCols.channel && (
                       <td className={styles.td}>
-                        <span style={{ textTransform: 'capitalize', fontSize: 'var(--text-xs)' }}>{res.channel}</span>
+                        {renderChannel(res.channel)}
                       </td>
                     )}
                     {visibleCols.status && <td className={styles.td}>{getStatusBadge(res.status)}</td>}
@@ -261,12 +398,45 @@ export function ReservationsView() {
 
       {/* --- MOBILE CARD VIEW --- */}
       <div className={styles.mobileList}>
-        {paginatedData.length === 0 ? (
+        {isLoading ? (
+          Array.from({ length: rowsPerPage }).map((_, i) => (
+            <div key={`mob-skeleton-${i}`} className={styles.mobileCardWrap}>
+              <div className={styles.mobileCardHeader}>
+                <div>
+                  <Skeleton style={{ height: '1.25rem', width: '120px', marginBottom: '4px' }} />
+                  <Skeleton style={{ height: '1rem', width: '160px' }} />
+                </div>
+                <Skeleton style={{ height: '1.5rem', width: '80px', borderRadius: '12px' }} />
+              </div>
+              <div className={styles.mobileCardGrid}>
+                <div className={styles.mobileCardGridCol}>
+                  <Skeleton style={{ height: '10px', width: '80px', marginBottom: '4px' }} />
+                  <Skeleton style={{ height: '1.25rem', width: '100px', marginBottom: '2px' }} />
+                  <Skeleton style={{ height: '1rem', width: '80px' }} />
+                </div>
+                <div className={styles.mobileCardGridCol} style={{ alignItems: 'flex-end' }}>
+                  <Skeleton style={{ height: '10px', width: '60px', marginBottom: '4px' }} />
+                  <Skeleton style={{ height: '1.5rem', width: '70px', borderRadius: '12px' }} />
+                </div>
+              </div>
+              <div className={styles.mobileCardFooter}>
+                <div className={styles.mobileCardMeta}>
+                  <Skeleton style={{ height: '1rem', width: '60px', marginBottom: '2px' }} />
+                  <Skeleton style={{ height: '0.75rem', width: '40px' }} />
+                </div>
+                <div className={styles.mobileCardActions}>
+                  <Skeleton style={{ height: '32px', width: '32px', borderRadius: '8px' }} />
+                  <Skeleton style={{ height: '32px', width: '32px', borderRadius: '8px' }} />
+                </div>
+              </div>
+            </div>
+          ))
+        ) : reservations.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--muted-foreground)' }}>
             No reservations found matching your criteria.
           </div>
         ) : (
-          paginatedData.map(res => (
+          reservations.map(res => (
             <div key={res.id} className={styles.mobileCardWrap}>
               <div className={styles.mobileCardHeader}>
                 <div>
@@ -301,7 +471,7 @@ export function ReservationsView() {
               <div className={styles.mobileCardFooter}>
                 <div className={styles.mobileCardMeta}>
                   <span className={styles.mobileCardId}>{res.id}</span>
-                  <span className={styles.mobileCardChannel}>{res.channel}</span>
+                  {renderChannel(res.channel)}
                 </div>
                 <div className={styles.mobileCardActions}>
                   <Button variant="secondary" size="icon" aria-label="View in Calendar">
@@ -356,21 +526,21 @@ export function ReservationsView() {
           <Button 
             variant="outline" 
             size="icon" 
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || isLoading}
             onClick={() => setCurrentPage(p => p - 1)}
           >
             <ChevronLeft size={16} />
           </Button>
           
           <span className={styles.pageInfo}>
-            {filteredData.length === 0 ? 0 : ((currentPage - 1) * rowsPerPage) + 1}-
-            {Math.min(currentPage * rowsPerPage, filteredData.length)} of {filteredData.length}
+            {meta.totalCount === 0 ? 0 : ((currentPage - 1) * rowsPerPage) + 1}-
+            {Math.min(currentPage * rowsPerPage, meta.totalCount)} of {meta.totalCount}
           </span>
           
           <Button 
             variant="outline" 
             size="icon" 
-            disabled={currentPage === totalPages || totalPages === 0}
+            disabled={currentPage === meta.totalPages || meta.totalPages === 0 || isLoading}
             onClick={() => setCurrentPage(p => p + 1)}
           >
             <ChevronRight size={16} />
