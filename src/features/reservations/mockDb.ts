@@ -33,7 +33,6 @@ const generateMocks = (): Reservation[] => {
   }
   return reservations
 }
-
 const DB = generateMocks()
 
 export const simulateGetReservations = async (params: GetReservationsParams): Promise<PaginatedResponse<Reservation>> => {

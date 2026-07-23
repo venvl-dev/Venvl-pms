@@ -12,6 +12,7 @@ import styles from './ReservationsView.module.css'
 
 import { useExportAll, useReservations } from './hooks'
 import type { Reservation } from './types'
+import { toast } from 'sonner'
 
 const ALL_COLUMNS = [
   { id: 'id', label: 'Booking ID', defaultVisible: false },
@@ -70,11 +71,11 @@ export function ReservationsView() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
-  
   const [showStatusMenu, setShowStatusMenu] = useState(false)
   const [showRowsMenu, setShowRowsMenu] = useState(false)
   const [showColDropdown, setShowColDropdown] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
+ const [debouncedSearch, setDebouncedSearch] = useState('')
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {}
     ALL_COLUMNS.forEach(col => initial[col.id] = col.defaultVisible)
@@ -85,6 +86,11 @@ export function ReservationsView() {
   const rowsRef = useRef<HTMLDivElement>(null)
   const colRef = useRef<HTMLDivElement>(null)
   const exportRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timer)
+  }, [search])
 
 
   useEffect(() => {
@@ -98,10 +104,10 @@ export function ReservationsView() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const { data: response, isLoading } = useReservations({
+  const { data: response, isLoading, isError, refetch } = useReservations({
     page: currentPage,
     limit: rowsPerPage,
-    search,
+    search:debouncedSearch,
     status: statusFilter
   })
 
@@ -171,8 +177,28 @@ export function ReservationsView() {
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Failed to export reservations:", error)
+         toast.error('Export failed. Please try again.')
     }
   }
+
+  if (isError) {
+    return (
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Reservations</h1>
+        </header>
+        <div className={styles.tableCard} style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
+          <p style={{ color: 'var(--muted-foreground)', marginBottom: 'var(--space-4)' }}>
+            Couldn't load reservations.
+          </p>
+          <Button variant="outline" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
 
   return (
     <div className={styles.page}>
