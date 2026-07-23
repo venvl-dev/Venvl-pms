@@ -110,7 +110,7 @@
   background: var(--muted);
 }
 
-.customMenuItem[data-active="true"] {
+.customMenuItem[data-active='true'] {
   background: color-mix(in oklab, var(--primary) 10%, transparent);
   color: var(--primary);
   font-weight: var(--font-medium);
@@ -127,7 +127,9 @@
   cursor: pointer;
   position: relative;
   flex-shrink: 0;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 
 .checkbox:checked {
@@ -136,7 +138,7 @@
 }
 
 .checkbox:checked::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 5px;
   top: 2px;
@@ -217,7 +219,7 @@
   align-items: center;
   gap: var(--space-3);
 }
-.listingCell:hover{
+.listingCell:hover {
   text-decoration: underline;
 }
 
@@ -227,7 +229,7 @@
   border-radius: var(--radius-md);
   object-fit: cover;
   border: 1px solid var(--border);
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .channelCluster {
@@ -246,6 +248,10 @@
   color: #ffffff;
   border: 2px solid var(--card);
   margin-left: -8px;
+}
+
+.channelDot img {
+  border-radius: var(--radius-full);
 }
 
 .channelDot:first-child {
@@ -279,7 +285,6 @@
   gap: var(--space-2);
 }
 
-
 .rowParent {
   cursor: pointer;
   transition: background-color 0.15s;
@@ -306,13 +311,13 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding-left: 2.75rem; 
+  padding-left: 2.75rem;
   position: relative;
 }
 
 /* L-shaped connector for child rows */
 .childListingCell::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 1.25rem;
   top: -1rem;
@@ -324,8 +329,8 @@
 }
 
 .childThumbnail {
-  width: 105px;       
-  height: 70px;      
+  width: 105px;
+  height: 70px;
   border-radius: var(--radius-sm);
   object-fit: cover;
   border: 1px solid var(--border);
@@ -463,7 +468,7 @@
 }
 
 .mobileChildCard::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 1.75rem;
   top: -1rem;
@@ -491,7 +496,7 @@
   .mobileList {
     display: flex;
   }
-  
+
   .actions {
     display: none;
   }
@@ -501,12 +506,12 @@
     align-items: stretch;
     gap: var(--space-3);
   }
-  
+
   .filters {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .searchWrap {
     max-width: 100%;
   }
@@ -516,7 +521,7 @@
     grid-template-columns: 1fr 1fr;
     width: 100%;
   }
-  
+
   .filters .customDropdown {
     width: 100%;
   }
@@ -525,7 +530,7 @@
     width: 100% !important;
   }
   .pagination {
-    flex-direction: column-reverse; 
+    flex-direction: column-reverse;
     gap: 0;
     align-items: center;
     background: var(--card);
@@ -535,16 +540,16 @@
     margin-top: var(--space-2);
     box-shadow: var(--shadow-sm);
   }
-  
+
   .pageControls {
     width: 100%;
-    justify-content: space-between; 
+    justify-content: space-between;
     padding-bottom: var(--space-3);
   }
 
   .rowsPerPage {
     width: 100%;
-    justify-content: space-between; 
+    justify-content: space-between;
     padding-top: var(--space-3);
     border-top: 1px solid var(--border);
   }

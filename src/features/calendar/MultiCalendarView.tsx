@@ -13,14 +13,27 @@ import type { BookingChannel } from '@/types/domain'
 type ViewMode = 'day' | 'month' | 'year'
 
 interface CalendarGridStyles extends React.CSSProperties {
-  '--total-days'?: number;
+  '--total-days'?: number
 }
 
 // Standardization helpers
 const parseDate = (d: string) => new Date(`${d}T00:00:00Z`)
 // const formatDateStr = (d: Date) => d.toISOString().split('T')[0]
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const FULL_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const FULL_MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
 
 const getChannelConfig = (channel: BookingChannel) => {
   if (channel === 'airbnb') return { style: styles.channel_airbnb, icon: 'a' }
@@ -40,10 +53,10 @@ const CHANNEL_OPTIONS = [
 export function MultiCalendarView() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('day')
-  
+
   // The central date context (Defaults to July 20 2026 to align with mock data)
   const [baseDate, setBaseDate] = useState(() => new Date('2026-07-20T00:00:00Z'))
-  
+
   // Filter States
   const [typeFilter, setTypeFilter] = useState('all')
   const [locFilter, setLocFilter] = useState('all')
@@ -70,15 +83,22 @@ export function MultiCalendarView() {
 
   // 1. Data Preparation & Filtering
   const allBookableUnits = useMemo(() => MOCK_PROPERTIES, [])
-  
-  const typeOptions = useMemo(() => ['all', ...Array.from(new Set(allBookableUnits.map(u => u.type)))], [allBookableUnits])
-  const locOptions = useMemo(() => ['all', ...Array.from(new Set(allBookableUnits.map(u => u.location)))], [allBookableUnits])
+
+  const typeOptions = useMemo(
+    () => ['all', ...Array.from(new Set(allBookableUnits.map((u) => u.type)))],
+    [allBookableUnits],
+  )
+  const locOptions = useMemo(
+    () => ['all', ...Array.from(new Set(allBookableUnits.map((u) => u.location)))],
+    [allBookableUnits],
+  )
 
   const filteredUnits = useMemo(() => {
-    return allBookableUnits.filter(u => {
+    return allBookableUnits.filter((u) => {
       const matchType = typeFilter === 'all' || u.type === typeFilter
       const matchLoc = locFilter === 'all' || u.location === locFilter
-      const matchChan = channelFilter === 'all' || u.channels.includes(channelFilter as BookingChannel)
+      const matchChan =
+        channelFilter === 'all' || u.channels.includes(channelFilter as BookingChannel)
       return matchType && matchLoc && matchChan
     })
   }, [allBookableUnits, typeFilter, locFilter, channelFilter])
@@ -86,7 +106,7 @@ export function MultiCalendarView() {
   // Attach reservations to filtered units securely
   const unitReservations = useMemo(() => {
     const map = new Map<string, Reservation[]>()
-    filteredUnits.forEach(u => map.set(u.id, []))
+    filteredUnits.forEach((u) => map.set(u.id, []))
 
     // Distributed deterministically for the mock
     MOCK_RESERVATIONS.forEach((res, index) => {
@@ -100,12 +120,11 @@ export function MultiCalendarView() {
     return map
   }, [filteredUnits, allBookableUnits, channelFilter])
 
-
   // 2. Day View Matrix Generation (120 days total buffer)
   const COL_WIDTH = 120
   const BUFFER_SIZE = 120
   const PAST_BUFFER = 30
-  
+
   const dateArray = useMemo(() => {
     return Array.from({ length: BUFFER_SIZE }, (_, i) => {
       const d = new Date(baseDate)
@@ -132,38 +151,54 @@ export function MultiCalendarView() {
     }
   }, [viewMode, baseDate])
 
-
   // 3. Navigation Handlers
   const handlePrev = () => {
     if (viewMode === 'day') {
       scrollRef.current?.scrollBy({ left: -(COL_WIDTH * 10), behavior: 'smooth' })
     } else if (viewMode === 'month') {
-      setBaseDate(d => { const nd = new Date(d); nd.setUTCMonth(nd.getUTCMonth() - 1); return nd })
+      setBaseDate((d) => {
+        const nd = new Date(d)
+        nd.setUTCMonth(nd.getUTCMonth() - 1)
+        return nd
+      })
     } else {
-      setBaseDate(d => { const nd = new Date(d); nd.setUTCFullYear(nd.getUTCFullYear() - 1); return nd })
+      setBaseDate((d) => {
+        const nd = new Date(d)
+        nd.setUTCFullYear(nd.getUTCFullYear() - 1)
+        return nd
+      })
     }
   }
 
   const handleNext = () => {
     if (viewMode === 'day') {
-      scrollRef.current?.scrollBy({ left: (COL_WIDTH * 10), behavior: 'smooth' })
+      scrollRef.current?.scrollBy({ left: COL_WIDTH * 10, behavior: 'smooth' })
     } else if (viewMode === 'month') {
-      setBaseDate(d => { const nd = new Date(d); nd.setUTCMonth(nd.getUTCMonth() + 1); return nd })
+      setBaseDate((d) => {
+        const nd = new Date(d)
+        nd.setUTCMonth(nd.getUTCMonth() + 1)
+        return nd
+      })
     } else {
-      setBaseDate(d => { const nd = new Date(d); nd.setUTCFullYear(nd.getUTCFullYear() + 1); return nd })
+      setBaseDate((d) => {
+        const nd = new Date(d)
+        nd.setUTCFullYear(nd.getUTCFullYear() + 1)
+        return nd
+      })
     }
   }
 
   const handleToday = () => {
     // Jump to the Mock anchor so data remains visible
-    setBaseDate(new Date('2026-07-20T00:00:00Z'))
+    setBaseDate(new Date())
   }
 
   // Dynamic Range Text Generator
   const getRangeText = () => {
     if (viewMode === 'year') return `${baseDate.getUTCFullYear()}`
-    if (viewMode === 'month') return `${FULL_MONTHS[baseDate.getUTCMonth()]} ${baseDate.getUTCFullYear()}`
-    
+    if (viewMode === 'month')
+      return `${FULL_MONTHS[baseDate.getUTCMonth()]} ${baseDate.getUTCFullYear()}`
+
     // Day View: Calculate based on what is physically visible via scroll state
     const safeIndex = Math.min(Math.max(visibleStartIndex, 0), BUFFER_SIZE - 10)
     const startD = dateArray[safeIndex]
@@ -176,22 +211,29 @@ export function MultiCalendarView() {
     return `${startD.getUTCDate()} ${MONTHS[startD.getUTCMonth()]} - ${endD.getUTCDate()} ${MONTHS[endD.getUTCMonth()]}`
   }
 
-
   // 4. Renderers
   const renderDayView = () => {
     return (
       <div className={styles.calendarCard}>
-        <div className={cx(styles.gridScroll, 'no-scrollbar')} ref={scrollRef} onScroll={handleScroll}>
-          <div 
-            className={styles.grid} 
+        <div
+          className={cx(styles.gridScroll, 'no-scrollbar')}
+          ref={scrollRef}
+          onScroll={handleScroll}
+        >
+          <div
+            className={styles.grid}
             style={{ '--total-days': BUFFER_SIZE } as CalendarGridStyles}
           >
             <div className={cx(styles.stickyHeader, styles.stickyCol, styles.corner)}>Listings</div>
-            
+
             {dateArray.map((date, i) => {
               const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
               return (
-                <div key={i} className={cx(styles.dateCell, styles.stickyHeader)} style={{ gridColumn: i + 2, gridRow: 1 }}>
+                <div
+                  key={i}
+                  className={cx(styles.dateCell, styles.stickyHeader)}
+                  style={{ gridColumn: i + 2, gridRow: 1 }}
+                >
                   <span className={styles.dateDay}>{days[date.getUTCDay()]}</span>
                   <span className={styles.dateNum}>{date.getUTCDate()}</span>
                 </div>
@@ -202,51 +244,69 @@ export function MultiCalendarView() {
               const gridRow = unitIndex + 2
               return (
                 <Fragment key={unit.id}>
-                  <div className={cx(styles.listingCell, styles.stickyCol)} style={{ gridColumn: 1, gridRow }}>
+                  <div
+                    className={cx(styles.listingCell, styles.stickyCol)}
+                    style={{ gridColumn: 1, gridRow }}
+                  >
                     <img src={unit.image} alt="" className={styles.listingImage} />
                     <div className={styles.listingInfo}>
                       <div className={styles.listingName}>{unit.name}</div>
                       <div className={styles.listingMeta}>
                         <span className={styles.statusDot} /> Active
                       </div>
-                      <div className={styles.listingMeta}>
-                        {unit.bedrooms}BR • 4 Guests
-                      </div>
+                      <div className={styles.listingMeta}>{unit.bedrooms}BR • 4 Guests</div>
                     </div>
                   </div>
 
                   {dateArray.map((_, dayIndex) => (
-                    <div key={`empty-${dayIndex}`} className={styles.emptyCellWrap} style={{ gridColumn: dayIndex + 2, gridRow }}>
-                      <div className={styles.emptyCell}>
-                        120$
-                      </div>
+                    <div
+                      key={`empty-${dayIndex}`}
+                      className={styles.emptyCellWrap}
+                      style={{ gridColumn: dayIndex + 2, gridRow }}
+                    >
+                      <div className={styles.emptyCell}>120$</div>
                     </div>
                   ))}
 
-                  {unitReservations.get(unit.id)?.map(res => {
+                  {unitReservations.get(unit.id)?.map((res) => {
                     const checkInDate = parseDate(res.checkIn)
                     const checkOutDate = parseDate(res.checkOut)
-                    const startIndex = Math.floor((checkInDate.getTime() - dateArray[0].getTime()) / 86400000)
-                    const duration = Math.floor((checkOutDate.getTime() - checkInDate.getTime()) / 86400000)
-                    
+                    const startIndex = Math.floor(
+                      (checkInDate.getTime() - dateArray[0].getTime()) / 86400000,
+                    )
+                    const duration = Math.floor(
+                      (checkOutDate.getTime() - checkInDate.getTime()) / 86400000,
+                    )
+
                     const isClippedLeft = startIndex < 0
                     const actualStartCol = isClippedLeft ? 2 : startIndex + 2
-                    
-                    let actualSpan = duration
-                    if (isClippedLeft) actualSpan = duration + startIndex 
-                    if (actualStartCol + actualSpan > BUFFER_SIZE + 2) actualSpan = (BUFFER_SIZE + 2) - actualStartCol
 
-                    if (actualSpan <= 0) return null 
+                    let actualSpan = duration
+                    if (isClippedLeft) actualSpan = duration + startIndex
+                    if (actualStartCol + actualSpan > BUFFER_SIZE + 2)
+                      actualSpan = BUFFER_SIZE + 2 - actualStartCol
+
+                    if (actualSpan <= 0) return null
 
                     const config = getChannelConfig(res.channel)
 
                     return (
-                      <div 
-                        key={res.id} 
+                      <div
+                        key={res.id}
                         className={styles.bookingWrap}
-                        style={{ gridColumnStart: actualStartCol, gridColumnEnd: `span ${actualSpan}`, gridRow }}
+                        style={{
+                          gridColumnStart: actualStartCol,
+                          gridColumnEnd: `span ${actualSpan}`,
+                          gridRow,
+                        }}
                       >
-                        <div className={cx(styles.pill, config.style, isClippedLeft && styles.pillClippedLeft)}>
+                        <div
+                          className={cx(
+                            styles.pill,
+                            config.style,
+                            isClippedLeft && styles.pillClippedLeft,
+                          )}
+                        >
                           <div className={styles.pillContent}>
                             <span className={styles.guestName}>{res.guestName}</span>
                             <span className={styles.guestCount}>2 Guests</span>
@@ -268,33 +328,38 @@ export function MultiCalendarView() {
   const renderMonthView = () => {
     const year = baseDate.getUTCFullYear()
     const month = baseDate.getUTCMonth()
-    
+
     const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
     const firstDayOfWeek = new Date(Date.UTC(year, month, 1)).getUTCDay()
-    
+
     // Build calendar matrix (padding empty days)
     const gridCells = []
     for (let i = 0; i < firstDayOfWeek; i++) gridCells.push(null)
     for (let i = 1; i <= daysInMonth; i++) gridCells.push(new Date(Date.UTC(year, month, i)))
-    
+
     return (
       <div className={cx(styles.monthViewWrap, 'no-scrollbar')}>
         <div className={styles.monthGrid}>
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-             <div key={d} className={styles.monthHeader}>{d}</div>
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+            <div key={d} className={styles.monthHeader}>
+              {d}
+            </div>
           ))}
-          
+
           {gridCells.map((date, idx) => {
-            if (!date) return <div key={`empty-${idx}`} className={cx(styles.monthCell, styles.monthCellEmpty)} />
+            if (!date)
+              return (
+                <div key={`empty-${idx}`} className={cx(styles.monthCell, styles.monthCellEmpty)} />
+              )
 
             // Aggregate Data Calculation
             let bookedCount = 0
-            filteredUnits.forEach(u => {
+            filteredUnits.forEach((u) => {
               const resList = unitReservations.get(u.id) || []
-              const isBooked = resList.some(r => {
+              const isBooked = resList.some((r) => {
                 const cIn = parseDate(r.checkIn)
                 const cOut = parseDate(r.checkOut)
-                return date >= cIn && date < cOut 
+                return date >= cIn && date < cOut
               })
               if (isBooked) bookedCount++
             })
@@ -306,7 +371,7 @@ export function MultiCalendarView() {
                 <div className={cx(styles.monthDate, isToday && styles.monthDateToday)}>
                   {date.getUTCDate()}
                 </div>
-                
+
                 <div className={styles.monthData}>
                   {bookedCount > 0 ? (
                     <div className={styles.monthDataBadge}>
@@ -328,17 +393,17 @@ export function MultiCalendarView() {
 
   const renderYearView = () => {
     const year = baseDate.getUTCFullYear()
-    
+
     return (
       <div className={styles.monthViewWrap}>
         <div className={styles.yearGrid}>
           {FULL_MONTHS.map((monthName, idx) => {
             // For MVP mock, only July 2026 has data.
-            const hasData = (year === 2026 && idx === 6)
-            
+            const hasData = year === 2026 && idx === 6
+
             return (
-              <div 
-                key={monthName} 
+              <div
+                key={monthName}
                 className={styles.yearCard}
                 onClick={() => {
                   setBaseDate(new Date(Date.UTC(year, idx, 20)))
@@ -347,7 +412,10 @@ export function MultiCalendarView() {
               >
                 <div className={styles.yearMonthName}>{monthName}</div>
                 {hasData ? (
-                  <div className={styles.yearData} style={{ color: 'var(--success)', fontWeight: 600 }}>
+                  <div
+                    className={styles.yearData}
+                    style={{ color: 'var(--success)', fontWeight: 600 }}
+                  >
                     Peak Season • 81% Occ
                   </div>
                 ) : (
@@ -360,7 +428,6 @@ export function MultiCalendarView() {
       </div>
     )
   }
-
 
   return (
     <div className={styles.page}>
@@ -384,21 +451,31 @@ export function MultiCalendarView() {
 
       <div className={styles.toolbar}>
         <div className={styles.navGroup}>
-          <Button variant="outline" size="icon" style={{ height: '32px', width: '32px' }} onClick={handlePrev}>
-            <ChevronLeft size={16}/>
+          <Button
+            variant="outline"
+            size="icon"
+            style={{ height: '32px', width: '32px' }}
+            onClick={handlePrev}
+          >
+            <ChevronLeft size={16} />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleToday}>Today</Button>
-          <Button variant="outline" size="icon" style={{ height: '32px', width: '32px' }} onClick={handleNext}>
-            <ChevronRight size={16}/>
+          <Button variant="outline" size="sm" onClick={handleToday}>
+            Today
           </Button>
-          
-          <span className={styles.dateRange}>
-            {getRangeText()}
-          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            style={{ height: '32px', width: '32px' }}
+            onClick={handleNext}
+          >
+            <ChevronRight size={16} />
+          </Button>
+
+          <span className={styles.dateRange}>{getRangeText()}</span>
 
           <div className={styles.segmentControl}>
-            {(['day', 'month', 'year'] as const).map(mode => (
-              <button 
+            {(['day', 'month', 'year'] as const).map((mode) => (
+              <button
                 key={mode}
                 className={styles.segmentBtn}
                 data-active={viewMode === mode}
@@ -413,16 +490,24 @@ export function MultiCalendarView() {
         <div className={styles.filters}>
           <div className={styles.customDropdown} ref={typeRef}>
             <Button variant="outline" size="sm" onClick={() => setShowTypeMenu(!showTypeMenu)}>
-              {typeFilter === 'all' ? 'All Types' : typeFilter} <ChevronDown size={14} className="ml-2"/>
+              {typeFilter === 'all' ? 'All Types' : typeFilter}{' '}
+              <ChevronDown size={14} className="ml-2" />
             </Button>
             {showTypeMenu && (
               <div className={styles.customMenu}>
-                {typeOptions.map(opt => (
-                  <div 
-                    key={opt} className={styles.customMenuItem} data-active={typeFilter === opt}
-                    onClick={() => { setTypeFilter(opt); setShowTypeMenu(false) }}
+                {typeOptions.map((opt) => (
+                  <div
+                    key={opt}
+                    className={styles.customMenuItem}
+                    data-active={typeFilter === opt}
+                    onClick={() => {
+                      setTypeFilter(opt)
+                      setShowTypeMenu(false)
+                    }}
                   >
-                    <span style={{ textTransform: 'capitalize' }}>{opt === 'all' ? 'All Types' : opt}</span>
+                    <span style={{ textTransform: 'capitalize' }}>
+                      {opt === 'all' ? 'All Types' : opt}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -431,14 +516,20 @@ export function MultiCalendarView() {
 
           <div className={styles.customDropdown} ref={locRef}>
             <Button variant="outline" size="sm" onClick={() => setShowLocMenu(!showLocMenu)}>
-              {locFilter === 'all' ? 'All Locations' : locFilter.split(',')[0]} <ChevronDown size={14} className="ml-2"/>
+              {locFilter === 'all' ? 'All Locations' : locFilter.split(',')[0]}{' '}
+              <ChevronDown size={14} className="ml-2" />
             </Button>
             {showLocMenu && (
               <div className={styles.customMenu}>
-                {locOptions.map(opt => (
-                  <div 
-                    key={opt} className={styles.customMenuItem} data-active={locFilter === opt}
-                    onClick={() => { setLocFilter(opt); setShowLocMenu(false) }}
+                {locOptions.map((opt) => (
+                  <div
+                    key={opt}
+                    className={styles.customMenuItem}
+                    data-active={locFilter === opt}
+                    onClick={() => {
+                      setLocFilter(opt)
+                      setShowLocMenu(false)
+                    }}
                   >
                     {opt === 'all' ? 'All Locations' : opt}
                   </div>
@@ -449,14 +540,20 @@ export function MultiCalendarView() {
 
           <div className={styles.customDropdown} ref={chanRef}>
             <Button variant="outline" size="sm" onClick={() => setShowChanMenu(!showChanMenu)}>
-              {CHANNEL_OPTIONS.find(c => c.value === channelFilter)?.label} <ChevronDown size={14} className="ml-2"/>
+              {CHANNEL_OPTIONS.find((c) => c.value === channelFilter)?.label}{' '}
+              <ChevronDown size={14} className="ml-2" />
             </Button>
             {showChanMenu && (
               <div className={styles.customMenu}>
-                {CHANNEL_OPTIONS.map(opt => (
-                  <div 
-                    key={opt.value} className={styles.customMenuItem} data-active={channelFilter === opt.value}
-                    onClick={() => { setChannelFilter(opt.value); setShowChanMenu(false) }}
+                {CHANNEL_OPTIONS.map((opt) => (
+                  <div
+                    key={opt.value}
+                    className={styles.customMenuItem}
+                    data-active={channelFilter === opt.value}
+                    onClick={() => {
+                      setChannelFilter(opt.value)
+                      setShowChanMenu(false)
+                    }}
                   >
                     {opt.label}
                   </div>
@@ -471,7 +568,6 @@ export function MultiCalendarView() {
       {viewMode === 'day' && renderDayView()}
       {viewMode === 'month' && renderMonthView()}
       {viewMode === 'year' && renderYearView()}
-      
     </div>
   )
 }

@@ -341,6 +341,23 @@
   font-size: var(--text-sm);
 }
 
+.channelDot {
+  width: 35px;
+  height: 35px;
+  border-radius: var(--radius-full);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+  border: 2px solid var(--card);
+  margin-left: -8px;
+}
+
+.channelDot img {
+  border-radius: var(--radius-full);
+}
+
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;

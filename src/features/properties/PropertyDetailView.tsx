@@ -7,6 +7,15 @@ import type { Property, BookingChannel } from './types'
 import styles from './PropertyDetailView.module.css'
 import { Amenity } from '@/components/core/Aminites'
 import { usePropertyById } from './hooks'
+import {
+  airbnbLogo,
+  bookingLogo,
+  directLogo,
+  expediaLogo,
+  renderChannelCluster,
+  vrboLogo,
+} from './Constants'
+import { cx } from '@/lib/cx'
 
 const getStatusBadge = (status: Property['status']) => {
   switch (status) {
@@ -35,12 +44,25 @@ const CHANNEL_COLORS: Record<BookingChannel, string> = {
   direct: '#16a34a',
 }
 
+const CHANNEL_LOGOS: Record<BookingChannel, string> = {
+  airbnb: airbnbLogo,
+  'booking.com': bookingLogo,
+  vrbo: vrboLogo,
+  expedia: expediaLogo,
+  direct: directLogo,
+}
+
 function ChannelChip({ channel }: { channel: BookingChannel }) {
   return (
     <div className={styles.channelChip}>
-      <span className={styles.channelIcon} style={{ background: CHANNEL_COLORS[channel] }}>
+      {/* <span className={styles.channelIcon} style={{ background: CHANNEL_COLORS[channel] }}>
         {CHANNEL_LABELS[channel].charAt(0)}
       </span>
+      <span className={styles.channelName}>{CHANNEL_LABELS[channel]}</span> */}
+
+      <div className={styles.channelDot}>
+        <img src={CHANNEL_LOGOS[channel]} alt={channel} />
+      </div>
       <span className={styles.channelName}>{CHANNEL_LABELS[channel]}</span>
     </div>
   )
@@ -143,7 +165,6 @@ export function PropertyDetailView() {
       </div>
     )
   }
-
 
   return (
     <div className={styles.page}>
@@ -302,6 +323,11 @@ export function PropertyDetailView() {
                 {property.channels.map((ch) => (
                   <ChannelChip key={ch} channel={ch} />
                 ))}
+                {/* {property.channels.length > 0 ? (
+                  renderChannelCluster(property.channels)
+                ) : (
+                  <span className={styles.cellSecondary}>None</span>
+                )} */}
               </div>
             ) : (
               <div className={styles.muted}>No channels connected.</div>

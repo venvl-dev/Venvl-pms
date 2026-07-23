@@ -2,6 +2,12 @@ import { Badge } from '@/components/core/Badge'
 import type { Property, BookingChannel } from './types'
 import styles from './PropertiesView.module.css'
 
+export const airbnbLogo = '/images/channels/airbnb.png'
+export const bookingLogo = '/images/channels/booking.jpg'
+export const expediaLogo = '/images/channels/expedia.png'
+export const vrboLogo = '/images/channels/vrbo.jpg'
+export const directLogo = '/images/venvl-mark.svg'
+
 export const ALL_COLUMNS = [
   { id: 'listing', label: 'Listing', defaultVisible: true },
   { id: 'id', label: 'Property ID', defaultVisible: false },
@@ -39,12 +45,12 @@ export const getStatusBadge = (status: Property['status']) => {
 }
 
 export const renderChannelCluster = (channels: BookingChannel[]) => {
-  const config: Record<BookingChannel, { color: string; initial: string }> = {
-    airbnb: { color: '#FF5A5F', initial: 'A' },
-    'booking.com': { color: '#003580', initial: 'B' },
-    vrbo: { color: '#00266b', initial: 'V' },
-    expedia: { color: '#FFC72C', initial: 'E' },
-    direct: { color: 'var(--primary)', initial: 'D' },
+  const config: Record<BookingChannel, { color: string; initial: string; logo?: string }> = {
+    airbnb: { color: '#FF5A5F', initial: 'A', logo: airbnbLogo },
+    'booking.com': { color: '#003580', initial: 'B', logo: bookingLogo },
+    vrbo: { color: '#00266b', initial: 'V', logo: vrboLogo },
+    expedia: { color: '#FFC72C', initial: 'E', logo: expediaLogo },
+    direct: { color: 'var(--primary)', initial: 'D', logo: directLogo },
   }
 
   return (
@@ -56,7 +62,7 @@ export const renderChannelCluster = (channels: BookingChannel[]) => {
           style={{ backgroundColor: config[ch].color }}
           title={ch}
         >
-          {config[ch].initial}
+          {config[ch].logo ? <img src={config[ch].logo} alt={ch} /> : config[ch].initial}
         </div>
       ))}
     </div>
