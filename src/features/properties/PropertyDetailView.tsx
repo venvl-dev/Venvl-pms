@@ -2,9 +2,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ChevronLeft, MapPin, BedDouble, Bath, Home, Plus } from 'lucide-react'
 import { Button } from '@/components/core/Button'
 import { Badge } from '@/components/core/Badge'
-import { getPropertyId, type Property, type BookingChannel } from './mockProperties'
+import { Skeleton } from '@/components/core/Skeleton'
+import type { Property, BookingChannel } from './types'
 import styles from './PropertyDetailView.module.css'
 import { Amenity } from '@/components/core/Aminites'
+import { usePropertyById } from './hooks'
 
 const getStatusBadge = (status: Property['status']) => {
   switch (status) {
@@ -72,11 +74,64 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
     </div>
   )
 }
-  
+
 export function PropertyDetailView() {
   const { propertyId } = useParams<{ propertyId: string }>()
   const navigate = useNavigate()
-  const property = propertyId ? getPropertyId(propertyId) : undefined
+  const { data: property, isLoading, isError, refetch } = usePropertyById(propertyId)
+
+  if (isLoading) {
+    return (
+      <div className={styles.page}>
+        <Button variant="ghost" className={styles.backBtn} disabled>
+          <ChevronLeft size={16} /> Back to Properties
+        </Button>
+
+        <header className={styles.header}>
+          <div className={styles.gallery}>
+            <Skeleton className={styles.heroSkeleton} />
+            <div className={styles.heroMinGroup}>
+              <Skeleton className={styles.heroMinSkeleton} />
+              <Skeleton className={styles.heroMinSkeleton} />
+            </div>
+          </div>
+
+          <div className={styles.details}>
+            <div className={styles.headerInfo}>
+              <div className={styles.titleRow}>
+                <Skeleton className={styles.titleSkeleton} />
+                <Skeleton className={styles.statusSkeleton} />
+              </div>
+              <Skeleton className={styles.locationSkeleton} />
+              <Skeleton className={styles.idSkeleton} />
+            </div>
+
+            <section className={styles.statGrid}>
+              <Skeleton className={styles.statSkeleton} />
+              <Skeleton className={styles.statSkeleton} />
+              <Skeleton className={styles.statSkeleton} />
+            </section>
+          </div>
+        </header>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className={styles.page}>
+        <Button variant="ghost" onClick={() => navigate('/properties')}>
+          <ChevronLeft size={16} /> Back to Properties
+        </Button>
+        <div className={styles.notFound}>
+          Couldn't load this property.{' '}
+          <Button variant="outline" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   if (!property) {
     return (
@@ -88,6 +143,7 @@ export function PropertyDetailView() {
       </div>
     )
   }
+
 
   return (
     <div className={styles.page}>
@@ -176,7 +232,10 @@ export function PropertyDetailView() {
                 ))}
               </div>
               <div className={styles.infoList}>
-                <InfoRow label="Check-in instructions" value={property.additionalInfo.checkInInstructions} />
+                <InfoRow
+                  label="Check-in instructions"
+                  value={property.additionalInfo.checkInInstructions}
+                />
                 <InfoRow label="Listing address" value={property.additionalInfo.listingAddress} />
                 <InfoRow label="WiFi details" value={property.additionalInfo.wifiDetails} />
               </div>
@@ -195,8 +254,6 @@ export function PropertyDetailView() {
               <div className={styles.muted}>No amenities listed.</div>
             )}
           </section>
-
-        
         </div>
 
         <aside className={styles.sideCol}>
@@ -205,19 +262,40 @@ export function PropertyDetailView() {
               <h2 className={styles.cardTitle}>Prices</h2>
               <div className={styles.priceGrid}>
                 <PriceRow label="Price" value={`${property.pricing.price} $`} />
-                <PriceRow label="Price for extra person" value={property.pricing.priceForExtraPerson} />
+                <PriceRow
+                  label="Price for extra person"
+                  value={property.pricing.priceForExtraPerson}
+                />
                 <PriceRow label="Weekly Discount" value={`${property.pricing.weeklyDiscount}%`} />
-                <PriceRow label="Property rent tax %" value={pct(property.pricing.propertyRentTax)} />
-                <PriceRow label="Apply price for extra person after" value={property.pricing.applyExtraPersonAfter} />
-                <PriceRow label="Fixed guest tax per-person, per-night" value={dash(property.pricing.fixedGuestTaxPerNight)} />
-                <PriceRow label="Fixed tax per reservation" value={dash(property.pricing.fixedTaxPerReservation)} />
+                <PriceRow
+                  label="Property rent tax %"
+                  value={pct(property.pricing.propertyRentTax)}
+                />
+                <PriceRow
+                  label="Apply price for extra person after"
+                  value={property.pricing.applyExtraPersonAfter}
+                />
+                <PriceRow
+                  label="Fixed guest tax per-person, per-night"
+                  value={dash(property.pricing.fixedGuestTaxPerNight)}
+                />
+                <PriceRow
+                  label="Fixed tax per reservation"
+                  value={dash(property.pricing.fixedTaxPerReservation)}
+                />
                 <PriceRow label="Monthly Discount" value={`${property.pricing.monthlyDiscount}%`} />
-                <PriceRow label="Fixed nightly tax" value={dash(property.pricing.fixedNightlyTax)} />
-                <PriceRow label="Refundable Damage Deposit fee" value={property.pricing.refundableDamageDeposit} />
+                <PriceRow
+                  label="Fixed nightly tax"
+                  value={dash(property.pricing.fixedNightlyTax)}
+                />
+                <PriceRow
+                  label="Refundable Damage Deposit fee"
+                  value={property.pricing.refundableDamageDeposit}
+                />
               </div>
             </section>
           )}
-   <section className={styles.card}>
+          <section className={styles.card}>
             <h2 className={styles.cardTitle}>Connected Channels</h2>
             {property.channels.length > 0 ? (
               <div className={styles.channelList}>
@@ -230,7 +308,6 @@ export function PropertyDetailView() {
             )}
           </section>
         </aside>
-       
       </div>
     </div>
   )

@@ -41,6 +41,21 @@
   border: 1px solid var(--border);
   flex-shrink: 0;
 }
+.heroSkeleton,
+.heroMinSkeleton,
+.titleSkeleton,
+.statusSkeleton,
+.locationSkeleton,
+.idSkeleton,
+.statSkeleton {
+  display: block;
+  border-radius: var(--radius-xl);
+  background: var(--muted);
+}
+.heroSkeleton {
+  width: 310px;
+  height: 215px;
+}
 .heroMinGroup {
   display: flex;
   flex-direction: column;
@@ -53,6 +68,10 @@
   border-radius: var(--radius-xl);
   border: 1px solid var(--border);
   flex-shrink: 0;
+}
+.heroMinSkeleton {
+  width: 150px;
+  height: 100px;
 }
 
 .headerInfo {
@@ -70,6 +89,22 @@
   font-size: var(--text-2xl);
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-tight);
+}
+.titleSkeleton {
+  height: 2rem;
+  width: 260px;
+}
+.statusSkeleton {
+  height: 2.25rem;
+  width: 90px;
+}
+.locationSkeleton {
+  height: 1rem;
+  width: 220px;
+}
+.idSkeleton {
+  height: 0.9rem;
+  width: 140px;
 }
 
 .location {
@@ -100,6 +135,10 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
   padding: var(--space-4);
+}
+.statSkeleton {
+  height: 72px;
+  width: 100%;
 }
 
 .statIcon {
