@@ -82,7 +82,7 @@
   transition: all 0.2s;
 }
 
-.segmentBtn[data-active="true"] {
+.segmentBtn[data-active='true'] {
   background: var(--card);
   color: var(--foreground);
   box-shadow: var(--shadow-sm);
@@ -129,7 +129,7 @@
   background: var(--muted);
 }
 
-.customMenuItem[data-active="true"] {
+.customMenuItem[data-active='true'] {
   background: color-mix(in oklab, var(--primary) 10%, transparent);
   color: var(--primary);
   font-weight: var(--font-medium);
@@ -160,7 +160,7 @@
 .grid {
   display: grid;
   grid-template-columns: 260px repeat(var(--total-days), 120px);
-  grid-auto-rows: 72px; 
+  grid-auto-rows: 72px;
   min-width: max-content;
   background: white;
 }
@@ -179,11 +179,11 @@
   z-index: 20;
   background: var(--card);
   border-bottom: 1px solid var(--border);
-  height: 60px; 
+  height: 60px;
 }
 
 .corner {
-  z-index: 30; 
+  z-index: 30;
   display: flex;
   align-items: center;
   padding: 0 var(--space-4);
@@ -266,7 +266,7 @@
   justify-content: center;
   padding: 6px 4px; /* Matches the padding of .bookingWrap to align perfectly */
   border-bottom: 1px solid var(--border);
-  z-index: 1; 
+  z-index: 1;
 }
 
 .emptyCell {
@@ -291,8 +291,8 @@
 .bookingWrap {
   display: flex;
   align-items: center;
-  padding: 6px 4px; 
-  z-index: 5; 
+  padding: 6px 4px;
+  z-index: 5;
   border-bottom: 1px solid var(--border);
 }
 
@@ -317,13 +317,13 @@
 .pillClippedLeft {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-  border-left: 2px solid rgba(0,0,0,0.2);
+  border-left: 2px solid rgba(0, 0, 0, 0.2);
 }
 
 .pillClippedRight {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
-  border-right: 2px solid rgba(0,0,0,0.2);
+  border-right: 2px solid rgba(0, 0, 0, 0.2);
 }
 
 .pillContent {
@@ -349,8 +349,8 @@
 .channelIcon {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-full);
   font-weight: 800;
   font-size: 14px;
@@ -358,19 +358,31 @@
   background: rgba(255, 255, 255, 0.9);
 }
 
+.channelIcon img {
+  border-radius: var(--radius-full);
+}
+
 .channel_airbnb {
   background: #ffe6e9;
   color: black;
   border-left: 4px solid #ff385c;
 }
-.channel_airbnb .channelIcon { color: #ff385c; font-family: serif; font-style: italic; }
+.channel_airbnb .channelIcon {
+  color: #ff385c;
+  font-family: serif;
+  font-style: italic;
+}
 
 .channel_booking_com {
   background: #e6f0ff;
   color: black;
   border-left: 4px solid #003580;
 }
-.channel_booking_com .channelIcon { color: #003580; font-family: sans-serif; font-weight: 900;}
+.channel_booking_com .channelIcon {
+  color: #003580;
+  font-family: sans-serif;
+  font-weight: 900;
+}
 
 /* FIXED: Mixes with --card to be 100% opaque and block out the empty cell background */
 .channel_direct {
@@ -378,7 +390,9 @@
   color: black;
   border-left: 4px solid color-mix(in oklab, var(--primary) 30%, transparent);
 }
-.channel_direct .channelIcon { color: var(--primary); }
+.channel_direct .channelIcon {
+  color: var(--primary);
+}
 
 /* ==========================================================================
    MONTH VIEW (AGGREGATE CALENDAR)
@@ -492,7 +506,9 @@
   gap: var(--space-2);
   min-height: 180px;
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
 }
 
 .yearCard:hover {

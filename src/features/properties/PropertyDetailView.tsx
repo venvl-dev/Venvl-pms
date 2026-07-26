@@ -7,15 +7,7 @@ import type { Property, BookingChannel } from './types'
 import styles from './PropertyDetailView.module.css'
 import { Amenity } from '@/components/core/Aminites'
 import { usePropertyById } from './hooks'
-import {
-  airbnbLogo,
-  bookingLogo,
-  directLogo,
-  expediaLogo,
-  renderChannelCluster,
-  vrboLogo,
-} from './Constants'
-import { cx } from '@/lib/cx'
+import { airbnbLogo, bookingLogo, directLogo, expediaLogo, vrboLogo } from './Constants'
 
 const getStatusBadge = (status: Property['status']) => {
   switch (status) {
@@ -34,14 +26,6 @@ const CHANNEL_LABELS: Record<BookingChannel, string> = {
   vrbo: 'Vrbo',
   expedia: 'Expedia',
   direct: 'Direct Booking',
-}
-
-const CHANNEL_COLORS: Record<BookingChannel, string> = {
-  airbnb: '#FF5A5F',
-  'booking.com': '#003580',
-  vrbo: '#1668E3',
-  expedia: '#FDB913',
-  direct: '#16a34a',
 }
 
 const CHANNEL_LOGOS: Record<BookingChannel, string> = {

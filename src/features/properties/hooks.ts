@@ -15,7 +15,6 @@ export const propertyKeys = {
   detail: (id: string) => [...propertyKeys.all, 'detail', id] as const,
 }
 
-
 export function useProperties() {
   return useQuery({
     queryKey: propertyKeys.list(),
@@ -35,13 +34,12 @@ export function useCreateProperty() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: Omit<Property, 'id'>) => createProperty(payload),
-       onSuccess: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: propertyKeys.all })
       toast.success('Property created successfully')
     },
     onError: () => toast.error('Could not create property'),
   })
-
 }
 
 export function useUpdateProperty() {
@@ -55,18 +53,16 @@ export function useUpdateProperty() {
     },
     onError: () => toast.error('Could not update property'),
   })
-
 }
 
 export function useDeleteProperty() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => deleteProperty(id),
-     onSuccess: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: propertyKeys.all })
       toast.warning('Property deleted successfully')
     },
     onError: () => toast.error('Could not delete property'),
   })
-
 }

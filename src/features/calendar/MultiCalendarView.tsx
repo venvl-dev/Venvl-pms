@@ -9,6 +9,7 @@ import styles from './MultiCalendarView.module.css'
 import { MOCK_PROPERTIES } from '@/features/properties/mockProperties'
 import { MOCK_RESERVATIONS, type Reservation } from '@/features/reservations/mockReservations'
 import type { BookingChannel } from '@/types/domain'
+import { airbnbLogo, bookingLogo, directLogo } from '../properties/Constants'
 
 type ViewMode = 'day' | 'month' | 'year'
 
@@ -36,9 +37,10 @@ const FULL_MONTHS = [
 ]
 
 const getChannelConfig = (channel: BookingChannel) => {
-  if (channel === 'airbnb') return { style: styles.channel_airbnb, icon: 'a' }
-  if (channel === 'booking.com') return { style: styles.channel_booking_com, icon: 'B.' }
-  return { style: styles.channel_direct, icon: 'D' }
+  if (channel === 'airbnb') return { style: styles.channel_airbnb, icon: 'a', logo: airbnbLogo }
+  if (channel === 'booking.com')
+    return { style: styles.channel_booking_com, icon: 'B.', logo: bookingLogo }
+  return { style: styles.channel_direct, icon: 'D', logo: directLogo }
 }
 
 const CHANNEL_OPTIONS = [
@@ -55,7 +57,10 @@ export function MultiCalendarView() {
   const [viewMode, setViewMode] = useState<ViewMode>('day')
 
   // The central date context (Defaults to July 20 2026 to align with mock data)
-  const [baseDate, setBaseDate] = useState(() => new Date('2026-07-20T00:00:00Z'))
+  const [baseDate, setBaseDate] = useState(() => {
+    const now = new Date()
+    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
+  })
 
   // Filter States
   const [typeFilter, setTypeFilter] = useState('all')
@@ -189,8 +194,8 @@ export function MultiCalendarView() {
   }
 
   const handleToday = () => {
-    // Jump to the Mock anchor so data remains visible
-    setBaseDate(new Date())
+    const now = new Date()
+    setBaseDate(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())))
   }
 
   // Dynamic Range Text Generator
@@ -311,7 +316,9 @@ export function MultiCalendarView() {
                             <span className={styles.guestName}>{res.guestName}</span>
                             <span className={styles.guestCount}>2 Guests</span>
                           </div>
-                          <div className={styles.channelIcon}>{config.icon}</div>
+                          <div className={styles.channelIcon}>
+                            <img src={config.logo} />
+                          </div>
                         </div>
                       </div>
                     )
@@ -363,8 +370,11 @@ export function MultiCalendarView() {
               })
               if (isBooked) bookedCount++
             })
-
-            const isToday = date.getTime() === new Date('2026-07-20T00:00:00Z').getTime() // Mock today
+            const now = new Date()
+            const todayUTC = new Date(
+              Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()),
+            ).getTime()
+            const isToday = date.getTime() === todayUTC
 
             return (
               <div key={idx} className={styles.monthCell}>
@@ -406,7 +416,11 @@ export function MultiCalendarView() {
                 key={monthName}
                 className={styles.yearCard}
                 onClick={() => {
-                  setBaseDate(new Date(Date.UTC(year, idx, 20)))
+                  const now = new Date()
+                  const isCurrentMonth = year === now.getFullYear() && idx === now.getMonth()
+                  const targetDay = isCurrentMonth ? now.getDate() : 1
+
+                  setBaseDate(new Date(Date.UTC(year, idx, targetDay)))
                   setViewMode('month')
                 }}
               >
