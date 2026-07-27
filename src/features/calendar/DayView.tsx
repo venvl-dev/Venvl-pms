@@ -78,7 +78,9 @@ export function DayView({
                     className={styles.emptyCellWrap}
                     style={{ gridColumn: dayIndex + 2, gridRow }}
                   >
-                    <div className={styles.emptyCell}>120$</div>
+                    <div className={styles.emptyCell}>
+                      {unit.pricing?.price ? `${unit.pricing.price}$` : '-'}
+                    </div>
                   </div>
                 ))}
 

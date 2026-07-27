@@ -3,8 +3,8 @@ import styles from './MultiCalendarView.module.css'
 import { useNavigate } from 'react-router-dom'
 import { ReservationPopover } from './ReservationPopover'
 
-import { MOCK_PROPERTIES } from '@/features/properties/mockProperties'
-import { MOCK_RESERVATIONS } from '@/features/reservations/mockReservations'
+import { BOOKABLE_UNITS } from '@/features/properties/mockProperties'
+import { DB as MOCK_RESERVATIONS } from '@/features/reservations/mockDb'
 import type { BookingChannel } from '@/types/domain'
 import type { Reservation } from '@/features/reservations/types'
 
@@ -53,7 +53,7 @@ export function MultiCalendarView() {
   const [channelFilter, setChannelFilter] = useState('all')
 
   // 1. Data Preparation & Filtering
-  const allBookableUnits = useMemo(() => MOCK_PROPERTIES, [])
+  const allBookableUnits = useMemo(() => BOOKABLE_UNITS, [])
 
   const typeOptions = useMemo(
     () => ['all', ...Array.from(new Set(allBookableUnits.map((u) => u.type)))],
@@ -79,16 +79,15 @@ export function MultiCalendarView() {
     filteredUnits.forEach((u) => map.set(u.id, []))
 
     // Distributed deterministically for the mock
-    MOCK_RESERVATIONS.forEach((res, index) => {
+    MOCK_RESERVATIONS.forEach((res) => {
       if (channelFilter !== 'all' && res.channel !== channelFilter) return
 
-      const targetUnit = allBookableUnits[index % allBookableUnits.length]
-      if (targetUnit && map.has(targetUnit.id)) {
-        map.get(targetUnit.id)?.push(res)
+      if (map.has(res.propertyId)) {
+        map.get(res.propertyId)?.push(res)
       }
     })
     return map
-  }, [filteredUnits, allBookableUnits, channelFilter])
+  }, [filteredUnits, channelFilter])
 
   // 2. Day View Matrix Settings
   const COL_WIDTH = 120

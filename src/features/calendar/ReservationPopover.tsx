@@ -4,6 +4,7 @@ import { Button } from '@/components/core/Button'
 import { Badge } from '@/components/core/Badge'
 import type { Reservation } from '@/features/reservations/types'
 import { formatDate, formatCurrency, getStatusBadge } from '@/features/reservations/Constants'
+import { getUnitLabels } from '@/features/properties/mockProperties'
 import { getChannelConfig } from './Constants'
 import styles from './MultiCalendarView.module.css'
 
@@ -79,7 +80,7 @@ export function ReservationPopover({ reservation, anchorRect, onClose, onNavigat
         <div className={styles.popoverRow}>
           <span className={styles.popoverLabel}>Unit</span>
           <span className={styles.popoverValue}>
-            {reservation.property} ({reservation.unit})
+            {getUnitLabels(reservation.propertyId).property} ({getUnitLabels(reservation.propertyId).unit})
           </span>
         </div>
         <div className={styles.popoverRow}>
