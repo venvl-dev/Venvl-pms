@@ -1,5 +1,5 @@
 import type { BookingChannel } from '@/types/domain'
-import { airbnbLogo, bookingLogo, directLogo } from '../properties/Constants'
+import { airbnbLogo, bookingLogo, directLogo, expediaLogo, vrboLogo } from '../properties/Constants'
 import styles from './MultiCalendarView.module.css'
 
 export type ViewMode = 'day' | 'month' | 'year'
@@ -17,6 +17,8 @@ export const getChannelConfig = (channel: BookingChannel) => {
   if (channel === 'airbnb') return { style: styles.channel_airbnb, icon: 'a', logo: airbnbLogo }
   if (channel === 'booking.com')
     return { style: styles.channel_booking_com, icon: 'B.', logo: bookingLogo }
+  if (channel === 'vrbo') return { style: styles.channel_vrbo, icon: 'V', logo: vrboLogo }
+  if (channel === 'expedia') return { style: styles.channel_expedia, icon: 'E', logo: expediaLogo }
   return { style: styles.channel_direct, icon: 'D', logo: directLogo }
 }
 

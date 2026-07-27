@@ -1,5 +1,7 @@
 import { useState, useMemo, useRef, useLayoutEffect } from 'react'
 import styles from './MultiCalendarView.module.css'
+import { useNavigate } from 'react-router-dom'
+import { ReservationPopover } from './ReservationPopover'
 
 import { MOCK_PROPERTIES } from '@/features/properties/mockProperties'
 import { MOCK_RESERVATIONS } from '@/features/reservations/mockReservations'
@@ -13,8 +15,31 @@ import { MonthView } from './MonthView'
 import { YearView } from './YearView'
 
 export function MultiCalendarView() {
+  const navigate = useNavigate()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('day')
+
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
+  const [popoverAnchor, setPopoverAnchor] = useState<DOMRect | null>(null)
+
+  const scrollOriginRef = useRef<{ x: number; y: number } | null>(null)
+
+  const handleSelectReservation = (res: Reservation, rect: DOMRect) => {
+    setSelectedReservation(res)
+    setPopoverAnchor(rect)
+    if (scrollRef.current) {
+      scrollOriginRef.current = {
+        x: scrollRef.current.scrollLeft,
+        y: scrollRef.current.scrollTop,
+      }
+    }
+  }
+
+  const closePopover = () => {
+    setSelectedReservation(null)
+    setPopoverAnchor(null)
+    scrollOriginRef.current = null
+  }
 
   // The central date context
   const [baseDate, setBaseDate] = useState(() => {
@@ -83,8 +108,18 @@ export function MultiCalendarView() {
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (viewMode !== 'day') return
     const scrollLeft = e.currentTarget.scrollLeft
+    const scrollTop = e.currentTarget.scrollTop
     const newIndex = Math.round(scrollLeft / COL_WIDTH)
     if (newIndex !== visibleStartIndex) setVisibleStartIndex(newIndex)
+
+    if (selectedReservation && scrollOriginRef.current !== null) {
+      const dx = Math.abs(scrollLeft - scrollOriginRef.current.x)
+      const dy = Math.abs(scrollTop - scrollOriginRef.current.y)
+      
+      if (dx > 20 || dy > 20) {
+        closePopover()
+      }
+    }
   }
 
   useLayoutEffect(() => {
@@ -180,6 +215,7 @@ export function MultiCalendarView() {
           scrollRef={scrollRef}
           onScroll={handleScroll}
           bufferSize={BUFFER_SIZE}
+          onSelectReservation={handleSelectReservation}
         />
       )}
       {viewMode === 'month' && (
@@ -191,6 +227,18 @@ export function MultiCalendarView() {
       )}
       {viewMode === 'year' && (
         <YearView baseDate={baseDate} setBaseDate={setBaseDate} setViewMode={setViewMode} />
+      )}
+
+      {selectedReservation && popoverAnchor && (
+        <ReservationPopover
+          reservation={selectedReservation}
+          anchorRect={popoverAnchor}
+          onClose={closePopover}
+          onNavigate={() => {
+            closePopover()
+            navigate(`/reservations/${selectedReservation.id}`)
+          }}
+        />
       )}
     </div>
   )

@@ -16,8 +16,8 @@ interface Props {
   scrollRef: React.RefObject<HTMLDivElement | null>
   onScroll: (e: React.UIEvent<HTMLDivElement>) => void
   bufferSize: number
+  onSelectReservation: (res: Reservation, rect: DOMRect) => void
 }
-
 export function DayView({
   dateArray,
   filteredUnits,
@@ -25,6 +25,7 @@ export function DayView({
   scrollRef,
   onScroll,
   bufferSize,
+  onSelectReservation
 }: Props) {
   return (
     <div className={styles.calendarCard}>
@@ -119,6 +120,10 @@ export function DayView({
                           config.style,
                           isClippedLeft && styles.pillClippedLeft,
                         )}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onSelectReservation(res, e.currentTarget.getBoundingClientRect())
+                        }}
                       >
                         <div className={styles.pillContent}>
                           <span className={styles.guestName}>{res.guestName}</span>
