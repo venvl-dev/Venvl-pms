@@ -126,3 +126,15 @@ const generateMocks = (): Property[] => {
 export const MOCK_PROPERTIES = generateMocks()
 export const getPropertyId = (id: string): Property | undefined =>
   MOCK_PROPERTIES.find((p) => p.id === id)
+export const BOOKABLE_UNITS = MOCK_PROPERTIES
+
+export const getUnitLabels = (unitId: string): { property: string; unit: string } => {
+  const unit = getPropertyId(unitId)
+  if (!unit) return { property: 'Unknown property', unit: '—' }
+  const parent = unit.parentId ? getPropertyId(unit.parentId) : undefined
+  if (parent) return { property: parent.name, unit: unit.name }
+  return {
+    property: unit.name,
+    unit: parent ? unit.name : unit.type === 'parent' ? 'Parent' : 'Single',
+  }
+}

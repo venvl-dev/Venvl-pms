@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/core/Button'
 import styles from './ReservationsView.module.css'
-
 import { useExportAll, useReservations } from './hooks'
 import { toast } from 'sonner'
-
 import { ALL_COLUMNS } from './Constants'
 import { exportReservationsCsv } from './exportCsv'
 import { ReservationsHeader } from './ReservationsHeader'
@@ -12,12 +10,14 @@ import { ReservationsPagination } from './ReservationPagination'
 import { ReservationsMobileCards } from './ReservationsMobileCards'
 import { ReservationsTable } from './ReservationsTable'
 import { ReservationsToolbar } from './ReservationsToolbar'
+import {  useNavigate } from 'react-router-dom'
 
 
 
 
 
 export function ReservationsView() {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -105,6 +105,7 @@ export function ReservationsView() {
         items={reservations}
         visibleCols={visibleCols}
         rowsPerPage={rowsPerPage}
+        onOpen={(id) => navigate(`/reservations/${id}`)}
       />
 
       <ReservationsMobileCards isLoading={isLoading} items={reservations} rowsPerPage={rowsPerPage} />

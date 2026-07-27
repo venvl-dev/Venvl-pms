@@ -1,4 +1,6 @@
 import type { Reservation } from './types'
+import { getUnitLabels } from '@/features/properties/mockProperties'
+
 
 const HEADERS = [
   'Booking ID',
@@ -26,18 +28,22 @@ export async function exportReservationsCsv(
 
   if (!dataToExport || dataToExport.length === 0) return
 
-  const rows = dataToExport.map((res) => [
-    res.id,
-    `"${res.guestName}"`,
-    res.checkIn,
-    res.checkOut,
-    `"${res.property}"`,
-    `"${res.unit}"`,
-    res.channel,
-    res.status,
-    res.totalAmount,
-    res.balanceDue,
-  ])
+
+    const rows = dataToExport.map((res) => {
+    const labels = getUnitLabels(res.propertyId)
+    return [
+      res.id,
+      `"${res.guestName}"`,
+      res.checkIn,
+      res.checkOut,
+      `"${labels.property}"`,
+      `"${labels.unit}"`,
+      res.channel,
+      res.status,
+      res.totalAmount,
+      res.balanceDue,
+    ]
+  })
 
   const csvContent = [HEADERS.join(','), ...rows.map((row) => row.join(','))].join('\n')
 

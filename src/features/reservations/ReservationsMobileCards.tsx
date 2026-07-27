@@ -5,6 +5,8 @@ import { Skeleton } from '@/components/core/Skeleton'
 import type { Reservation } from './types'
 import { getStatusBadge, formatDate, formatCurrency, renderChannel } from './Constants'
 import styles from './ReservationsView.module.css'
+import { getUnitLabels } from '../properties/mockProperties'
+
 
 interface Props {
   isLoading: boolean
@@ -55,13 +57,15 @@ export function ReservationsMobileCards({ isLoading, items, rowsPerPage }: Props
           No reservations found matching your criteria.
         </div>
       ) : (
-        items.map((res) => (
+        items.map((res) => {
+          const labels = getUnitLabels(res.propertyId)
+          return (
           <div key={res.id} className={styles.mobileCardWrap}>
             <div className={styles.mobileCardHeader}>
               <div>
                 <div className={styles.mobileCardTitle}>{res.guestName}</div>
                 <div className={styles.mobileCardProperty}>
-                  {res.property} <span className={styles.mobileCardUnit}>• {res.unit}</span>
+                  {labels.property} <span className={styles.mobileCardUnit}>• {labels.unit}</span>
                 </div>
               </div>
               <div>{getStatusBadge(res.status)}</div>
@@ -108,7 +112,8 @@ export function ReservationsMobileCards({ isLoading, items, rowsPerPage }: Props
               </div>
             </div>
           </div>
-        ))
+          )
+        })
       )}
     </div>
   )
