@@ -29,6 +29,7 @@ export default function PhotosForm({
   const [isDragging, setIsDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement | null>(null)
   const { photos, thumbnailId } = photosForm
+  console.log(`ThumbId: ${thumbnailId}`)
 
   const handleAddPhotos = (files?: FileList | null) => {
     const selectedFiles = files ?? inputRef.current?.files

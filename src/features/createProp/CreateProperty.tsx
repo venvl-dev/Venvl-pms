@@ -166,9 +166,18 @@ export default function CreateProperty() {
   }, [generalInfo])
 
   useEffect(() => {
+    const coverImg = photosForm.photos.find((p) => p.id === photosForm.thumbnailId)?.src
+    setPropInfo((prev) => ({
+      ...prev,
+      image: coverImg || '',
+    }))
+  }, [photosForm])
+
+  useEffect(() => {
+    const urls = photoUrlsRef.current
     return () => {
-      photoUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
-      photoUrlsRef.current.clear()
+      urls.forEach((url) => URL.revokeObjectURL(url))
+      urls.clear()
     }
   }, [])
 
