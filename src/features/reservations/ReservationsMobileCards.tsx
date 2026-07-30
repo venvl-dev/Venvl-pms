@@ -12,9 +12,10 @@ interface Props {
   isLoading: boolean
   items: Reservation[]
   rowsPerPage: number
+  onOpen: (id: string) => void
 }
 
-export function ReservationsMobileCards({ isLoading, items, rowsPerPage }: Props) {
+export function ReservationsMobileCards({ isLoading, items, rowsPerPage,onOpen }: Props) {
   return (
     <div className={styles.mobileList}>
       {isLoading ? (
@@ -61,10 +62,10 @@ export function ReservationsMobileCards({ isLoading, items, rowsPerPage }: Props
           const labels = getUnitLabels(res.propertyId)
           return (
           <div key={res.id} className={styles.mobileCardWrap}>
-            <div className={styles.mobileCardHeader}>
+            <div className={styles.mobileCardHeader} onClick={()=>onOpen(res.id)}>
               <div>
                 <div className={styles.mobileCardTitle}>{res.guestName}</div>
-                <div className={styles.mobileCardProperty}>
+                <div className={styles.mobileCardProperty} >
                   {labels.property} <span className={styles.mobileCardUnit}>• {labels.unit}</span>
                 </div>
               </div>

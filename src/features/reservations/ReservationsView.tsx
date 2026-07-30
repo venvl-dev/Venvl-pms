@@ -10,11 +10,7 @@ import { ReservationsPagination } from './ReservationPagination'
 import { ReservationsMobileCards } from './ReservationsMobileCards'
 import { ReservationsTable } from './ReservationsTable'
 import { ReservationsToolbar } from './ReservationsToolbar'
-import {  useNavigate } from 'react-router-dom'
-
-
-
-
+import { useNavigate } from 'react-router-dom'
 
 export function ReservationsView() {
   const navigate = useNavigate()
@@ -25,7 +21,7 @@ export function ReservationsView() {
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {}
-    ALL_COLUMNS.forEach(col => initial[col.id] = col.defaultVisible)
+    ALL_COLUMNS.forEach((col) => (initial[col.id] = col.defaultVisible))
     return initial
   })
 
@@ -34,23 +30,33 @@ export function ReservationsView() {
     return () => clearTimeout(timer)
   }, [search])
 
-  const { data: response, isLoading, isError, refetch } = useReservations({
+  const {
+    data: response,
+    isLoading,
+    isError,
+    refetch,
+  } = useReservations({
     page: currentPage,
     limit: rowsPerPage,
-    search:debouncedSearch,
-    status: statusFilter
+    search: debouncedSearch,
+    status: statusFilter,
   })
 
   const { mutateAsync: fetchAllForExport, isPending: isExportingAll } = useExportAll()
-  
-  const reservations = response?.data ?? []
-  const meta = response?.meta ?? { totalCount: 0, totalPages: 1, currentPage: 1, limit: rowsPerPage }
 
-  const toggleColumn = (id: string) => {
-    setVisibleCols(prev => ({ ...prev, [id]: !prev[id] }))
+  const reservations = response?.data ?? []
+  const meta = response?.meta ?? {
+    totalCount: 0,
+    totalPages: 1,
+    currentPage: 1,
+    limit: rowsPerPage,
   }
 
-    const handleExportCSV = async (type: 'visible' | 'all') => {
+  const toggleColumn = (id: string) => {
+    setVisibleCols((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
+
+  const handleExportCSV = async (type: 'visible' | 'all') => {
     try {
       await exportReservationsCsv(type, {
         visibleRows: reservations,
@@ -62,14 +68,16 @@ export function ReservationsView() {
     }
   }
 
-
   if (isError) {
     return (
       <div className={styles.page}>
         <header className={styles.header}>
           <h1 className={styles.title}>Reservations</h1>
         </header>
-        <div className={styles.tableCard} style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
+        <div
+          className={styles.tableCard}
+          style={{ padding: 'var(--space-8)', textAlign: 'center' }}
+        >
           <p style={{ color: 'var(--muted-foreground)', marginBottom: 'var(--space-4)' }}>
             Couldn't load reservations.
           </p>
@@ -80,7 +88,6 @@ export function ReservationsView() {
       </div>
     )
   }
-
 
   return (
     <div className={styles.page}>
@@ -108,7 +115,12 @@ export function ReservationsView() {
         onOpen={(id) => navigate(`/reservations/${id}`)}
       />
 
-      <ReservationsMobileCards isLoading={isLoading} items={reservations} rowsPerPage={rowsPerPage} />
+      <ReservationsMobileCards
+        isLoading={isLoading}
+        items={reservations}
+        rowsPerPage={rowsPerPage}
+        onOpen={(id) => navigate(`/reservations/${id}`)}
+      />
       <ReservationsPagination
         currentPage={currentPage}
         totalPages={meta.totalPages}
@@ -118,7 +130,6 @@ export function ReservationsView() {
         onPageChange={setCurrentPage}
         onRowsPerPageChange={setRowsPerPage}
       />
-
     </div>
   )
 }
