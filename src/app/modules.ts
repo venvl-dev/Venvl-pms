@@ -25,7 +25,6 @@ export interface ModuleDef {
 const STAFF: Role[] = ['platform_super_admin', 'org_admin', 'manager']
 const FRONT: Role[] = [...STAFF, 'front_desk']
 
-
 export const MODULES: ModuleDef[] = [
   {
     key: 'dashboard',
@@ -51,7 +50,7 @@ export const MODULES: ModuleDef[] = [
     group: 'Operations',
     roles: FRONT,
   },
-  
+
   {
     key: 'properties',
     title: 'Properties',
@@ -60,6 +59,14 @@ export const MODULES: ModuleDef[] = [
     group: 'Distribution',
     roles: STAFF,
   },
+  // {
+  //   key: 'create-property',
+  //   title: 'Create Property',
+  //   path: '/create-property',
+  //   icon: Building2,
+  //   group: 'Distribution',
+  //   roles: STAFF,
+  // },
   {
     key: 'channels',
     title: 'Channel Manager',
@@ -105,9 +112,10 @@ export function sectionsFor(role: Role): NavSection[] {
   })).filter((s) => s.modules.length > 0)
 }
 
-
 export function findModuleByPath(pathname: string): ModuleDef | undefined {
   const exact = MODULES.find((m) => m.path === pathname)
   if (exact) return exact
-  return MODULES.filter((m) => m.path !== '/' && pathname.startsWith(`${m.path}/`)).sort((a, b) => b.path.length - a.path.length)[0]
+  return MODULES.filter((m) => m.path !== '/' && pathname.startsWith(`${m.path}/`)).sort(
+    (a, b) => b.path.length - a.path.length,
+  )[0]
 }

@@ -1,5 +1,4 @@
-import { cx } from '@/lib/cx'
-import styles from './Icon.module.css'
+import React from 'react'
 import {
   AirVent,
   Car,
@@ -7,17 +6,17 @@ import {
   Heart,
   MapPin,
   Star,
-  Bath,
-  BedDouble,
   Tv,
-  UsersRound,
   UtensilsCrossed,
+  WashingMachine,
   Waves,
   Wifi,
-  WashingMachine,
+  BedDouble,
+  Bath,
   type LucideIcon,
 } from 'lucide-react'
-
+import styles from './IconProps.module.css'
+import { cx } from '../../lib/cx'
 type IconProps = {
   name: string
   size?: number
@@ -25,6 +24,11 @@ type IconProps = {
   color?: string
   filled?: boolean
   className?: string
+}
+
+type IconVars = React.CSSProperties & {
+  '--icon-size': string
+  '--icon-color': string
 }
 
 const ICONS: Record<string, LucideIcon> = {
@@ -36,12 +40,11 @@ const ICONS: Record<string, LucideIcon> = {
   'air conditioning': AirVent,
   kitchen: UtensilsCrossed,
   pool: Waves,
+  parking: Car,
   bed: BedDouble,
   bath: Bath,
-  parking: Car,
   washer: WashingMachine,
   tv: Tv,
-  users: UsersRound,
 }
 
 export function Icon({
@@ -52,16 +55,26 @@ export function Icon({
   filled = false,
   className = '',
 }: IconProps) {
-  const normalizedKey = name ? name.toLowerCase().trim() : 'check'
-  const LucideComp = ICONS[normalizedKey] ?? Check
+  const IconComponent = ICONS[name.toLowerCase()] ?? Check
+
+  const vars: IconVars = {
+    '--icon-size': `${size}px`,
+    '--icon-color': color,
+  }
+
   return (
-    <LucideComp
-      name={name}
-      size={size}
-      strokeWidth={strokeWidth}
-      color={color}
+    <span
+      aria-hidden="true"
       className={cx(styles.icon, filled && styles.filled, className)}
-      fill={filled ? color : 'none'}
-    />
+      style={vars}
+    >
+      <IconComponent
+        name={name}
+        size={size}
+        strokeWidth={strokeWidth}
+        color={color}
+        fill={filled ? color : 'none'}
+      />
+    </span>
   )
 }

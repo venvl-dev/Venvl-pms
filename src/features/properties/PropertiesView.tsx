@@ -96,7 +96,7 @@ export function PropertiesView() {
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>Properties</h1>
-        <Button>
+        <Button onClick={() => navigate('/properties/create-property')}>
           <Plus size={16} /> Add Property
         </Button>
       </header>

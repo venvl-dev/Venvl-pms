@@ -11,11 +11,13 @@ import { ReservationsView } from '@/features/reservations/ReservationsView'
 import { PropertiesView } from '@/features/properties/PropertiesView'
 import { PropertyDetailView } from '@/features/properties/PropertyDetailView'
 import { MultiCalendarView } from '@/features/calendar/MultiCalendarView'
+import CreateProperty from '@/features/createProp/CreateProperty'
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }
   if (m.path === '/reservations') return { path: 'reservations', element: <ReservationsView /> }
   if (m.path === '/properties') return { path: 'properties', element: <PropertiesView /> }
+  // if (m.path === '/create-property') return { path: 'create-property', element: <CreateProperty /> }
   if (m.path === '/calendar') return { path: 'calendar', element: <MultiCalendarView /> }
   return { path: m.path.slice(1), element: <ModulePlaceholder /> }
 })
@@ -30,9 +32,12 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <DashboardLayout />,
-        children: [...moduleRoutes,
-          {path:'properties/:propertyId',element:<PropertyDetailView/>},
-          { path: '*', element: <ModulePlaceholder /> }],
+        children: [
+          ...moduleRoutes,
+          { path: 'properties/:propertyId', element: <PropertyDetailView /> },
+          { path: 'properties/create-property', element: <CreateProperty /> },
+          { path: '*', element: <ModulePlaceholder /> },
+        ],
       },
     ],
   },
