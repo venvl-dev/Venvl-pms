@@ -315,7 +315,7 @@ export function PropertyDetailView() {
               </div>
             ) : (
               <div className={styles.muted}>No channels connected.</div>
-            )}
+            )}  
           </section>
         </aside>
       </div>

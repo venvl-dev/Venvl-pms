@@ -1,5 +1,5 @@
 import { useQuery, keepPreviousData, useMutation } from '@tanstack/react-query'
-import { getAllReservations, getReservations } from './api'
+import { getAllReservations, getReservationById, getReservations } from './api'
 import type { GetReservationsParams } from './types'
 
 export function useReservations(params: GetReservationsParams) {
@@ -7,6 +7,13 @@ export function useReservations(params: GetReservationsParams) {
     queryKey: ['reservations', params],
     queryFn: () => getReservations(params),
     placeholderData: keepPreviousData, 
+  })
+}
+export function useReservationId(id:string|undefined){
+  return useQuery({
+    queryKey:['reservation',id],
+    queryFn:()=>getReservationById(id!),
+    enabled:!!id,
   })
 }
 

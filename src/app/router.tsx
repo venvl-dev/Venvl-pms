@@ -11,6 +11,7 @@ import { ReservationsView } from '@/features/reservations/ReservationsView'
 import { PropertiesView } from '@/features/properties/PropertiesView'
 import { PropertyDetailView } from '@/features/properties/PropertyDetailView'
 import { MultiCalendarView } from '@/features/calendar/MultiCalendarView'
+import ReservationDetails from '@/features/reservations/ReservationDetails'
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
         element: <DashboardLayout />,
         children: [...moduleRoutes,
           {path:'properties/:propertyId',element:<PropertyDetailView/>},
+          {path:'reservations/:reservationId',element:<ReservationDetails/>},
           { path: '*', element: <ModulePlaceholder /> }],
       },
     ],
