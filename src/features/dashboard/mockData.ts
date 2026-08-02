@@ -23,10 +23,10 @@ export const MOCK_DASHBOARD_DATA = {
   },
   reservations: [
     // ARRIVALS (checkIn: 07-29)
-    { id: 'RES-1001', guestName: 'Oliver Smith', propertyName: 'Downtown Loft', unitName: 'Apt 4B', checkIn: '2026-07-29', checkOut: '2026-08-02', status: 'confirmed', channel: 'airbnb', totalAmount: 850, balanceDue: 0 },
-    { id: 'RES-1002', guestName: 'Liam Johnson', propertyName: 'Nile View Condo', unitName: 'Floor 12', checkIn: '2026-07-29', checkOut: '2026-07-31', status: 'confirmed', channel: 'airbnb', totalAmount: 420, balanceDue: 420 },
+    { id: 'RES-1001', guestName: 'Oliver Smith', propertyName: 'Downtown Loft', unitName: 'Apt 4B', checkIn: '2026-07-30', checkOut: '2026-08-02', status: 'confirmed', channel: 'airbnb', totalAmount: 850, balanceDue: 0 },
+    { id: 'RES-1002', guestName: 'Liam Johnson', propertyName: 'Nile View Condo', unitName: 'Floor 12', checkIn: '2026-07-30', checkOut: '2026-07-31', status: 'confirmed', channel: 'airbnb', totalAmount: 420, balanceDue: 420 },
     { id: 'RES-1011', guestName: 'Hassan Ali', propertyName: 'Zamalek Studio', unitName: 'Unit 8A', checkIn: '2026-07-29', checkOut: '2026-08-01', status: 'confirmed', channel: 'booking.com', totalAmount: 300, balanceDue: 0 },
-    { id: 'RES-1012', guestName: 'Sarah Miller', propertyName: 'El Gouna Lagoon', unitName: 'Chalet 14', checkIn: '2026-07-29', checkOut: '2026-08-05', status: 'confirmed', channel: 'expedia', totalAmount: 1400, balanceDue: 200 },
+    { id: 'RES-1012', guestName: 'Sarah Miller', propertyName: 'El Gouna Lagoon', unitName: 'Chalet 14', checkIn: '2026-07-30', checkOut: '2026-08-05', status: 'confirmed', channel: 'vrbo', totalAmount: 1400, balanceDue: 200 },
     
     // DEPARTURES (checkOut: 07-29)
     { id: 'RES-1003', guestName: 'Nour El-Din', propertyName: 'Maadi Nile Apartment', unitName: 'Apt 2A', checkIn: '2026-07-24', checkOut: '2026-07-29', status: 'checked_in', channel: 'booking.com', totalAmount: 1100, balanceDue: 0 },

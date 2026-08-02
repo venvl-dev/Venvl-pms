@@ -68,7 +68,8 @@ export function MultiCalendarView() {
     return allBookableUnits.filter((u) => {
       const matchType = typeFilter === 'all' || u.type === typeFilter
       const matchLoc = locFilter === 'all' || u.location === locFilter
-      const matchChan = channelFilter === 'all' || u.channels.includes(channelFilter as BookingChannel)
+      const matchChan =
+        channelFilter === 'all' || u.channels.includes(channelFilter as BookingChannel)
       return matchType && matchLoc && matchChan
     })
   }, [allBookableUnits, typeFilter, locFilter, channelFilter])
@@ -114,7 +115,7 @@ export function MultiCalendarView() {
     if (selectedReservation && scrollOriginRef.current !== null) {
       const dx = Math.abs(scrollLeft - scrollOriginRef.current.x)
       const dy = Math.abs(scrollTop - scrollOriginRef.current.y)
-      
+
       if (dx > 20 || dy > 20) {
         closePopover()
       }
@@ -178,7 +179,7 @@ export function MultiCalendarView() {
 
     const safeIndex = Math.min(Math.max(visibleStartIndex, 0), BUFFER_SIZE - 10)
     const startD = dateArray[safeIndex]
-    const endD = dateArray[safeIndex + 9] 
+    const endD = dateArray[safeIndex + 9]
     if (!startD || !endD) return ''
 
     if (startD.getUTCMonth() === endD.getUTCMonth()) {
@@ -225,7 +226,7 @@ export function MultiCalendarView() {
         />
       )}
       {viewMode === 'year' && (
-        <YearView baseDate={baseDate} setBaseDate={setBaseDate} setViewMode={setViewMode} />
+        <YearView baseDate={baseDate} setBaseDate={setBaseDate} setViewMode={setViewMode} filteredUnits={filteredUnits} unitReservations={unitReservations} />
       )}
 
       {selectedReservation && popoverAnchor && (

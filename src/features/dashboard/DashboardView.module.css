@@ -55,7 +55,7 @@
   object-fit: cover;
   opacity: 0.4;
   mix-blend-mode: multiply;
-  filter: grayscale(100%);
+  /* filter: grayscale(100%); */
 }
 
 .heroContent {
@@ -89,7 +89,7 @@
 .heroDesc {
   font-size: var(--text-sm);
   line-height: var(--leading-normal);
-  color: var(--muted-foreground);
+  color: var(--secondary-foreground);
 }
 
 .heroClose {
