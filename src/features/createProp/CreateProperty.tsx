@@ -223,7 +223,11 @@ export default function CreateProperty() {
               unregisterPhotoUrl={unregisterPhotoUrl}
             />
           ) : currentTab === 'Pricing' ? (
-            <Pricing pricingInfo={pricingInfo} setPricingInfo={setPricingInfo} />
+            <Pricing
+              setPropInfo={setPropInfo}
+              pricingInfo={pricingInfo}
+              setPricingInfo={setPricingInfo}
+            />
           ) : currentTab === 'Instructions' ? (
             <Instructions instructions={instructions} setInstructions={setInstructions} />
           ) : (

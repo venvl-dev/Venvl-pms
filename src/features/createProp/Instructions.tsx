@@ -2,6 +2,7 @@ import { Label } from '@/components/core/Label'
 import styles from './CreateProperty.module.css'
 import { Textarea } from '@/components/core/Textarea'
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react'
+import type { PropertyCardProps } from './CreateProperty'
 
 export default function Instructions({
   instructions,
@@ -25,7 +26,7 @@ export default function Instructions({
               value={instructions}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setInstructions(e.target.value)}
               className={styles.inputField}
-              placeholder="  Give Instructions to Guests"
+              placeholder="Give Instructions to Guests"
             />
           </div>
         </div>

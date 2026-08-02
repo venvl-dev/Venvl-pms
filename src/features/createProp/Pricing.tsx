@@ -1,5 +1,5 @@
 import styles from './CreateProperty.module.css'
-import type { PricingInfo } from './CreateProperty'
+import type { PricingInfo, PropertyCardProps } from './CreateProperty'
 import type { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction } from 'react'
 import { Label } from '@/components/core/Label'
 import { Input } from '@/components/core/Input'
@@ -12,9 +12,11 @@ const disallowedNumberKeys = new Set(['-', '+', 'e', 'E'])
 export default function Pricing({
   pricingInfo,
   setPricingInfo,
+  setPropInfo,
 }: {
   pricingInfo: PricingInfo
   setPricingInfo: Dispatch<SetStateAction<PricingInfo>>
+  setPropInfo: Dispatch<SetStateAction<PropertyCardProps>>
 }) {
   const handleNumberKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (disallowedNumberKeys.has(event.key)) {
@@ -56,12 +58,13 @@ export default function Pricing({
               value={pricingInfo.base}
               onFocus={handleNumberFocus}
               onKeyDown={handleNumberKeyDown}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 setPricingInfo((prev) => ({
                   ...prev,
                   base: getPositiveNumber(e.target.value),
                 }))
-              }
+                setPropInfo((prev) => ({ ...prev, price: Number(e.target.value) }))
+              }}
             />
           </div>
           <div className={styles.inputFieldContainer}>
