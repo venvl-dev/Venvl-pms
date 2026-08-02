@@ -136,6 +136,14 @@ select {
   margin: 10px 20px;
 }
 
+.optionalFieldLabel {
+  margin-left: 6px;
+  color: var(--primary);
+  font-style: italic;
+  opacity: 0.5;
+  font-weight: 400;
+}
+
 .photoSectionHeader {
   display: flex;
   align-items: flex-start;

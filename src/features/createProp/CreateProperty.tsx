@@ -6,6 +6,8 @@ import GeneralInfoForm from './GeneralInfoForm'
 import Validators from './Validators'
 import AmenitiesFrom from './AmenitiesForm'
 import PhotosForm from './PhotosForm'
+import Pricing from './Pricing'
+import Instructions from './Instructions'
 
 const PROPERTY_AMENITIES: AmenityType[] = [
   { icon: 'wifi', label: 'Wi-Fi' },
@@ -64,6 +66,15 @@ export type GeneralInfo = {
   maxAdults: number
   maxChilds: number
   maxInfs: number
+}
+
+export type PricingInfo = {
+  base: number
+  extraPerson: number
+  weeklyDisc?: number | 0
+  monthlyDisc?: number | 0
+  applyExtraAfter?: number | 0
+  refundDamageDeposit?: number | 0
 }
 
 export type AmenityType = {
@@ -131,6 +142,17 @@ export default function CreateProperty() {
     maxInfs: 0,
   })
 
+  const [pricingInfo, setPricingInfo] = useState<PricingInfo>({
+    base: 0,
+    extraPerson: 0,
+    weeklyDisc: 0,
+    monthlyDisc: 0,
+    applyExtraAfter: 0,
+    refundDamageDeposit: 0,
+  })
+
+  const [instructions, setInstructions] = useState('')
+
   const [amenitiesForm, setAmenitiesForm] = useState<AmenitiesForm>({
     selectedAmenities: [],
     allAmenities: PROPERTY_AMENITIES,
@@ -188,12 +210,7 @@ export default function CreateProperty() {
       </header>
       <div className={styles.formDivider}>
         <div className={styles.formContent}>
-          <TabsBar
-            currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
-            completedTabs={completedTabs}
-            tabs={tabs}
-          />
+          <TabsBar currentTab={currentTab} completedTabs={completedTabs} tabs={tabs} />
           {currentTab === 'General Info' ? (
             <GeneralInfoForm generalInfo={generalInfo} setGeneralInfo={setGeneralInfo} />
           ) : currentTab === 'Amenities' ? (
@@ -205,6 +222,10 @@ export default function CreateProperty() {
               registerPhotoUrl={registerPhotoUrl}
               unregisterPhotoUrl={unregisterPhotoUrl}
             />
+          ) : currentTab === 'Pricing' ? (
+            <Pricing pricingInfo={pricingInfo} setPricingInfo={setPricingInfo} />
+          ) : currentTab === 'Instructions' ? (
+            <Instructions instructions={instructions} setInstructions={setInstructions} />
           ) : (
             <></>
           )}
@@ -217,6 +238,7 @@ export default function CreateProperty() {
             generalInfo={generalInfo}
             amenitiesForm={amenitiesForm}
             photosForm={photosForm}
+            pricingInfo={pricingInfo}
           />
         </div>
         <div className={styles.propertyCardHolder}>

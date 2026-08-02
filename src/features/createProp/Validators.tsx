@@ -6,6 +6,7 @@ import type {
   CreatePropertyTab,
   GeneralInfo,
   PhotosFormState,
+  PricingInfo,
 } from './CreateProperty'
 
 interface ValidatorsProps {
@@ -16,6 +17,7 @@ interface ValidatorsProps {
   generalInfo: GeneralInfo
   amenitiesForm: AmenitiesForm
   photosForm: PhotosFormState
+  pricingInfo: PricingInfo
 }
 
 export default function Validators({
@@ -26,6 +28,7 @@ export default function Validators({
   generalInfo,
   amenitiesForm,
   photosForm,
+  pricingInfo,
 }: ValidatorsProps) {
   const [canProceed, setCanProceed] = useState(false)
 
@@ -99,6 +102,25 @@ export default function Validators({
     return photosForm.photos.some((photo) => photo.id === photosForm.thumbnailId)
   }, [photosForm.photos, photosForm.thumbnailId])
 
+  const validatePricing = useCallback(() => {
+    const { base, extraPerson, weeklyDisc, monthlyDisc, applyExtraAfter, refundDamageDeposit } =
+      pricingInfo
+
+    const baseValid = typeof base === 'number' && Number.isFinite(base) && base > 0
+    const optionalNumbers = [
+      extraPerson,
+      weeklyDisc ?? 0,
+      monthlyDisc ?? 0,
+      applyExtraAfter ?? 0,
+      refundDamageDeposit ?? 0,
+    ]
+    const optionalValuesValid = optionalNumbers.every(
+      (value) => typeof value === 'number' && Number.isFinite(value) && value >= 0,
+    )
+
+    return baseValid && optionalValuesValid
+  }, [pricingInfo])
+
   const handleNextButton = () => {
     if (!canProceed) return
 
@@ -140,10 +162,13 @@ export default function Validators({
       case 'Photos':
         setCanProceed(validatePhotos())
         break
+      case 'Pricing':
+        setCanProceed(validatePricing())
+        break
       default:
         setCanProceed(false)
     }
-  }, [currentTab, validateAmenities, validateGeneral, validatePhotos])
+  }, [currentTab, validateAmenities, validateGeneral, validatePhotos, validatePricing])
 
   return (
     <div className={styles.actionsHolder}>
