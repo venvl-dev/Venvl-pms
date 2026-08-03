@@ -4,6 +4,7 @@ import {
   useState,
   type Dispatch,
   type DragEvent,
+  type MouseEvent,
   type SetStateAction,
 } from 'react'
 import { CircleEllipsis, Info, Plus, Trash2, UploadCloud } from 'lucide-react'
@@ -88,6 +89,22 @@ export default function PhotosForm({
     }))
   }
 
+  const [isCoverTriggerHovering, setIsCoverTriggerHovering] = useState(false)
+  const [showCoverLabel, setShowCoverLabel] = useState(false)
+  const coverLeaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleCoverHoverEnter = () => {
+    if (coverLeaveTimer.current) clearTimeout(coverLeaveTimer.current)
+    setIsCoverTriggerHovering(true)
+    setShowCoverLabel(true)
+  }
+
+  const handleCoverHoverLeave = () => {
+    setIsCoverTriggerHovering(false)
+    // delay unmounting the label text until after the CSS transition (300ms) finishes
+    coverLeaveTimer.current = setTimeout(() => setShowCoverLabel(false), 300)
+  }
+
   const handleRemovePhoto = (photoId: number) => {
     setPhotosForm((prev) => {
       const target = prev.photos.find((photo) => photo.id === photoId)
@@ -169,13 +186,6 @@ export default function PhotosForm({
             <img src={coverPhoto.src} alt={coverPhoto.name} className={styles.photoTileImage} />
             <div className={styles.photoTileTopRow}>
               <span className={styles.photoCoverBadge}>Cover</span>
-              <button
-                type="button"
-                className={styles.photoIconAction}
-                onClick={() => handleSetThumbnail(coverPhoto.id)}
-              >
-                <CircleEllipsis size={16} />
-              </button>
             </div>
             <div className={styles.photoTileBottomRow}>
               <button
@@ -196,10 +206,16 @@ export default function PhotosForm({
               <div className={styles.photoTileTopRow}>
                 <button
                   type="button"
-                  className={styles.photoIconAction}
+                  className={`${styles.photoIconAction} ${isCoverTriggerHovering && styles.photoIconHovered}`}
                   onClick={() => handleSetThumbnail(photo.id)}
+                  onMouseEnter={handleCoverHoverEnter}
+                  onMouseLeave={handleCoverHoverLeave}
                 >
-                  <CircleEllipsis size={16} />
+                  {showCoverLabel ? (
+                    <span className={styles.coverButton}>Set Cover</span>
+                  ) : (
+                    <CircleEllipsis size={16} />
+                  )}
                 </button>
               </div>
               <div className={styles.photoTileBottomRow}>

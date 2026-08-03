@@ -328,14 +328,37 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
   height: 34px;
+  max-width: 34px;
+  min-width: 34px;
+  overflow: hidden;
+  white-space: nowrap;
   border: none;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.95);
   color: #2a3d37;
   cursor: pointer;
   box-shadow: 0 6px 14px rgba(18, 38, 32, 0.12);
+  transition:
+    max-width 0.3s ease-in-out,
+    padding 0.3s ease-in-out;
+}
+
+.photoIconHovered {
+  max-width: 120px;
+  padding: 0 12px;
+}
+
+.coverButton {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in;
+}
+
+.photoIconAction .coverButton:hover {
+  opacity: 1;
 }
 
 .photoAddTile {
