@@ -2,7 +2,6 @@ import { Label } from '@/components/core/Label'
 import styles from './CreateProperty.module.css'
 import { Textarea } from '@/components/core/Textarea'
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react'
-import type { PropertyCardProps } from './CreateProperty'
 
 export default function Instructions({
   instructions,

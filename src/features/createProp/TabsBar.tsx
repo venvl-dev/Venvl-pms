@@ -1,5 +1,6 @@
 import styles from './CreateProperty.module.css'
 import type { CreatePropertyTab } from './CreateProperty'
+import { Icon } from '@/components/core/Icon'
 
 type tabsBarProps = {
   currentTab: CreatePropertyTab
@@ -13,10 +14,13 @@ export default function TabsBar({ completedTabs, currentTab, tabs }: tabsBarProp
       {tabs.map((tab) => (
         <div
           key={tab}
-          className={`${styles.tab} ${completedTabs.includes(tab) || currentTab === tab ? styles.activeTab : ''}`}
+          className={`${styles.tab} ${currentTab === tab ? styles.activeTab : ''} ${completedTabs.slice(0, completedTabs.length - 1).includes(tab) && styles.doneTab}`}
         >
+          <Icon
+            className={styles.tabIcon}
+            name={completedTabs.slice(0, completedTabs.length - 1).includes(tab) ? 'donetab' : tab}
+          />
           <span>{tab}</span>
-          <span className={styles.nextTab}>{tab !== 'Instructions' && '>>'}</span>
         </div>
       ))}
     </div>

@@ -15,6 +15,12 @@ import {
   Waves,
   Wifi,
   WashingMachine,
+  Info,
+  Grid2x2,
+  Images,
+  CircleDollarSign,
+  Cog,
+  CircleCheck,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -42,6 +48,12 @@ const ICONS: Record<string, LucideIcon> = {
   washer: WashingMachine,
   tv: Tv,
   users: UsersRound,
+  'general info': Info,
+  amenities: Grid2x2,
+  photos: Images,
+  pricing: CircleDollarSign,
+  instructions: Cog,
+  donetab: CircleCheck,
 }
 
 export function Icon({

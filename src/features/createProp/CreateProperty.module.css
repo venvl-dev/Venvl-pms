@@ -46,7 +46,7 @@
 .tabsBar {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 30px;
   margin-bottom: 20px;
 }
 
@@ -56,18 +56,25 @@
   opacity: 0.6;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 8px;
+  padding-bottom: 10px;
 }
 
 .tab.activeTab {
   opacity: 1;
   color: var(--primary);
+  border-bottom: 2px solid var(--primary);
 }
 
-.nextTab {
+.doneTab {
+  color: var(--primary);
+  opacity: 1;
+}
+
+/* .nextTab {
   font-weight: 600;
   font-size: 1.2em;
-}
+} */
 
 /* .formFields {
   display: flex;
