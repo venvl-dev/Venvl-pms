@@ -69,12 +69,12 @@ export type GeneralInfo = {
 }
 
 export type PricingInfo = {
-  base: number
-  extraPerson: number
-  weeklyDisc?: number | 0
-  monthlyDisc?: number | 0
-  applyExtraAfter?: number | 0
-  refundDamageDeposit?: number | 0
+  base: number | ''
+  extraPerson: number | ''
+  weeklyDisc?: number | ''
+  monthlyDisc?: number | ''
+  applyExtraAfter?: number | ''
+  refundDamageDeposit?: number | ''
 }
 
 export type AmenityType = {

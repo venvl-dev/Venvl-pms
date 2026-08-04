@@ -12,7 +12,6 @@ import styles from './CreateProperty.module.css'
 import type { PhotosFormState } from './CreateProperty'
 
 const MAX_PHOTOS = 20
-const PRIMARY_GRID_PHOTO_LIMIT = 6
 
 type PhotosFormProps = {
   photosForm: PhotosFormState
@@ -30,7 +29,6 @@ export default function PhotosForm({
   const [isDragging, setIsDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement | null>(null)
   const { photos, thumbnailId } = photosForm
-  console.log(`ThumbId: ${thumbnailId}`)
 
   const handleAddPhotos = (files?: FileList | null) => {
     const selectedFiles = files ?? inputRef.current?.files
@@ -89,20 +87,23 @@ export default function PhotosForm({
     }))
   }
 
-  const [isCoverTriggerHovering, setIsCoverTriggerHovering] = useState(false)
-  const [showCoverLabel, setShowCoverLabel] = useState(false)
+  const [hoveredCoverId, setHoveredCoverId] = useState<number | null>(null)
+  const [visibleLabelId, setVisibleLabelId] = useState<number | null>(null)
   const coverLeaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const handleCoverHoverEnter = () => {
+  const handleCoverHoverEnter = (photoId: number) => {
     if (coverLeaveTimer.current) clearTimeout(coverLeaveTimer.current)
-    setIsCoverTriggerHovering(true)
-    setShowCoverLabel(true)
+    setHoveredCoverId(photoId)
+    setVisibleLabelId(photoId)
   }
 
-  const handleCoverHoverLeave = () => {
-    setIsCoverTriggerHovering(false)
-    // delay unmounting the label text until after the CSS transition (300ms) finishes
-    coverLeaveTimer.current = setTimeout(() => setShowCoverLabel(false), 300)
+  const handleCoverHoverLeave = (photoId: number) => {
+    setHoveredCoverId(null)
+    // keep the label mounted until the collapse transition finishes
+    coverLeaveTimer.current = setTimeout(
+      () => setVisibleLabelId((prev) => (prev === photoId ? null : prev)),
+      300,
+    )
   }
 
   const handleRemovePhoto = (photoId: number) => {
@@ -130,8 +131,7 @@ export default function PhotosForm({
   }, [photos, thumbnailId])
 
   const coverPhoto = orderedPhotos[0] ?? null
-  const galleryPhotos = orderedPhotos.slice(1, PRIMARY_GRID_PHOTO_LIMIT + 1)
-  const overflowPhotos = orderedPhotos.slice(PRIMARY_GRID_PHOTO_LIMIT + 1)
+  const galleryPhotos = orderedPhotos.slice(1)
   const canAddMore = photos.length < MAX_PHOTOS
 
   return (
@@ -139,7 +139,7 @@ export default function PhotosForm({
       <div className={styles.photoSectionHeader}>
         <div>
           <h3 className={styles.photoSectionTitle}>Property Photos</h3>
-          <p className={styles.photoSectionSubtitle}>
+          <p className={`${styles.photoSectionSubtitle} ${styles.photoSectionHidePhone}`}>
             Add high-quality photos to showcase your property. You can add up to 20 photos.
           </p>
         </div>
@@ -147,6 +147,9 @@ export default function PhotosForm({
           {photos.length} / {MAX_PHOTOS} photos
         </div>
       </div>
+      <p className={`${styles.photoSectionSubtitle} ${styles.photoSectionHideDesktop}`}>
+        Add high-quality photos to showcase your property. You can add up to 20 photos.
+      </p>
 
       <input
         ref={inputRef}
@@ -166,9 +169,20 @@ export default function PhotosForm({
         <div className={styles.photoDropzoneIcon}>
           <UploadCloud size={30} />
         </div>
-        <div className={styles.photoDropzoneContent}>
+        <div className={`${styles.photoDropzoneContent} ${styles.photoSectionHidePhone}`}>
           <h4 className={styles.photoDropzoneTitle}>Drag and drop photos here</h4>
           <span className={styles.photoDropzoneOr}>or</span>
+          <button
+            type="button"
+            className={styles.photoChooseButton}
+            onClick={() => inputRef.current?.click()}
+          >
+            Choose Photos
+          </button>
+          <p className={styles.photoDropzoneHint}>JPG, PNG or WebP • Max 10MB per photo</p>
+        </div>
+        <div className={`${styles.photoDropzoneContent} ${styles.photoSectionHideDesktop}`}>
+          <h4 className={styles.photoDropzoneTitle}>Upload Photos Here</h4>
           <button
             type="button"
             className={styles.photoChooseButton}
@@ -206,16 +220,21 @@ export default function PhotosForm({
               <div className={styles.photoTileTopRow}>
                 <button
                   type="button"
-                  className={`${styles.photoIconAction} ${isCoverTriggerHovering && styles.photoIconHovered}`}
+                  className={`${styles.photoIconAction} ${hoveredCoverId === photo.id ? styles.photoIconHovered : ''}`}
                   onClick={() => handleSetThumbnail(photo.id)}
-                  onMouseEnter={handleCoverHoverEnter}
-                  onMouseLeave={handleCoverHoverLeave}
+                  onMouseEnter={() => handleCoverHoverEnter(photo.id)}
+                  onMouseLeave={() => handleCoverHoverLeave(photo.id)}
                 >
-                  {showCoverLabel ? (
-                    <span className={styles.coverButton}>Set Cover</span>
-                  ) : (
-                    <CircleEllipsis size={16} />
-                  )}
+                  <div className={styles.photoSectionHidePhone}>
+                    {visibleLabelId === photo.id ? (
+                      <span className={styles.coverButton}>Set Cover</span>
+                    ) : (
+                      <CircleEllipsis size={16} />
+                    )}
+                  </div>
+                  <span className={`${styles.coverButton} ${styles.photoSectionHideDesktop}`}>
+                    Set Cover
+                  </span>
                 </button>
               </div>
               <div className={styles.photoTileBottomRow}>
@@ -243,29 +262,6 @@ export default function PhotosForm({
           <span>Add more</span>
         </button>
       </div>
-
-      {overflowPhotos.length > 0 && (
-        <div className={styles.photoOverflowRow}>
-          <div className={styles.photoOverflowHeaderRow}>
-            <h4 className={styles.photoOverflowTitle}>More photos</h4>
-            <span className={styles.photoOverflowMeta}>{overflowPhotos.length} extra</span>
-          </div>
-          <div className={styles.photoOverflowScroller}>
-            {overflowPhotos.map((photo) => (
-              <div key={photo.id} className={styles.photoOverflowCard}>
-                <img src={photo.src} alt={photo.name} className={styles.photoOverflowThumb} />
-                <button
-                  type="button"
-                  className={styles.photoDeleteAction}
-                  onClick={() => handleRemovePhoto(photo.id)}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className={styles.photoTipBanner}>
         <div className={styles.photoTipIcon}>

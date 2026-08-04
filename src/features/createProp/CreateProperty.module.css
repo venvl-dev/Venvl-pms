@@ -388,7 +388,7 @@ select {
   background: #eaf8ef;
 }
 
-.photoOverflowRow {
+/* .photoOverflowRow {
   margin-top: 14px;
   padding: 16px;
   border-radius: 18px;
@@ -440,7 +440,7 @@ select {
   height: 100%;
   object-fit: cover;
   display: block;
-}
+} */
 
 .photoTipBanner {
   display: flex;
@@ -567,4 +567,173 @@ select {
   border-radius: var(--radius-lg);
   color: var(--muted);
   text-align: center;
+}
+
+.photosSectionHideDesktop {
+  display: none;
+}
+
+@media (max-width: 780px) {
+  .propertyCardHolder {
+    display: none;
+  }
+}
+
+@media (max-width: 450px) {
+  .tabsBar {
+    display: none;
+  }
+
+  .formFields {
+    font-size: 13px;
+  }
+
+  .inputLabel {
+    font-size: 1em;
+  }
+
+  .inputField {
+    font-size: 1em;
+  }
+
+  option {
+    font-size: 0.9em;
+  }
+
+  .inputFieldContainer select {
+    font-size: 12px;
+  }
+
+  .amenityGrid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .photoSectionTitle {
+    font-size: 1.3rem;
+  }
+
+  .photoSectionSubtitle {
+    width: 100%;
+  }
+
+  .photoSectionHidePhone {
+    display: none;
+  }
+
+  .photosSectionHideDesktop {
+    display: block;
+  }
+
+  .photoSectionSubtitle {
+    margin-bottom: 12px;
+  }
+
+  .photoSectionHeader {
+    margin-bottom: 0px;
+  }
+
+  .photoDropzone {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .photoDropzoneContent {
+    align-items: center;
+    gap: 10px;
+  }
+
+  .photoDropzoneTitle {
+    font-size: 1.1rem;
+  }
+
+  .photoGalleryBoard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .photoTileWide,
+  .photoTile,
+  .photoAddTile {
+    height: 250px;
+    width: 100%;
+  }
+
+  .coverButton {
+    opacity: 1;
+    width: 100%;
+  }
+
+  .photoIconAction {
+    max-width: unset;
+    transition: none;
+    width: 120px;
+  }
+
+  .photoIconHovered {
+    width: 120px;
+  }
+
+  .pricingPhone {
+    display: block;
+  }
+
+  .optionalLabel {
+    margin-left: auto;
+  }
+
+  .photoSectionHeader {
+    align-items: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .inputsCombine {
+    flex-direction: column;
+    gap: 0px;
+  }
+
+  .inputCombTitle {
+    margin-bottom: 15px;
+  }
+
+  .photoSectionTitle {
+    font-size: 1.3em;
+  }
+
+  .photoCountBadge {
+    font-size: 12px;
+  }
+
+  .photoSectionSubtitle {
+    font-size: 1em;
+    margin: 15px 0;
+  }
+}
+
+@media (max-width: 325px) {
+  .photoSectionHeader {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .inputFieldContainer {
+    width: 100%;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 0.9em !important;
+  }
+
+  .formContent {
+    padding: 8px;
+  }
+
+  .formSection {
+    padding: 0 10px;
+  }
 }

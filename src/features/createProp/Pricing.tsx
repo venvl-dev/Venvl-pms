@@ -23,6 +23,12 @@ export default function Pricing({
       event.preventDefault()
     }
   }
+  // const handleMaxPercentage = (event: ChangeEvent<HTMLInputElement>) => {
+  //   if (Number(event.target.value) > 100) {
+  //     event.preventDefault()
+  //     event.target.setV
+  //   }
+  // }
 
   const handleNumberFocus = (
     event: ChangeEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>,
@@ -40,6 +46,26 @@ export default function Pricing({
     return Math.max(0, Number(value))
   }
 
+  const handleMaxPercentage = (event: ChangeEvent<HTMLInputElement>, type: string) => {
+    const input = event.target.value
+    if (input === '') {
+      if (type === 'week') {
+        setPricingInfo((prev) => ({ ...prev, weeklyDisc: '' }))
+      } else {
+        setPricingInfo((prev) => ({ ...prev, monthlyDisc: '' }))
+      }
+      return
+    }
+
+    const num = parseFloat(input)
+    const clampedValue = Math.min(Math.max(num, 0), 100)
+    if (type === 'week') {
+      setPricingInfo((prev) => ({ ...prev, weeklyDisc: clampedValue }))
+    } else {
+      setPricingInfo((prev) => ({ ...prev, monthlyDisc: clampedValue }))
+    }
+  }
+
   return (
     <div className={styles.formSection}>
       <h3 className={styles.formTitle}>Pricing</h3>
@@ -48,7 +74,7 @@ export default function Pricing({
           <p>Pricing Info</p>
           <div className={styles.titleUnderLine}></div>
         </div>
-        <div className={styles.inputsCombine}>
+        <div className={`${styles.inputsCombine} ${styles.pricingPhone}`}>
           <div className={styles.inputFieldContainer}>
             <Label className={styles.inputLabel}>Base Price</Label>
             <Input
@@ -68,7 +94,8 @@ export default function Pricing({
             />
           </div>
           <div className={styles.inputFieldContainer}>
-            <Label className={styles.inputLabel}>Price For Extra Person {optionalLabel}</Label>
+            <Label className={styles.inputLabel}>Price For Extra Person</Label>
+            <span className={styles.optionalLabel}>{optionalLabel}</span>
             <Input
               className={styles.inputField}
               type="number"
@@ -85,47 +112,48 @@ export default function Pricing({
             />
           </div>
         </div>
-        <div className={styles.inputsCombine}>
+        <div className={`${styles.inputsCombine} ${styles.pricingPhone}`}>
           <div className={styles.inputFieldContainer}>
-            <Label className={styles.inputLabel}>Weekly Discount {optionalLabel}</Label>
+            <Label className={styles.inputLabel}>Weekly Discount</Label>
+            <span className={styles.optionalLabel}>{optionalLabel}</span>
             <Input
               className={styles.inputField}
               type="number"
               min={0}
+              max={100}
               value={pricingInfo.weeklyDisc}
               onFocus={handleNumberFocus}
-              onKeyDown={handleNumberKeyDown}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setPricingInfo((prev) => ({
-                  ...prev,
-                  weeklyDisc: getPositiveNumber(e.target.value),
-                }))
-              }
+              onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+                handleNumberKeyDown(event)
+              }}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                handleMaxPercentage(e, 'week')
+              }}
             />
           </div>
           <div className={styles.inputFieldContainer}>
-            <Label className={styles.inputLabel}>Monthly Discount {optionalLabel}</Label>
+            <Label className={styles.inputLabel}>Monthly Discount</Label>
+            <span className={styles.optionalLabel}>{optionalLabel}</span>
             <Input
               className={styles.inputField}
               type="number"
               min={0}
+              max={100}
               value={pricingInfo.monthlyDisc}
               onFocus={handleNumberFocus}
-              onKeyDown={handleNumberKeyDown}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setPricingInfo((prev) => ({
-                  ...prev,
-                  monthlyDisc: getPositiveNumber(e.target.value),
-                }))
-              }
+              onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+                handleNumberKeyDown(event)
+              }}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                handleMaxPercentage(e, 'month')
+              }}
             />
           </div>
         </div>
-        <div className={styles.inputsCombine}>
+        <div className={`${styles.inputsCombine} ${styles.pricingPhone}`}>
           <div className={styles.inputFieldContainer}>
-            <Label className={styles.inputLabel}>
-              Refundable Damage Deposit Fee {optionalLabel}
-            </Label>
+            <Label className={styles.inputLabel}>Refundable Damage Deposit Fee</Label>
+            <span className={styles.optionalLabel}>{optionalLabel}</span>
             <Input
               className={styles.inputField}
               type="number"
@@ -142,9 +170,8 @@ export default function Pricing({
             />
           </div>
           <div className={styles.inputFieldContainer}>
-            <Label className={styles.inputLabel}>
-              Apply Price For Extra Person After {optionalLabel}
-            </Label>
+            <Label className={styles.inputLabel}>Apply Price For Extra Person After</Label>
+            <span className={styles.optionalLabel}>{optionalLabel}</span>
             <Select
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setPricingInfo((prev) => ({
