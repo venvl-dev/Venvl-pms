@@ -1,10 +1,10 @@
 import { api } from '@/lib/apiClient'
-import { MOCK_PROPERTIES } from './mockProperties'
+// import { MOCK_PROPERTIES } from './mockProperties'
 import type { CreatePropertyResponse, PaginatedResponse, Property } from './types'
 
 export const is_mock = false
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+// const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // function normalizeProperty(input: Partial<Property> & { id: string }): Property {
 //   return {
@@ -28,17 +28,17 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 // }
 
 export async function getProperties(params: { page: number; limit: number }): Promise<PaginatedResponse<Property>> {
-  if (is_mock) {
-    await delay(700)
-    return {
-      data: MOCK_PROPERTIES,
-      meta: {
-        total: MOCK_PROPERTIES.length,
-        page: 1,
-        limit: 10,
-      },
-    }
-  }
+  // if (is_mock) {
+  //   await delay(700)
+  //   return {
+  //     data: MOCK_PROPERTIES,
+  //     meta: {
+  //       total: MOCK_PROPERTIES.length,
+  //       page: 1,
+  //       limit: 10,
+  //     },
+  //   }
+  // }
 
   const { data } = await api.get<PaginatedResponse<Property>>('/listing', { params })
   
@@ -53,12 +53,12 @@ export async function getProperties(params: { page: number; limit: number }): Pr
 }
 
 export async function getPropertyById(id: string): Promise<Property> {
-  if (is_mock) {
-    await delay(700)
-    const property = MOCK_PROPERTIES.find((item) => item.id === id)
-    if (!property) throw new Error('Property not found')
-    return property
-  }
+  // if (is_mock) {
+  //   await delay(700)
+  //   const property = MOCK_PROPERTIES.find((item) => item.id === id)
+  //   if (!property) throw new Error('Property not found')
+  //   return property
+  // }
 
   const { data } = await api.get<{ data: Property }>(`/listing/${id}`)
   return data.data 
