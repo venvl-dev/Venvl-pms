@@ -6,11 +6,11 @@ export const loginSchema = z.object({
 })
 
 export const registerSchema = z.object({
-  orgName: z.string().min(2, 'Enter your organization name'),
+  name: z.string().min(2, 'Enter your organization name'),
   ownerName: z.string().min(2, 'Enter the owner name'),
   email: z.string().email('Enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
- phone: z.string().regex(/^\+?[0-9]{7,15}$/, 'Enter a valid phone number'),
+phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'Use E.164 format, e.g. +201234567890'),
 
 })
 

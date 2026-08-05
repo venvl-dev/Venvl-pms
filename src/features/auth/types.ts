@@ -6,10 +6,7 @@ export interface User {
   phone: string
 }
 
-export interface AuthResponse {
-  accessToken: string
-  user: User
-}
+
 
 export interface LoginRequest {
   email: string
@@ -17,7 +14,7 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  orgName: string
+  name: string
   ownerName: string
   email: string
   password: string
@@ -25,14 +22,26 @@ export interface RegisterRequest {
 }
 
 export interface RegisterResponse {
-  phone: string
+  signupId: string
+  email: string
 }
 
-export interface VerifyOtpRequest {
-  phone: string
-  code: string
+
+
+
+export interface ApiEnvolope<T>{
+  message:string
+  data:T
 }
 
-export interface RefreshResponse {
-  accessToken: string
+export interface CompleteSignupRequest {
+  signupId:string
+  phone:string
+  code:string
+}
+
+export interface ApiErrorBody{
+  message:string|string[]
+  error:string
+  statusCode:number
 }
