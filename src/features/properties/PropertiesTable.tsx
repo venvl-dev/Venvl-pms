@@ -45,6 +45,7 @@ export function PropertiesTable({
             <tr>
               {visibleCols.listing && <th className={styles.th}>Listing</th>}
               {visibleCols.id && <th className={styles.th}>Property ID</th>}
+              {visibleCols.pType && <th className={styles.th}>Property Type</th>}
               {visibleCols.type && <th className={styles.th}>Unit Type</th>}
               {visibleCols.capacity && <th className={styles.th}>Beds/Baths</th>}
               {visibleCols.location && <th className={styles.th}>Location</th>}
@@ -78,7 +79,7 @@ export function PropertiesTable({
                 return (
                   <Fragment key={prop.id}>
                     <tr
-                      className={cx(styles.tr, prop.type === 'parent' && styles.rowParent)}
+                      className={cx(styles.tr, prop.structureType === 'parent' && styles.rowParent)}
                       style={{ cursor: 'pointer' }}
                       tabIndex={0}
                       role="button"
@@ -90,7 +91,7 @@ export function PropertiesTable({
                       {visibleCols.listing && (
                         <td className={styles.td}>
                           <div className={styles.listingCell}>
-                            {prop.type === 'parent' ? (
+                            {prop.structureType === 'parent' ? (
                               <ChevronRightIcon
                                 size={16}
                                 className={cx(styles.expandIcon, styles.expandIconExpanded)}
@@ -99,10 +100,10 @@ export function PropertiesTable({
                               <div style={{ width: '16px', marginRight: '0.25rem', flexShrink: 0 }} />
                             )}
 
-                            <img src={prop.image} alt="" className={styles.thumbnail} />
+                            <img src={prop.thumbnail || undefined} alt="" className={styles.thumbnail} />
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                              <div className={styles.cellPrimary}>{prop.name}</div>
-                              <div className={styles.cellSecondary}>{prop.location}</div>
+                              <div className={styles.cellPrimary}>{prop.title}</div>
+                              <div className={styles.cellSecondary}>{prop.city || 'No city'}</div>
                             </div>
                           </div>
                         </td>
@@ -114,10 +115,16 @@ export function PropertiesTable({
                         </td>
                       )}
 
+                      {visibleCols.pType && (
+                        <td className={styles.td}>
+                          <span className={styles.cellPrimary}>{prop.propertyType}</span>
+                        </td>
+                      )}
+
                       {visibleCols.type && (
                         <td className={styles.td}>
                           <span style={{ textTransform: 'capitalize' }} className={styles.cellPrimary}>
-                            {prop.type}
+                            {prop.structureType}
                           </span>
                         </td>
                       )}
@@ -131,14 +138,14 @@ export function PropertiesTable({
 
                       {visibleCols.location && (
                         <td className={styles.td}>
-                          <span className={styles.cellSecondary}>{prop.location}</span>
+                          <span className={styles.cellSecondary}>{prop.city || 'No city'}</span>
                         </td>
                       )}
 
                       {visibleCols.channels && (
                         <td className={styles.td}>
-                          {prop.channels.length > 0 ? (
-                            renderChannelCluster(prop.channels)
+                          {(prop.channelConnections || []).length > 0 ? (
+                            renderChannelCluster(prop.channelConnections)
                           ) : (
                             <span className={styles.cellSecondary}>None</span>
                           )}
@@ -180,9 +187,9 @@ export function PropertiesTable({
                         {visibleCols.listing && (
                           <td className={styles.td}>
                             <div className={styles.childListingCell}>
-                              <img src={child.image} alt="" className={styles.childThumbnail} />
+                              <img src={child.thumbnail || undefined} alt="" className={styles.childThumbnail} />
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <div className={styles.cellPrimary}>{child.name}</div>
+                                <div className={styles.cellPrimary}>{child.title}</div>
                                 <div className={styles.cellSecondary}>Unit ID: {child.id}</div>
                               </div>
                             </div>
@@ -195,13 +202,19 @@ export function PropertiesTable({
                           </td>
                         )}
 
+                        {visibleCols.pType && (
+                          <td className={styles.td}>
+                            <span className={styles.cellSecondary}>{child.propertyType}</span>
+                          </td>
+                        )}
+
                         {visibleCols.type && (
                           <td className={styles.td}>
                             <span
                               style={{ textTransform: 'capitalize' }}
                               className={styles.cellSecondary}
                             >
-                              {child.type}
+                              {child.structureType}
                             </span>
                           </td>
                         )}
@@ -215,14 +228,14 @@ export function PropertiesTable({
 
                         {visibleCols.location && (
                           <td className={styles.td}>
-                            <span className={styles.cellSecondary}>{child.location}</span>
+                            <span className={styles.cellSecondary}>{child.city || 'No city'}</span>
                           </td>
                         )}
 
                         {visibleCols.channels && (
                           <td className={styles.td}>
-                            {child.channels.length > 0 ? (
-                              renderChannelCluster(child.channels)
+                            {child.channelConnections.length > 0 ? (
+                              renderChannelCluster(child.channelConnections)
                             ) : (
                               <span className={styles.cellSecondary}>None</span>
                             )}

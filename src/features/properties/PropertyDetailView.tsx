@@ -17,6 +17,8 @@ const getStatusBadge = (status: Property['status']) => {
       return <Badge variant="secondary">Draft</Badge>
     case 'archived':
       return <Badge variant="outline">Archived</Badge>
+    case 'inactive':
+      return <Badge variant="outline">Inactive</Badge>
   }
 }
 
@@ -158,24 +160,24 @@ export function PropertyDetailView() {
 
       <header className={styles.header}>
         <div className={styles.gallery}>
-          <img src={property.image} alt="" className={styles.hero} />
+          <img src={property.thumbnail || undefined} alt="" className={styles.hero} />
           <div className={styles.heroMinGroup}>
-            <img src={property.image} alt="" className={styles.heroMin} />
-            <img src={property.image} alt="" className={styles.heroMin} />
+            <img src={property.images?.[0] || undefined} alt="" className={styles.heroMin} />
+            <img src={property.images?.[1] || undefined} alt="" className={styles.heroMin} />
           </div>
         </div>
 
         <div className={styles.details}>
           <div className={styles.headerInfo}>
             <div className={styles.titleRow}>
-              <h1 className={styles.title}>{property.name}</h1>
+              <h1 className={styles.title}>{property.title}</h1>
               {getStatusBadge(property.status)}
               <Button className={styles.editBtn}>
                 <Plus size={16} /> Edit Property
               </Button>
             </div>
             <div className={styles.location}>
-              <MapPin size={14} /> {property.location}
+              <MapPin size={14} /> {property.city || 'No city'}
             </div>
             <div className={styles.id}>{property.id}</div>
           </div>
@@ -188,7 +190,7 @@ export function PropertyDetailView() {
               <div>
                 <div className={styles.statLabel}>Unit Type</div>
                 <div className={styles.statValue} style={{ textTransform: 'capitalize' }}>
-                  {property.type}
+                  {property.structureType}
                 </div>
               </div>
             </div>
@@ -266,7 +268,7 @@ export function PropertyDetailView() {
             <section className={styles.card}>
               <h2 className={styles.cardTitle}>Prices</h2>
               <div className={styles.priceGrid}>
-                <PriceRow label="Price" value={`${property.pricing.price} $`} />
+                <PriceRow label="Price" value={`${property.price} $`} />
                 <PriceRow
                   label="Price for extra person"
                   value={property.pricing.priceForExtraPerson}
@@ -302,9 +304,9 @@ export function PropertyDetailView() {
           )}
           <section className={styles.card}>
             <h2 className={styles.cardTitle}>Connected Channels</h2>
-            {property.channels.length > 0 ? (
+            {(property.channelConnections || []).length > 0 ? (
               <div className={styles.channelList}>
-                {property.channels.map((ch) => (
+                {property.channelConnections.map((ch) => (
                   <ChannelChip key={ch} channel={ch} />
                 ))}
                 {/* {property.channels.length > 0 ? (

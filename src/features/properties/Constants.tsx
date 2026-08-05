@@ -11,6 +11,7 @@ export const directLogo = '/images/venvl-mark.svg'
 export const ALL_COLUMNS = [
   { id: 'listing', label: 'Listing', defaultVisible: true },
   { id: 'id', label: 'Property ID', defaultVisible: false },
+  { id: 'pType', label: 'Property Type', defaultVisible: true },
   { id: 'type', label: 'Unit Type', defaultVisible: true },
   { id: 'capacity', label: 'Beds/Baths', defaultVisible: false },
   { id: 'location', label: 'Location', defaultVisible: true },
@@ -21,6 +22,7 @@ export const ALL_COLUMNS = [
 export const STATUS_OPTIONS = [
   { value: 'all', label: 'All Statuses' },
   { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
   { value: 'draft', label: 'Draft' },
   { value: 'archived', label: 'Archived' },
 ]
@@ -41,10 +43,12 @@ export const getStatusBadge = (status: Property['status']) => {
       return <Badge variant="secondary">Draft</Badge>
     case 'archived':
       return <Badge variant="outline">Archived</Badge>
+    case 'inactive':
+      return <Badge variant="outline">Inactive</Badge>
   }
 }
 
-export const renderChannelCluster = (channels: BookingChannel[]) => {
+export const renderChannelCluster = (channelConnections: BookingChannel[]) => {
   const config: Record<BookingChannel, { color: string; initial: string; logo?: string }> = {
     airbnb: { color: '#FF5A5F', initial: 'A', logo: airbnbLogo },
     'booking.com': { color: '#003580', initial: 'B', logo: bookingLogo },
@@ -55,7 +59,7 @@ export const renderChannelCluster = (channels: BookingChannel[]) => {
 
   return (
     <div className={styles.channelCluster}>
-      {channels.map((ch) => (
+      {channelConnections.map((ch) => (
         <div
           key={ch}
           className={styles.channelDot}

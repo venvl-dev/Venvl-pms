@@ -13,15 +13,18 @@ import { PropertiesToolbar } from './PropertiesToolbar'
 
 export function PropertiesView() {
   const navigate = useNavigate()
-  const { data, isLoading, isError, refetch } = useProperties()
+  
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const { data, isLoading, isError, refetch } = useProperties({
+    page: currentPage,
+    limit: rowsPerPage
+  })
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [channelFilter, setChannelFilter] = useState('all')
-
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [currentPage, setCurrentPage] = useState(1)
-
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {}
     ALL_COLUMNS.forEach((col) => (initial[col.id] = col.defaultVisible))
@@ -29,43 +32,46 @@ export function PropertiesView() {
   })
 
   const properties = useMemo(() => data?.data ?? [], [data?.data])
+  const meta = data?.meta
 
-  const childrenMap = useMemo(() => {
-    const map = new Map<string, Property[]>()
-    properties
-      .filter((p) => p.type === 'child')
-      .forEach((child) => {
-        if (!child.parentId) return
-        if (!map.has(child.parentId)) map.set(child.parentId, [])
-        map.get(child.parentId)!.push(child)
-      })
-    return map
-  }, [properties])
+  const totalPages = meta ? Math.ceil(meta.total / meta.limit) : 1
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) setCurrentPage(1)
+  }, [totalPages, currentPage])
 
   const rootProperties = useMemo(() => {
     return properties.filter((prop) => {
-      if (prop.type === 'child') return false
-
+      const searchLower = search.toLowerCase()
       const matchesSearch =
-        prop.name.toLowerCase().includes(search.toLowerCase()) ||
-        prop.id.toLowerCase().includes(search.toLowerCase())
+        prop.title?.toLowerCase().includes(searchLower) ||
+        prop.id.toLowerCase().includes(searchLower) ||
+        prop.children?.some(
+          (child) =>
+            child.title?.toLowerCase().includes(searchLower) ||
+            child.id.toLowerCase().includes(searchLower)
+        )
+
       const matchesStatus = statusFilter === 'all' || prop.status === statusFilter
+
       const matchesChannel =
-        channelFilter === 'all' || prop.channels.includes(channelFilter as BookingChannel)
+        channelFilter === 'all' || prop.channelConnections?.includes(channelFilter as BookingChannel)
 
       return matchesSearch && matchesStatus && matchesChannel
     })
   }, [properties, search, statusFilter, channelFilter])
 
-  const totalPages = Math.ceil(rootProperties.length / rowsPerPage) || 1
-  const paginatedRoots = rootProperties.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage,
-  )
-
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(1)
-  }, [totalPages, currentPage])
+  const childrenMap = useMemo(() => {
+    const map = new Map<string, Property[]>()
+    
+    rootProperties.forEach((prop) => {
+      if (prop.children && prop.children.length > 0) {
+        map.set(prop.id, prop.children)
+      }
+    })
+    
+    return map
+  }, [rootProperties])
 
   const toggleColumn = (id: string) => {
     setVisibleCols((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -100,7 +106,6 @@ export function PropertiesView() {
           <Plus size={16} /> Add Property
         </Button>
       </header>
-
       <PropertiesToolbar
         search={search}
         onSearchChange={setSearch}
@@ -117,28 +122,26 @@ export function PropertiesView() {
         visibleCols={visibleCols}
         onToggleColumn={toggleColumn}
       />
-
       <PropertiesTable
         isLoading={isLoading}
-        items={paginatedRoots}
+        items={rootProperties}
         childrenMap={childrenMap}
         visibleCols={visibleCols}
         rowsPerPage={rowsPerPage}
         onOpen={(id) => navigate(`/properties/${id}`)}
       />
-
       <PropertiesMobileCards
         isLoading={isLoading}
-        items={paginatedRoots}
+        items={rootProperties}
         childrenMap={childrenMap}
+        rowsPerPage={rowsPerPage}
         onOpen={(id) => navigate(`/properties/${id}`)}
       />
-
       <PropertiesPagination
         currentPage={currentPage}
         totalPages={totalPages}
         rowsPerPage={rowsPerPage}
-        totalCount={rootProperties.length}
+        totalCount={meta?.total || 0}
         onPageChange={setCurrentPage}
         onRowsPerPageChange={setRowsPerPage}
       />
