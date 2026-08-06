@@ -13,11 +13,15 @@ import { PropertyDetailView } from '@/features/properties/PropertyDetailView'
 import { MultiCalendarView } from '@/features/calendar/MultiCalendarView'
 import ReservationDetails from '@/features/reservations/ReservationDetails'
 import { RouteError } from '@/components/common/RouterError'
+import ChannelManager from '@/features/booking-manager/ChannelManager'
+import BookingSites from '@/features/booking-sites/BookingSites'
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }
   if (m.path === '/reservations') return { path: 'reservations', element: <ReservationsView /> }
   if (m.path === '/properties') return { path: 'properties', element: <PropertiesView /> }
+  if (m.path === '/channels') return { path: 'channels', element: <ChannelManager /> }
+  if (m.path === '/booking-sites') return { path: 'booking-sites', element: <BookingSites /> }
   if (m.path === '/calendar') return { path: 'calendar', element: <MultiCalendarView /> }
   return { path: m.path.slice(1), element: <ModulePlaceholder /> }
 })
@@ -33,10 +37,12 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <DashboardLayout />,
-        children: [...moduleRoutes,
-          {path:'properties/:propertyId',element:<PropertyDetailView/>},
-          {path:'reservations/:reservationId',element:<ReservationDetails/>},
-          { path: '*', element: <ModulePlaceholder /> }],
+        children: [
+          ...moduleRoutes,
+          { path: 'properties/:propertyId', element: <PropertyDetailView /> },
+          { path: 'reservations/:reservationId', element: <ReservationDetails /> },
+          { path: '*', element: <ModulePlaceholder /> },
+        ],
       },
     ],
   },
