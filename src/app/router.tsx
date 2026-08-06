@@ -14,7 +14,7 @@ import { MultiCalendarView } from '@/features/calendar/MultiCalendarView'
 import ReservationDetails from '@/features/reservations/ReservationDetails'
 import { RouteError } from '@/components/common/RouterError'
 import ChannelManager from '@/features/booking-manager/ChannelManager'
-import BookingSites from '@/features/booking-sites/BookingSites'
+import BookingSites from '@/features/booking-manager/BookingSites'
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }

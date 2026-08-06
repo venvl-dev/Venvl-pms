@@ -152,6 +152,7 @@
     align-items: center;
     justify-content: center;
     gap: 20px;
+    width: 100%;
   }
   .tableCard {
     display: none;
@@ -170,7 +171,9 @@
 
   .mobileChannelCard {
     display: flex;
-    width: 300px;
+    max-width: 100%;
+    flex-grow: 1;
+    min-width: 350px;
     flex-direction: column;
     background: var(--card);
     border: 1px solid var(--border);
@@ -192,10 +195,20 @@
     display: flex;
     justify-content: space-between;
   }
+
+  .mobileHeaderSitesActions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .badgeTd {
+    padding: 0px 12px;
+  }
 }
 
 @media (max-width: 450px) {
   .mobileChannelCard {
+    min-width: unset;
     width: 100%;
   }
 }
