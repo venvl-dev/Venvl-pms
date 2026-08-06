@@ -140,3 +140,69 @@
 .trashButton:hover {
   background-color: #ffe2e2;
 }
+
+.mobileChannels {
+  display: none;
+}
+
+@media (max-width: 850px) {
+  .mobileChannels {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+  .tableCard {
+    display: none;
+  }
+
+  .headerContainer {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .addChnnelButton button {
+    width: 100%;
+  }
+
+  .mobileChannelCard {
+    display: flex;
+    width: 300px;
+    flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .mobileCardHeader {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .channel_td {
+    color: var(--muted-foreground);
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 450px) {
+  .mobileChannelCard {
+    width: 100%;
+  }
+}
+
+@media (max-width: 330px) {
+  .titleRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

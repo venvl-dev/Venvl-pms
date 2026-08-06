@@ -98,6 +98,54 @@ export default function ChannelManager() {
           </table>
         </div>
       </div>
+      <div className={styles.mobileChannels}>
+        {CHANNELS_DATA.map((ch) => (
+          <div key={ch.channel} className={styles.mobileChannelCard}>
+            <div className={styles.mobileCardHeader}>
+              <Badge className={styles.badgeTd} variant={ch.status ? 'success' : 'warning'}>
+                <div
+                  style={{ backgroundColor: ch.status ? 'var(--primary)' : 'var(--warning)' }}
+                  className={styles.badgeSignal}
+                ></div>{' '}
+                {ch.status ? 'Connected' : 'Disconnected'}
+              </Badge>
+              <Button
+                className={styles.trashButton}
+                style={{ padding: '5px 10px' }}
+                variant="outline"
+              >
+                <Trash2 size={16} color="#ff3838" />
+              </Button>
+            </div>
+            <div
+              style={{ justifyContent: 'flex-start', color: 'black' }}
+              className={styles.channel_td}
+            >
+              <img src={ch.logo} alt={ch.channel} />
+              {ch.channel}
+            </div>
+            <div className={styles.channel_td}>
+              <p>Channex ID</p>
+              {ch.channex ? <p>{ch.channex}</p> : <hr style={{ width: '20px' }} />}
+            </div>
+            <div className={styles.channel_td}>
+              <p>Last Synced</p>
+              {ch.last_synced ? <p>{ch.last_synced}</p> : <hr style={{ width: '20px' }} />}
+            </div>
+            <Button variant="outline">
+              {ch.status ? (
+                <>
+                  <Unlink /> Disconnect
+                </>
+              ) : (
+                <>
+                  <Link2 /> Connect
+                </>
+              )}
+            </Button>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
