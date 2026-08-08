@@ -62,9 +62,9 @@ export function DayView({
                   className={cx(styles.listingCell, styles.stickyCol)}
                   style={{ gridColumn: 1, gridRow }}
                 >
-                  <img src={unit.image} alt="" className={styles.listingImage} />
+                  <img src={unit.thumbnail??undefined} alt="" className={styles.listingImage} />
                   <div className={styles.listingInfo}>
-                    <div className={styles.listingName}>{unit.name}</div>
+                    <div className={styles.listingName}>{unit.title}</div>
                     <div className={styles.listingMeta}>
                       <span className={styles.statusDot} /> Active
                     </div>
@@ -79,7 +79,7 @@ export function DayView({
                     style={{ gridColumn: dayIndex + 2, gridRow }}
                   >
                     <div className={styles.emptyCell}>
-                      {unit.pricing?.price ? `${unit.pricing.price}$` : '-'}
+                     {unit.price ? `${unit.price}$` : '-'}
                     </div>
                   </div>
                 ))}

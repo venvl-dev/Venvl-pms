@@ -3,12 +3,12 @@ import { cx } from "../../lib/cx";
 import styles from "./Aminites.module.css";
 
 type AmenityProps = {
-  icon?: string;
+  icon: string;
   label: string;
   muted?: boolean;
 };
 
-export function Amenity({ icon = "check", label, muted = false }: AmenityProps) {
+export function Amenity({ icon, label, muted = false }: AmenityProps) {
   return (
     <div className={cx(styles.item, muted && styles.muted)}>
       <span className={styles.iconWrap}>

@@ -72,3 +72,19 @@ export const renderChannelCluster = (channelConnections: BookingChannel[]) => {
     </div>
   )
 }
+
+export const AMENITY_LABELS: Record<string, string> = {
+  wifi: 'WiFi',
+  air_conditioning: 'Air conditioning',
+  hot_water: 'Hot water',
+  hair_dryer: 'Hair dryer',
+  body_soap: 'Body soap',
+  shower_gel: 'Shower gel',
+  bed_linens: 'Bed linens',
+  extra_pillows_and_blankets: 'Extra pillows and blankets',
+  room_darkening_shades: 'Room darkening shades',
+  drying_rack_for_clothing: 'Drying rack for clothing',
+  cleaning_products: 'Cleaning products',
+}
+export const amenityLabel = (key: string) =>
+  AMENITY_LABELS[key] ?? key.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase())

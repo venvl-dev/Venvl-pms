@@ -7,7 +7,7 @@ import type { Property, BookingChannel } from './types'
 import styles from './PropertyDetailView.module.css'
 import { Amenity } from '@/components/core/Aminites'
 import { usePropertyById } from './hooks'
-import { airbnbLogo, bookingLogo, directLogo, expediaLogo, vrboLogo } from './Constants'
+import { airbnbLogo, amenityLabel, bookingLogo, directLogo, expediaLogo, vrboLogo } from './Constants'
 
 const getStatusBadge = (status: Property['status']) => {
   switch (status) {
@@ -254,7 +254,7 @@ export function PropertyDetailView() {
             {property.amenities && property.amenities.length > 0 ? (
               <div className={styles.amenityGrid}>
                 {property.amenities.map((amenity) => (
-                  <Amenity key={amenity} label={amenity} />
+                  <Amenity key={amenity} icon={amenity} label={amenityLabel(amenity)} />
                 ))}
               </div>
             ) : (
@@ -264,44 +264,49 @@ export function PropertyDetailView() {
         </div>
 
         <aside className={styles.sideCol}>
-          {property.pricing && (
-            <section className={styles.card}>
-              <h2 className={styles.cardTitle}>Prices</h2>
-              <div className={styles.priceGrid}>
-                <PriceRow label="Price" value={`${property.price} $`} />
-                <PriceRow
-                  label="Price for extra person"
-                  value={property.pricing.priceForExtraPerson}
-                />
-                <PriceRow label="Weekly Discount" value={`${property.pricing.weeklyDiscount}%`} />
-                <PriceRow
-                  label="Property rent tax %"
-                  value={pct(property.pricing.propertyRentTax)}
-                />
-                <PriceRow
-                  label="Apply price for extra person after"
-                  value={property.pricing.applyExtraPersonAfter}
-                />
-                <PriceRow
-                  label="Fixed guest tax per-person, per-night"
-                  value={dash(property.pricing.fixedGuestTaxPerNight)}
-                />
-                <PriceRow
-                  label="Fixed tax per reservation"
-                  value={dash(property.pricing.fixedTaxPerReservation)}
-                />
-                <PriceRow label="Monthly Discount" value={`${property.pricing.monthlyDiscount}%`} />
-                <PriceRow
-                  label="Fixed nightly tax"
-                  value={dash(property.pricing.fixedNightlyTax)}
-                />
-                <PriceRow
-                  label="Refundable Damage Deposit fee"
-                  value={property.pricing.refundableDamageDeposit}
-                />
-              </div>
-            </section>
-          )}
+          <section className={styles.card}>
+            <h2 className={styles.cardTitle}>Prices</h2>
+            <div className={styles.priceGrid}>
+              <PriceRow label="Price" value={`${property.price} ${property.currency}`} />
+              {property.pricing && (
+                <>
+                  <PriceRow
+                    label="Price for extra person"
+                    value={property.pricing.priceForExtraPerson}
+                  />
+                  <PriceRow label="Weekly Discount" value={`${property.pricing.weeklyDiscount}%`} />
+                  <PriceRow
+                    label="Property rent tax %"
+                    value={pct(property.pricing.propertyRentTax)}
+                  />
+                  <PriceRow
+                    label="Apply price for extra person after"
+                    value={property.pricing.applyExtraPersonAfter}
+                  />
+                  <PriceRow
+                    label="Fixed guest tax per-person, per-night"
+                    value={dash(property.pricing.fixedGuestTaxPerNight)}
+                  />
+                  <PriceRow
+                    label="Fixed tax per reservation"
+                    value={dash(property.pricing.fixedTaxPerReservation)}
+                  />
+                  <PriceRow
+                    label="Monthly Discount"
+                    value={`${property.pricing.monthlyDiscount}%`}
+                  />
+                  <PriceRow
+                    label="Fixed nightly tax"
+                    value={dash(property.pricing.fixedNightlyTax)}
+                  />
+                  <PriceRow
+                    label="Refundable Damage Deposit fee"
+                    value={property.pricing.refundableDamageDeposit}
+                  />
+                </>
+              )}
+            </div>
+          </section>
           <section className={styles.card}>
             <h2 className={styles.cardTitle}>Connected Channels</h2>
             {(property.channelConnections || []).length > 0 ? (

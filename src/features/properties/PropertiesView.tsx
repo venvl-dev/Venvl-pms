@@ -42,6 +42,7 @@ export function PropertiesView() {
 
   const rootProperties = useMemo(() => {
     return properties.filter((prop) => {
+      if (prop.structureType === 'child') return false 
       const searchLower = search.toLowerCase()
       const matchesSearch =
         prop.title?.toLowerCase().includes(searchLower) ||

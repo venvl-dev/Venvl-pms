@@ -19,6 +19,7 @@ const generateMocks = (): Property[] => {
   ]
   const parentNames = ['Nile View Building', 'Downtown Complex', 'Lagoon Residences', 'Palm Towers']
   const singleNames = ['Desert Rose Villa', 'Oasis Chalet', 'Sea Breeze Studio']
+  const propertyTypes = ['apartment', 'villa', 'chalet', 'studio', 'loft']
   const allChannels: BookingChannel[] = ['direct', 'airbnb', 'booking.com', 'vrbo', 'expedia']
 
   const properties: Property[] = []
@@ -52,20 +53,33 @@ const generateMocks = (): Property[] => {
 
     properties.push({
       id: rootId,
-      name: isSingle
+      title: isSingle
         ? `${singleNames[i % singleNames.length]} ${i}`
         : `${parentNames[i % parentNames.length]} ${i}`,
-      image: IMAGES[i % IMAGES.length],
-      type: isSingle ? 'single' : 'parent',
-      location: locations[i % locations.length],
-      status: statuses[i % statuses.length],
-      channels: connectedChannels,
+      description: null,
+      thumbnail: IMAGES[i % IMAGES.length],
+      images: [IMAGES[i % IMAGES.length]],
+      structureType: isSingle ? 'single' : 'parent',
+      propertyType: propertyTypes[i % propertyTypes.length],
+      parentListingId: null,
+      area: null,
       bedrooms: (i % 4) + 1,
       bathrooms: (i % 3) + 1,
-
+      maxOccupancy: null,
+      mapsLocation: null,
+      price: 100 + (i % 8) * 25,
       amenities: selectedAmenities,
+      address: null,
+      city: locations[i % locations.length],
+      state: null,
+      country: 'Egypt',
+      zipCode: null,
+      currency: 'EGP',
+      countOfUnits: 1,
+      status: statuses[i % statuses.length],
+      channelConnections: connectedChannels,
+
       pricing: {
-        price: 100 + (i % 8) * 25,
         priceForExtraPerson: (i % 3) * 10,
         weeklyDiscount: 5 + (i % 4),
         monthlyDiscount: 10 + (i % 3) * 5,
@@ -107,15 +121,29 @@ const generateMocks = (): Property[] => {
       for (let j = 1; j <= childCount; j++) {
         properties.push({
           id: `PRP-${++idCounter}`,
-          parentId: rootId,
-          name: `Unit ${j}${['A', 'B', 'C'][j % 3]}`,
-          image: IMAGES[(i + j) % IMAGES.length],
-          type: 'child',
-          location: locations[i % locations.length],
-          status: statuses[(i + j) % statuses.length],
-          channels: connectedChannels.slice(0, 2),
+          title: `Unit ${j}${['A', 'B', 'C'][j % 3]}`,
+          description: null,
+          thumbnail: IMAGES[(i + j) % IMAGES.length],
+          images: [],
+          structureType: 'child',
+          propertyType: propertyTypes[i % propertyTypes.length],
+          parentListingId: rootId,
+          area: null,
           bedrooms: (j % 3) + 1,
           bathrooms: 1,
+          maxOccupancy: null,
+          mapsLocation: null,
+          price: 80 + (j % 4) * 20,
+          amenities: [],
+          address: null,
+          city: locations[i % locations.length],
+          state: null,
+          country: 'Egypt',
+          zipCode: null,
+          currency: 'EGP',
+          countOfUnits: 1,
+          status: statuses[(i + j) % statuses.length],
+          channelConnections: connectedChannels.slice(0, 2),
         })
       }
     }
@@ -131,10 +159,10 @@ export const BOOKABLE_UNITS = MOCK_PROPERTIES
 export const getUnitLabels = (unitId: string): { property: string; unit: string } => {
   const unit = getPropertyId(unitId)
   if (!unit) return { property: 'Unknown property', unit: '—' }
-  const parent = unit.parentId ? getPropertyId(unit.parentId) : undefined
-  if (parent) return { property: parent.name, unit: unit.name }
+  const parent = unit.parentListingId ? getPropertyId(unit.parentListingId) : undefined
+  if (parent) return { property: parent.title, unit: unit.title }
   return {
-    property: unit.name,
-    unit: parent ? unit.name : unit.type === 'parent' ? 'Parent' : 'Single',
+    property: unit.title,
+    unit: parent ? unit.title : unit.structureType === 'parent' ? 'Parent' : 'Single',
   }
 }

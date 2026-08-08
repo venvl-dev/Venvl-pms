@@ -56,20 +56,23 @@ export function MultiCalendarView() {
   const allBookableUnits = useMemo(() => BOOKABLE_UNITS, [])
 
   const typeOptions = useMemo(
-    () => ['all', ...Array.from(new Set(allBookableUnits.map((u) => u.type)))],
+    () => ['all', ...Array.from(new Set(allBookableUnits.map((u) => u.structureType)))],
     [allBookableUnits],
   )
-  const locOptions = useMemo(
-    () => ['all', ...Array.from(new Set(allBookableUnits.map((u) => u.location)))],
+   const locOptions = useMemo(
+    () => [
+      'all',
+      ...Array.from(new Set(allBookableUnits.map((u) => u.city).filter((c): c is string => !!c))),
+    ],
     [allBookableUnits],
   )
 
   const filteredUnits = useMemo(() => {
     return allBookableUnits.filter((u) => {
-      const matchType = typeFilter === 'all' || u.type === typeFilter
-      const matchLoc = locFilter === 'all' || u.location === locFilter
+      const matchType = typeFilter === 'all' || u.structureType === typeFilter
+      const matchLoc = locFilter === 'all' || u.city === locFilter
       const matchChan =
-        channelFilter === 'all' || u.channels.includes(channelFilter as BookingChannel)
+        channelFilter === 'all' || u.channelConnections.includes(channelFilter as BookingChannel)
       return matchType && matchLoc && matchChan
     })
   }, [allBookableUnits, typeFilter, locFilter, channelFilter])
