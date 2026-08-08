@@ -139,7 +139,7 @@ const ReservationDetails = () => {
       </div>
 
       <header className={styles.header}>
-        {property?.image && <img src={property.image} alt="" className={styles.hero} />}
+        {property?.thumbnail  && <img src={property.thumbnail } alt="" className={styles.hero} />}
 
         <div className={styles.details}>
           <div className={styles.headerInfo}>
@@ -160,9 +160,9 @@ const ReservationDetails = () => {
               <span className={styles.meta}>
                 <Building2 size={14} /> {labels.property} · {labels.unit}
               </span>
-              {property?.location && (
+              {property?.city && (
                 <span className={styles.meta}>
-                  <MapPin size={14} /> {property.location}
+                  <MapPin size={14} /> {property.city}
                 </span>
               )}
               <span className={styles.meta}>
@@ -245,7 +245,7 @@ const ReservationDetails = () => {
               <InfoRow label="Property" value={labels.property} />
               <InfoRow label="Unit" value={labels.unit} />
               <InfoRow label="Unit ID" value={reservation.propertyId} />
-              {property?.location && <InfoRow label="Location" value={property.location} />}
+              {property?.city && <InfoRow label="Location" value={property.city} />}
               {property && (
                 <InfoRow
                   label="Layout"
