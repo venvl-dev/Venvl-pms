@@ -6,11 +6,15 @@ import styles from './AuthForm.module.css'
 import { Label } from '@radix-ui/react-label'
 import { Input } from '@/components/core/Input'
 import { Button } from '@/components/core/Button'
+import PhoneInputWithCountry from "react-phone-number-input/react-hook-form"
+import 'react-phone-number-input/style.css'
+
 
 export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<RegisterValues>({ resolver: zodResolver(registerSchema) })
 
@@ -19,9 +23,9 @@ export function RegisterForm() {
   return (
     <form className={styles.form} onSubmit={handleSubmit((values) => mutate(values))} noValidate>
       <div className={styles.field}>
-        <Label htmlFor="orgName">Organization name</Label>
-        <Input id="orgName" autoComplete="organization" {...register('orgName')} />
-        {errors.orgName && <p className={styles.error}>{errors.orgName.message}</p>}
+        <Label htmlFor="name">Organization name</Label>
+        <Input id="name" autoComplete="organization" {...register('name')} />
+        {errors.name && <p className={styles.error}>{errors.name.message}</p>}
       </div>
       <div className={styles.field}>
         <Label htmlFor="ownerName">Owner name</Label>
@@ -36,13 +40,17 @@ export function RegisterForm() {
       </div>
       <div className={styles.field}>
         <Label htmlFor="phone">Phone number</Label>
-        <Input
-          id="phone"
-          type="tel"
-          autoComplete="tel"
-          placeholder="+20..."
-          {...register('phone')}
-        />
+       <PhoneInputWithCountry
+  name="phone"
+  control={control}
+  id="phone"
+  className={styles.phoneInput}
+  international
+  defaultCountry="EG"
+  countryCallingCodeEditable={false}
+  autoComplete="tel"
+  placeholder="100 000 0000"
+/>
         {errors.phone && <p className={styles.error}>{errors.phone.message}</p>}
       </div>
       <div className={styles.field}>

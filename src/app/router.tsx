@@ -12,6 +12,7 @@ import { PropertiesView } from '@/features/properties/PropertiesView'
 import { PropertyDetailView } from '@/features/properties/PropertyDetailView'
 import { MultiCalendarView } from '@/features/calendar/MultiCalendarView'
 import ReservationDetails from '@/features/reservations/ReservationDetails'
+import { RouteError } from '@/components/common/RouterError'
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }
@@ -22,12 +23,13 @@ const moduleRoutes = MODULES.map((m) => {
 })
 
 export const router = createBrowserRouter([
-  { path: '/login', element: <LoginView /> },
-  { path: '/register', element: <RegisterView /> },
-  { path: '/verify-otp', element: <VerifyOtpView /> },
+  { path: '/login', element: <LoginView />, errorElement: <RouteError /> },
+  { path: '/register', element: <RegisterView />, errorElement: <RouteError /> },
+  { path: '/verify-otp', element: <VerifyOtpView />, errorElement: <RouteError /> },
   {
     path: '/',
     element: <RequireAuth />,
+    errorElement: <RouteError />,
     children: [
       {
         element: <DashboardLayout />,

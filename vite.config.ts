@@ -11,7 +11,14 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  server: {
-    port: 5173,
+ server: {
+  port: 5173,
+  proxy: {
+    '/dashboard': {
+      target: 'http://api.go.venvl.com',
+      changeOrigin: true,
+    },
   },
+},
+
 })

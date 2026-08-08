@@ -1,25 +1,20 @@
 import { useEffect } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuthStore } from '@/features/auth/authStore'
-import { api } from '@/lib/apiClient'
-import type { RefreshResponse, User } from './types'
+import { refreshSession } from '@/lib/apiClient'
 
 function useBootstrapAuth() {
-  const { isBootstrapping, setAuth, setBootstrapped } = useAuthStore()
+  const isBootstrapping = useAuthStore((s) => s.isBootstrapping)
 
   useEffect(() => {
     let cancelled = false
     async function bootstrap() {
-      // Already authenticated this session (demo or fresh login) → no refresh needed.
-      if (useAuthStore.getState().accessToken) {
-        setBootstrapped()
-        return
-      }
+      const { isAuthenticated, setAuthenticated, setBootstrapped } =
+        useAuthStore.getState()
+      if (isAuthenticated) { setBootstrapped(); return }
       try {
-        const { data } = await api.post<RefreshResponse>('/auth/refresh', {})
-        useAuthStore.getState().setAccessToken(data.accessToken)
-        const { data: user } = await api.get<User>('/auth/me')
-        if (!cancelled) setAuth(data.accessToken, user)
+        await refreshSession()
+        if (!cancelled) setAuthenticated()
       } catch {
         useAuthStore.getState().clearAuth()
       } finally {
@@ -27,18 +22,16 @@ function useBootstrapAuth() {
       }
     }
     void bootstrap()
-    return () => {
-      cancelled = true
-    }
-  }, [setAuth, setBootstrapped])
+    return () => { cancelled = true }
+  }, [])
 
   return isBootstrapping
 }
 
 export function RequireAuth() {
   const isBootstrapping = useBootstrapAuth()
-  const accessToken = useAuthStore((s) => s.accessToken)
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   if (isBootstrapping) return <div style={{ padding: '2rem' }}>Loading…</div>
-  if (!accessToken) return <Navigate to="/login" replace />
+  if (!isAuthenticated) return <Navigate to="/login" replace />
   return <Outlet />
 }
