@@ -15,6 +15,7 @@ import ReservationDetails from '@/features/reservations/ReservationDetails'
 import { RouteError } from '@/components/common/RouterError'
 import ChannelManager from '@/features/booking-manager/ChannelManager'
 import BookingSites from '@/features/booking-manager/BookingSites'
+import Settings from '@/features/settings/Settings'
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }
@@ -23,6 +24,7 @@ const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/channels') return { path: 'channels', element: <ChannelManager /> }
   if (m.path === '/booking-sites') return { path: 'booking-sites', element: <BookingSites /> }
   if (m.path === '/calendar') return { path: 'calendar', element: <MultiCalendarView /> }
+  if (m.path === '/settings') return { path: 'settings', element: <Settings /> }
   return { path: m.path.slice(1), element: <ModulePlaceholder /> }
 })
 
