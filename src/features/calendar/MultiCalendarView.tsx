@@ -3,8 +3,8 @@ import styles from './MultiCalendarView.module.css'
 import { useNavigate } from 'react-router-dom'
 import { ReservationPopover } from './ReservationPopover'
 
-import { BOOKABLE_UNITS } from '@/features/properties/mockProperties'
-import { DB as MOCK_RESERVATIONS } from '@/features/reservations/mockDb'
+import { useProperties } from '@/features/properties/hooks'
+import { useReservations } from '@/features/reservations/hooks'
 import type { BookingChannel } from '@/types/domain'
 import type { Reservation } from '@/features/reservations/types'
 
@@ -18,6 +18,8 @@ export function MultiCalendarView() {
   const navigate = useNavigate()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('day')
+
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const [popoverAnchor, setPopoverAnchor] = useState<DOMRect | null>(null)
@@ -53,7 +55,8 @@ export function MultiCalendarView() {
   const [channelFilter, setChannelFilter] = useState('all')
 
   // 1. Data Preparation & Filtering
-  const allBookableUnits = useMemo(() => BOOKABLE_UNITS, [])
+  const { data: propertiesResponse } = useProperties({ page: 1, limit: 100 })
+  const allBookableUnits = useMemo(() => propertiesResponse?.data ?? [], [propertiesResponse?.data])
 
   const typeOptions = useMemo(
     () => ['all', ...Array.from(new Set(allBookableUnits.map((u) => u.structureType)))],
@@ -76,22 +79,7 @@ export function MultiCalendarView() {
       return matchType && matchLoc && matchChan
     })
   }, [allBookableUnits, typeFilter, locFilter, channelFilter])
-
-  // Attach reservations to filtered units securely
-  const unitReservations = useMemo(() => {
-    const map = new Map<string, Reservation[]>()
-    filteredUnits.forEach((u) => map.set(u.id, []))
-
-    // Distributed deterministically for the mock
-    MOCK_RESERVATIONS.forEach((res) => {
-      if (channelFilter !== 'all' && res.channel !== channelFilter) return
-
-      if (map.has(res.propertyId)) {
-        map.get(res.propertyId)?.push(res)
-      }
-    })
-    return map
-  }, [filteredUnits, channelFilter])
+  
 
   // 2. Day View Matrix Settings
   const COL_WIDTH = 120
@@ -106,23 +94,64 @@ export function MultiCalendarView() {
     })
   }, [baseDate])
 
+  const { data: reservationsResponse } = useReservations({
+    page: 1,
+    limit: 100, 
+    startDate: `${dateArray[0].toISOString().split('T')[0]}T00:00:00.000Z`,
+    endDate: `${dateArray[dateArray.length - 1].toISOString().split('T')[0]}T23:59:59.999Z`,
+  })
+
+  const liveReservations = reservationsResponse?.data ?? []
+
+  const unitReservations = useMemo(() => {
+    const map = new Map<string, Reservation[]>()
+    filteredUnits.forEach((u) => map.set(u.id, []))
+    
+    liveReservations.forEach((res) => {
+      // Safely extract the channel using the new nested structure
+      const channel = res.customer?.ota || 'direct'
+      
+      if (channelFilter !== 'all' && channel !== channelFilter) return
+      
+      // Update propertyId to the new listingId key
+      if (map.has(res.listingId)) {
+        map.get(res.listingId)?.push(res)
+      }
+    })
+    return map
+  }, [filteredUnits, channelFilter, liveReservations])
+
   const [visibleStartIndex, setVisibleStartIndex] = useState(PAST_BUFFER)
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (viewMode !== 'day') return
+    
     const scrollLeft = e.currentTarget.scrollLeft
     const scrollTop = e.currentTarget.scrollTop
-    const newIndex = Math.round(scrollLeft / COL_WIDTH)
-    if (newIndex !== visibleStartIndex) setVisibleStartIndex(newIndex)
 
+    // 1. We still want to close the popover instantly if the user scrolls away
     if (selectedReservation && scrollOriginRef.current !== null) {
       const dx = Math.abs(scrollLeft - scrollOriginRef.current.x)
       const dy = Math.abs(scrollTop - scrollOriginRef.current.y)
-
       if (dx > 20 || dy > 20) {
         closePopover()
       }
     }
+
+    // 2. Throttle the heavy state update so it doesn't crush the main thread
+    if (scrollTimeoutRef.current) return // Skip if we are already waiting
+
+    scrollTimeoutRef.current = setTimeout(() => {
+      const newIndex = Math.round(scrollLeft / COL_WIDTH)
+      
+      // Update state, which triggers the re-render for the date range text
+      setVisibleStartIndex((prevIndex) => {
+        return newIndex !== prevIndex ? newIndex : prevIndex
+      })
+      
+      // Clear the timeout so the next scroll event can be processed
+      scrollTimeoutRef.current = null
+    }, 100) // 100ms throttle 
   }
 
   useLayoutEffect(() => {

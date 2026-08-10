@@ -42,8 +42,8 @@ export function MonthView({ baseDate, filteredUnits, unitReservations }: Props) 
           filteredUnits.forEach((u) => {
             const resList = unitReservations.get(u.id) || []
             const isBooked = resList.some((r) => {
-              const cIn = parseDate(r.checkIn)
-              const cOut = parseDate(r.checkOut)
+              const cIn = parseDate(r.startDate)
+              const cOut = parseDate(r.endDate)
               return date >= cIn && date < cOut
             })
             if (isBooked) bookedCount++

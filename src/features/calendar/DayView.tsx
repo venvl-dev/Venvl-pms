@@ -3,7 +3,7 @@ import { cx } from '@/lib/cx'
 import styles from './MultiCalendarView.module.css'
 import { parseDate, getChannelConfig } from './Constants'
 import type { Property } from '@/features/properties/types'
-import type { Reservation } from '@/features/reservations/types'
+import type { BookingChannel, Reservation } from '@/features/reservations/types'
 
 interface CalendarGridStyles extends React.CSSProperties {
   '--total-days'?: number
@@ -85,27 +85,29 @@ export function DayView({
                 ))}
 
                 {unitReservations.get(unit.id)?.map((res) => {
-                  const checkInDate = parseDate(res.checkIn)
-                  const checkOutDate = parseDate(res.checkOut)
+                  // Use startDate and endDate
+                  const checkInDate = parseDate(res.startDate)
+                  const checkOutDate = parseDate(res.endDate)
+                  
                   const startIndex = Math.floor(
                     (checkInDate.getTime() - dateArray[0].getTime()) / 86400000,
                   )
                   const duration = Math.floor(
                     (checkOutDate.getTime() - checkInDate.getTime()) / 86400000,
                   )
-
+                  
                   const isClippedLeft = startIndex < 0
                   const actualStartCol = isClippedLeft ? 2 : startIndex + 2
-
                   let actualSpan = duration
                   if (isClippedLeft) actualSpan = duration + startIndex
                   if (actualStartCol + actualSpan > bufferSize + 2)
                     actualSpan = bufferSize + 2 - actualStartCol
-
                   if (actualSpan <= 0) return null
-
-                  const config = getChannelConfig(res.channel)
-
+                  
+                  // Extract the channel safely
+                  const channel = (res.customer?.ota || 'direct') as BookingChannel
+                  const config = getChannelConfig(channel)
+                  
                   return (
                     <div
                       key={res.id}
@@ -128,8 +130,11 @@ export function DayView({
                         }}
                       >
                         <div className={styles.pillContent}>
-                          <span className={styles.guestName}>{res.guestName}</span>
-                          <span className={styles.guestCount}>2 Guests</span>
+                          {/* Extract the customer name safely */}
+                          <span className={styles.guestName}>{res.customer?.name || 'Unknown Guest'}</span>
+                          <span className={styles.guestCount}>
+                             {res.occupancy ? `${res.occupancy.adults + res.occupancy.children} Guests` : 'Guests'}
+                          </span>
                         </div>
                         <div className={styles.channelIcon}>
                           <img src={config.logo} alt="" />
