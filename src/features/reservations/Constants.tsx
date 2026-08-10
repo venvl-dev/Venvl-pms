@@ -21,6 +21,15 @@ export const STATUS_OPTIONS = [
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
+export const SOURCE_OPTIONS = [
+  { value: 'all', label: 'All Sources' },
+  { value: 'direct', label: 'Direct Booking' },
+  { value: 'airbnb', label: 'Airbnb' },
+  { value: 'booking.com', label: 'Booking.com' },
+  { value: 'vrbo', label: 'Vrbo' },
+  { value: 'expedia', label: 'Expedia' },
+]
+
 export const formatDate = (dateStr: string) => {
   return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(
     new Date(dateStr),

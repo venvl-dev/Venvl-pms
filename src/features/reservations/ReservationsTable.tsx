@@ -6,7 +6,6 @@ import { cx } from '@/lib/cx'
 import type { Reservation } from './types'
 import { getStatusBadge, formatDate, formatCurrency, renderChannel } from './Constants'
 import styles from './ReservationsView.module.css'
-import { getUnitLabels } from '../properties/mockProperties'
 
 interface Props {
   isLoading: boolean
@@ -107,7 +106,6 @@ export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage, 
               </tr>
             ) : (
               items.map((res) => {
-                const labels = getUnitLabels(res.propertyId)
                 return (
                 <tr key={res.id} className={styles.tr}>
                   {visibleCols.id && (
@@ -127,37 +125,33 @@ export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage, 
                         if (e.key === 'Enter') onOpen(res.id)
                       }}
                     >
-                      <div className={styles.cellPrimary}>{res.guestName}</div>
+                      <div className={styles.cellPrimary}>{res.customer.name}</div>
                     </td>
                   )}
                   {visibleCols.dates && (
                     <td className={styles.td}>
-                      <div className={styles.cellPrimary}>{formatDate(res.checkIn)}</div>
-                      <div className={styles.cellSecondary}>to {formatDate(res.checkOut)}</div>
+                      <div className={styles.cellPrimary}>{formatDate(res.startDate)}</div>
+                      <div className={styles.cellSecondary}>to {formatDate(res.endDate)}</div>
                     </td>
                   )}
                   {visibleCols.property && (
                     <td className={styles.td}>
-                      <div className={styles.cellPrimary}>{labels.property}</div>
-                      <div className={styles.cellSecondary}>{labels.unit}</div>
+                      <div className={styles.cellPrimary}>{res.listing?.name || 'Unknown Property'}</div>
+                      <div className={styles.cellSecondary}>{res.listing?.location?.city || 'Unknown Unit'}</div>
                     </td>
                   )}
                   {visibleCols.channel && (
-                    <td className={styles.td}>{renderChannel(res.channel)}</td>
+                    <td className={styles.td}>{renderChannel(res.customer?.ota || 'direct')}</td>
                   )}
                   {visibleCols.status && (
                     <td className={styles.td}>{getStatusBadge(res.status)}</td>
                   )}
                   {visibleCols.amount && (
-                    <td className={styles.td}>{formatCurrency(res.totalAmount)}</td>
+                    <td className={styles.td}>{formatCurrency(res.amount || 0)}</td>
                   )}
                   {visibleCols.balance && (
                     <td className={styles.td}>
-                      {res.balanceDue > 0 ? (
-                        <Badge variant="warning">{formatCurrency(res.balanceDue)} Due</Badge>
-                      ) : (
-                        <Badge variant="success">Paid</Badge>
-                      )}
+                      <Badge variant="success">Paid</Badge>
                     </td>
                   )}
                   <td className={styles.td}>
