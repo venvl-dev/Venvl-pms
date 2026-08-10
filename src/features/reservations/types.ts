@@ -30,9 +30,14 @@ export interface ListingLocation {
 export interface Listing {
   id: string
   name: string
+  type?: string
   thumbnail: string | null
   bedrooms: number
   bathrooms: number
+  maxOccupancy?: number
+  area?: number
+  price?: number
+  currency?: string
   location: ListingLocation
 }
 
