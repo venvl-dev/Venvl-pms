@@ -12,7 +12,7 @@ let refreshPromise: Promise<void> | null = null
 
 export async function refreshSession(): Promise<void> {
   await axios.post(
-    `${import.meta.env.VITE_API_URL}/auth/organization/refresh`,
+    `${import.meta.env.VITE_API_URL}/auth/refresh`,
     {},
     { withCredentials: true },
   )
