@@ -56,19 +56,29 @@ export function DayView({
 
           {filteredUnits.map((unit, unitIndex) => {
             const gridRow = unitIndex + 2
+            const isChild = unit.structureType === 'child' 
+
             return (
               <Fragment key={unit.id}>
                 <div
-                  className={cx(styles.listingCell, styles.stickyCol)}
+                  className={cx(styles.listingCell, styles.stickyCol, isChild && styles.childListingCell)}
                   style={{ gridColumn: 1, gridRow }}
-                >
-                  <img src={unit.thumbnail??undefined} alt="" className={styles.listingImage} />
+                >                  
+                  <img 
+                    src={unit.thumbnail ?? undefined} 
+                    alt="" 
+                    className={cx(styles.listingImage, isChild && styles.childImage)} 
+                  />
+                  
                   <div className={styles.listingInfo}>
                     <div className={styles.listingName}>{unit.title}</div>
                     <div className={styles.listingMeta}>
-                      <span className={styles.statusDot} /> Active
+                      {!isChild && <span className={styles.statusDot} />}
+                      <span style={{ textTransform: 'capitalize' }}>{unit.status}</span>
                     </div>
-                    <div className={styles.listingMeta}>{unit.bedrooms}BR • 4 Guests</div>
+                    <div className={styles.listingMeta}>
+                      {unit.bedrooms}BR • {unit.maxOccupancy} Guests
+                    </div>
                   </div>
                 </div>
 
@@ -85,7 +95,6 @@ export function DayView({
                 ))}
 
                 {unitReservations.get(unit.id)?.map((res) => {
-                  // Use startDate and endDate
                   const checkInDate = parseDate(res.startDate)
                   const checkOutDate = parseDate(res.endDate)
                   
@@ -104,7 +113,6 @@ export function DayView({
                     actualSpan = bufferSize + 2 - actualStartCol
                   if (actualSpan <= 0) return null
                   
-                  // Extract the channel safely
                   const channel = (res.customer?.ota || 'direct') as BookingChannel
                   const config = getChannelConfig(channel)
                   
@@ -130,7 +138,6 @@ export function DayView({
                         }}
                       >
                         <div className={styles.pillContent}>
-                          {/* Extract the customer name safely */}
                           <span className={styles.guestName}>{res.customer?.name || 'Unknown Guest'}</span>
                           <span className={styles.guestCount}>
                              {res.occupancy ? `${res.occupancy.adults + res.occupancy.children} Guests` : 'Guests'}

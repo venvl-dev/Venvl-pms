@@ -13,6 +13,7 @@ import { CalendarToolbar } from './CalendarToolBar'
 import { DayView } from './DayView'
 import { MonthView } from './MonthView'
 import { YearView } from './YearView'
+import type { Property } from '../properties/types'
 
 export function MultiCalendarView() {
   const navigate = useNavigate()
@@ -56,7 +57,24 @@ export function MultiCalendarView() {
 
   // 1. Data Preparation & Filtering
   const { data: propertiesResponse } = useProperties({ page: 1, limit: 100 })
-  const allBookableUnits = useMemo(() => propertiesResponse?.data ?? [], [propertiesResponse?.data])
+
+  // Flatten the array so children immediately follow their parents in the grid
+  const allBookableUnits = useMemo(() => {
+    const rawData = propertiesResponse?.data ?? []
+    const flatList: Property[] = [] // Using any[] temporarily or your Property[] type
+
+    rawData.forEach((listing) => {
+      // 1. Push the parent or single listing
+      flatList.push(listing)
+      
+      // 2. If it has children, spread them right after the parent
+      if (listing.children && listing.children.length > 0) {
+        flatList.push(...listing.children)
+      }
+    })
+
+    return flatList
+  }, [propertiesResponse?.data])
 
   const typeOptions = useMemo(
     () => ['all', ...Array.from(new Set(allBookableUnits.map((u) => u.structureType)))],
@@ -101,25 +119,23 @@ export function MultiCalendarView() {
     endDate: `${dateArray[dateArray.length - 1].toISOString().split('T')[0]}T23:59:59.999Z`,
   })
 
-  const liveReservations = reservationsResponse?.data ?? []
-
   const unitReservations = useMemo(() => {
     const map = new Map<string, Reservation[]>()
     filteredUnits.forEach((u) => map.set(u.id, []))
     
+    const liveReservations = reservationsResponse?.data ?? []
+    
     liveReservations.forEach((res) => {
-      // Safely extract the channel using the new nested structure
       const channel = res.customer?.ota || 'direct'
       
       if (channelFilter !== 'all' && channel !== channelFilter) return
       
-      // Update propertyId to the new listingId key
       if (map.has(res.listingId)) {
         map.get(res.listingId)?.push(res)
       }
     })
     return map
-  }, [filteredUnits, channelFilter, liveReservations])
+  }, [filteredUnits, channelFilter, reservationsResponse?.data])
 
   const [visibleStartIndex, setVisibleStartIndex] = useState(PAST_BUFFER)
 
