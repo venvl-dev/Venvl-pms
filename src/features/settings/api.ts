@@ -3,6 +3,7 @@ import type { InviteBody } from './types'
 
 export const getMe = async () => {
   const { data } = await api.get('/auth/me')
+  return data
 }
 
 export const sendInvite = async (body: InviteBody) => {

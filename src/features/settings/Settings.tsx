@@ -6,7 +6,8 @@ import { Select } from '@/components/core/Select'
 import { Button } from '@/components/core/Button'
 import { Trash2, UserPlus, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useInviteEmp } from './hooks'
+import { useGetMe, useInviteEmp } from './hooks'
+import { Skeleton } from '@/components/core/Skeleton'
 
 export type RoleType =
   'Org Admin' | 'Manager' | 'Housekeeping' | 'Front Desk' | 'Owner' | 'Platform Super Admin'
@@ -18,10 +19,11 @@ interface TeamMember {
 }
 
 interface SettingsState {
-  orgName: string | ''
-  legalName: string | ''
-  currency: 'USD' | 'EGP'
-  timezone: string
+  orgName: string
+  email: string
+  name: string
+  currency?: 'USD' | 'EGP'
+  timezone?: string
   teamMembers: TeamMember[]
 }
 
@@ -40,11 +42,14 @@ export default function Settings() {
     role: 'Front Desk',
   })
 
+  const { data, isLoading, error, refetch } = useGetMe()
+
   const [settingsState, setSettingsState] = useState<SettingsState>({
     orgName: '',
-    legalName: '',
-    currency: 'EGP',
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    email: '',
+    name: '',
+    // currency: 'EGP',
+    // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     teamMembers: teamMembers,
   })
 
@@ -91,6 +96,37 @@ export default function Settings() {
     }
   }
 
+  useEffect(() => {
+    if (!isLoading) {
+      setSettingsState({
+        orgName: data.data.organizationName,
+        email: data.data.email,
+        name: data.data.name,
+        teamMembers: teamMembers,
+      })
+    }
+  }, [isLoading, data, teamMembers])
+
+  if (error) {
+    return (
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>Settings</h1>
+            <Badge variant="success">MVP</Badge>
+            <span className={styles.meta}>PRD $7.5</span>
+          </div>
+          <p className={styles.subtitle}>Organization profile and team access (RBAC).</p>
+        </header>
+        <div className={styles.formContainer}>
+          <h1>Failed To Load Page</h1>
+          <Button variant="default" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -101,34 +137,61 @@ export default function Settings() {
         </div>
         <p className={styles.subtitle}>Organization profile and team access (RBAC).</p>
       </header>
-
-      <div className={styles.settingsDivider}>
-        <div className={styles.formContainer}>
-          <div className={styles.formHeader}>
-            <p className={styles.formHeading}>Organization</p>
+      {isLoading ? (
+        <div className={styles.settingsDivider}>
+          <div className={styles.formContainer}>
+            <Skeleton style={{ height: '1rem', width: '30%' }} />
+            <br />
+            <Skeleton style={{ height: '1rem', width: '70%' }} />
+            <br />
+            <Skeleton style={{ height: '1rem', width: '70%' }} />
           </div>
-          <div className={styles.formContent}>
-            <div className={styles.fieldContainer}>
-              <Label className={styles.formLabel}>Name</Label>
-              <Input
-                onChange={(e) => handleInputChange('orgName', e.target.value)}
-                className={styles.inputField}
-                value={settingsState.orgName}
-                type="text"
-                placeholder="Ex: Nile View Rentals"
-              />
+          <div className={styles.formContainer}>
+            <Skeleton style={{ height: '1rem', width: '30%' }} />
+            <br />
+            <Skeleton style={{ height: '1rem', width: '70%' }} />
+            <br />
+            <Skeleton style={{ height: '1rem', width: '70%' }} />
+          </div>
+        </div>
+      ) : (
+        <div className={styles.settingsDivider}>
+          <div className={styles.formContainer}>
+            <div className={styles.formHeader}>
+              <p className={styles.formHeading}>Organization</p>
             </div>
-            <div className={styles.fieldContainer}>
-              <Label className={styles.formLabel}>Legal Name</Label>
-              <Input
-                onChange={(e) => handleInputChange('legalName', e.target.value)}
-                className={styles.inputField}
-                type="text"
-                value={settingsState.legalName}
-                placeholder="Ex: Nile View Rentals LLC"
-              />
-            </div>
-            <div className={styles.formFieldsCombine}>
+            <div className={styles.formContent}>
+              <div className={styles.fieldContainer}>
+                <Label className={styles.formLabel}>Organization Name</Label>
+                <Input
+                  onChange={(e) => handleInputChange('orgName', e.target.value)}
+                  className={styles.inputField}
+                  value={settingsState.orgName}
+                  type="text"
+                  disabled
+                />
+              </div>
+              <div className={styles.fieldContainer}>
+                <Label className={styles.formLabel}>Name</Label>
+                <Input
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className={styles.inputField}
+                  value={settingsState.name}
+                  type="text"
+                  disabled
+                />
+              </div>
+              <div className={styles.fieldContainer}>
+                <Label className={styles.formLabel}>Email</Label>
+                <Input
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className={styles.inputField}
+                  type="email"
+                  value={settingsState.email}
+                  disabled
+                />
+              </div>
+              {/* <div className={styles.formFieldsCombine}>
               <div className={styles.fieldContainer}>
                 <Label className={styles.formLabel}>Currency</Label>
                 <Select
@@ -154,62 +217,63 @@ export default function Settings() {
                   ))}
                 </Select>
               </div>
+            </div> */}
+              <div>
+                <Button disabled className={styles.actionButton} variant="default">
+                  Save Changes
+                </Button>
+              </div>
             </div>
-            <div>
-              <Button className={styles.actionButton} variant="default">
-                Save Changes
+          </div>
+          <div className={styles.formContainer}>
+            <div className={styles.formHeader}>
+              <p className={styles.formHeading}>Team</p>
+              <Button onClick={() => setOpenInvite(true)} className={styles.actionButton}>
+                <UserPlus /> Invite
               </Button>
             </div>
-          </div>
-        </div>
-        <div className={styles.formContainer}>
-          <div className={styles.formHeader}>
-            <p className={styles.formHeading}>Team</p>
-            <Button onClick={() => setOpenInvite(true)} className={styles.actionButton}>
-              <UserPlus /> Invite
-            </Button>
-          </div>
-          <div className={styles.teamMembers}>
-            {teamMembers.map((member) => (
-              <div
-                key={member.email}
-                className={`${styles.teamMember} ${teamMembers.findIndex((m) => m.email === member.email) + 1 === teamMembers.length && styles.lastTeamMember}`}
-              >
-                <div className={styles.memberName}>
-                  <p>{member.name}</p>
-                  <span>{member.email}</span>
-                </div>
-                <div className={styles.memberActions}>
-                  <Select
-                    value={member.role}
-                    onChange={(e) =>
-                      changeTeamInfoHandler('role', e.target.value as RoleType, member)
-                    }
-                    className={styles.roleSelection}
-                  >
-                    <option value="Org Admin">Org Admin</option>
-                    <option value="Manager">Manager</option>
-                    <option value="Front Desk">Front Desk</option>
-                    <option value="Housekeeping">Housekeeping</option>
-                    <option value="Owner">Owner</option>
-                  </Select>
-                  {teamMembers.findIndex((m) => m.email === member.email) !== 0 && (
-                    <Button
-                      onClick={() =>
-                        setTeamMembers((prev) => prev.filter((m) => m.email !== member.email))
+            <div className={styles.teamMembers}>
+              {teamMembers.map((member) => (
+                <div
+                  key={member.email}
+                  className={`${styles.teamMember} ${teamMembers.findIndex((m) => m.email === member.email) + 1 === teamMembers.length && styles.lastTeamMember}`}
+                >
+                  <div className={styles.memberName}>
+                    <p>{member.name}</p>
+                    <span>{member.email}</span>
+                  </div>
+                  <div className={styles.memberActions}>
+                    <Select
+                      value={member.role}
+                      onChange={(e) =>
+                        changeTeamInfoHandler('role', e.target.value as RoleType, member)
                       }
-                      variant="outline"
-                      className={styles.actionDelete}
+                      className={styles.roleSelection}
                     >
-                      <Trash2 color="#ff3838" size={16} />
-                    </Button>
-                  )}
+                      <option value="Org Admin">Org Admin</option>
+                      <option value="Manager">Manager</option>
+                      <option value="Front Desk">Front Desk</option>
+                      <option value="Housekeeping">Housekeeping</option>
+                      <option value="Owner">Owner</option>
+                    </Select>
+                    {teamMembers.findIndex((m) => m.email === member.email) !== 0 && (
+                      <Button
+                        onClick={() =>
+                          setTeamMembers((prev) => prev.filter((m) => m.email !== member.email))
+                        }
+                        variant="outline"
+                        className={styles.actionDelete}
+                      >
+                        <Trash2 color="#ff3838" size={16} />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
       {openInvite && (
         <>
           <div className={styles.openInviteBackdrop}></div>
