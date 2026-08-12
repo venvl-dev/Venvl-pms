@@ -433,6 +433,27 @@
   color: var(--primary);
 }
 
+.skeletonPillWrap {
+  z-index: 4;
+}
+
+.skeletonPill {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-xl);
+  background: color-mix(in oklab, var(--muted) 80%, var(--border));
+  animation: calendarPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes calendarPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* ==========================================================================
    MONTH VIEW (AGGREGATE CALENDAR)
    ========================================================================== */

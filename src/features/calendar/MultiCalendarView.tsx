@@ -21,6 +21,9 @@ export function MultiCalendarView() {
   const [viewMode, setViewMode] = useState<ViewMode>('day')
 
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  
+  const pendingAdjustmentRef = useRef<number>(0)
+  const isShiftingRef = useRef<boolean>(false)
 
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const [popoverAnchor, setPopoverAnchor] = useState<DOMRect | null>(null)
@@ -99,10 +102,12 @@ export function MultiCalendarView() {
   }, [allBookableUnits, typeFilter, locFilter, channelFilter])
   
 
-  // 2. Day View Matrix Settings
+  // 2. Day View Matrix Settings (Sliding Window)
   const COL_WIDTH = 120
-  const BUFFER_SIZE = 120
-  const PAST_BUFFER = 30
+  const BUFFER_SIZE = 60 // 60 days total in the DOM at any given time
+  const PAST_BUFFER = 30 // Start the user perfectly in the middle
+  const SHIFT_THRESHOLD = 15 // Trigger a shift when within 15 days of the edge
+  const SHIFT_AMOUNT = 20 // Jump the calendar by 20 days at a time
 
   const dateArray = useMemo(() => {
     return Array.from({ length: BUFFER_SIZE }, (_, i) => {
@@ -112,7 +117,7 @@ export function MultiCalendarView() {
     })
   }, [baseDate])
 
-  const { data: reservationsResponse } = useReservations({
+  const { data: reservationsResponse, isFetching } = useReservations({
     page: 1,
     limit: 100, 
     startDate: `${dateArray[0].toISOString().split('T')[0]}T00:00:00.000Z`,
@@ -158,22 +163,55 @@ export function MultiCalendarView() {
     if (scrollTimeoutRef.current) return // Skip if we are already waiting
 
     scrollTimeoutRef.current = setTimeout(() => {
+      // Skip if a treadmill shift is already processing
+      if (isShiftingRef.current) return
+
       const newIndex = Math.round(scrollLeft / COL_WIDTH)
-      
-      // Update state, which triggers the re-render for the date range text
-      setVisibleStartIndex((prevIndex) => {
-        return newIndex !== prevIndex ? newIndex : prevIndex
-      })
-      
-      // Clear the timeout so the next scroll event can be processed
+
+      // Shift LEFT (Past)
+      if (newIndex <= SHIFT_THRESHOLD) {
+        isShiftingRef.current = true
+        pendingAdjustmentRef.current = SHIFT_AMOUNT * COL_WIDTH
+        setBaseDate((prev) => {
+          const d = new Date(prev)
+          d.setUTCDate(d.getUTCDate() - SHIFT_AMOUNT)
+          return d
+        })
+        scrollTimeoutRef.current = null
+        return
+      }
+
+      // Shift RIGHT (Future)
+      if (newIndex >= BUFFER_SIZE - 10 - SHIFT_THRESHOLD) {
+        isShiftingRef.current = true
+        pendingAdjustmentRef.current = -SHIFT_AMOUNT * COL_WIDTH
+        setBaseDate((prev) => {
+          const d = new Date(prev)
+          d.setUTCDate(d.getUTCDate() + SHIFT_AMOUNT)
+          return d
+        })
+        scrollTimeoutRef.current = null
+        return
+      }
+
+      setVisibleStartIndex((prevIndex) => (newIndex !== prevIndex ? newIndex : prevIndex))
       scrollTimeoutRef.current = null
-    }, 100) // 100ms throttle 
+    }, 100)
   }
 
   useLayoutEffect(() => {
-    if (viewMode === 'day' && scrollRef.current) {
-      scrollRef.current.scrollLeft = PAST_BUFFER * COL_WIDTH
-      setVisibleStartIndex(PAST_BUFFER)
+    if (viewMode !== 'day' || !scrollRef.current) return
+
+    if (pendingAdjustmentRef.current !== 0) {
+      // Adjust scrollbar position silently to match new date offset
+      scrollRef.current.scrollLeft += pendingAdjustmentRef.current
+      pendingAdjustmentRef.current = 0
+      setVisibleStartIndex(Math.round(scrollRef.current.scrollLeft / COL_WIDTH))
+      
+      // Release lock after browser renders the shift
+      requestAnimationFrame(() => {
+        isShiftingRef.current = false
+      })
     }
   }, [viewMode, baseDate])
 
@@ -217,6 +255,10 @@ export function MultiCalendarView() {
   const handleToday = () => {
     const now = new Date()
     setBaseDate(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())))
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = PAST_BUFFER * COL_WIDTH
+      setVisibleStartIndex(PAST_BUFFER)
+    }
   }
 
   // Dynamic Range Text Generator
@@ -264,6 +306,8 @@ export function MultiCalendarView() {
           onScroll={handleScroll}
           bufferSize={BUFFER_SIZE}
           onSelectReservation={handleSelectReservation}
+          isFetching={isFetching}
+          visibleStartIndex={visibleStartIndex}
         />
       )}
       {viewMode === 'month' && (
