@@ -49,7 +49,7 @@ export function ReservationPopover({ reservation, anchorRect, onClose, onNavigat
   const channel = (reservation.customer?.ota || 'direct') as BookingChannel
   const channelConfig = getChannelConfig(channel)
   const amount = reservation.amount || 0
-  const balanceDue = 0 // Defaulting to 0 since backend doesn't provide balanceDue yet
+  const balanceDue = 0 
 
   return (
     <div
