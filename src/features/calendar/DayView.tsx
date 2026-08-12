@@ -155,7 +155,7 @@ export function DayView({
                             <span className={styles.guestCount}>
                               {res.occupancy
                                 ? `${res.occupancy.adults + res.occupancy.children} Guests`
-                                : 'Guests'}
+                                : '1 Guest'}
                             </span>
                           </div>
                           <div className={styles.channelIcon}>
