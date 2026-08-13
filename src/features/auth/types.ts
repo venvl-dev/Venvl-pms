@@ -36,7 +36,6 @@ export interface ApiEnvolope<T>{
 
 export interface CompleteSignupRequest {
   signupId:string
-  phone:string
   code:string
 }
 

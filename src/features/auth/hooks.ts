@@ -9,7 +9,7 @@ function useAuthSuccess() {
   const navigate = useNavigate()
   return () => {
     setAuthenticated()
-    navigate('/', { replace: true })   // '/' is the dashboard
+    navigate('/', { replace: true })  
   }
 }
 
