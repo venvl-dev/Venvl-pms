@@ -1,14 +1,20 @@
 import { Label } from '@/components/core/Label'
-import type { GeneralInfo } from './CreateProperty'
+import {
+  PROPERTY_TYPES,
+  STRUCTURE_TYPES,
+  type GeneralInfo,
+  type PropertyType,
+  type StructureType,
+} from './types'
 import styles from './CreateProperty.module.css'
 import { Input } from '@/components/core/Input'
 import { Textarea } from '@/components/core/Textarea'
-import type { PropTypes } from './CreateProperty'
-import type { UnitTypes } from './CreateProperty'
 import { useEffect, useState, type ChangeEvent, type Dispatch, type SetStateAction } from 'react'
 import { Select } from '@/components/core/Select'
 import { Country, City } from 'country-state-city'
 import { useProperties } from '../properties/hooks'
+
+const optionLabel = (slug: string) => slug.charAt(0).toUpperCase() + slug.slice(1)
 
 export default function GeneralInfoForm({
   generalInfo,
@@ -47,6 +53,7 @@ export default function GeneralInfoForm({
                 }))
               }
             />
+
           </div>
 
           <div className={styles.inputFieldContainer}>
@@ -55,17 +62,16 @@ export default function GeneralInfoForm({
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setGeneralInfo((prev) => ({
                   ...prev,
-                  propType: e.target.value as PropTypes,
+                  propType: e.target.value as PropertyType,
                 }))
               }
-              value={generalInfo.propType as PropTypes}
+              value={generalInfo.propType ?? ''}
             >
-              <option value={'Apartment'}>Apartment</option>
-              <option value={'Villa'}>Villa</option>
-              <option value={'Loft'}>Loft</option>
-              <option value={'Twin House'}>Twin House</option>
-              <option value={'Pent House'}>Pent House</option>
-              <option value={'Other'}>Other</option>
+              {PROPERTY_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {optionLabel(type)}
+                </option>
+              ))}
             </Select>
           </div>
         </div>
@@ -76,17 +82,19 @@ export default function GeneralInfoForm({
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setGeneralInfo((prev) => ({
                   ...prev,
-                  unitType: e.target.value as UnitTypes,
+                  unitType: e.target.value as StructureType,
                 }))
               }
-              value={generalInfo.unitType as UnitTypes}
+              value={generalInfo.unitType ?? ''}
             >
-              <option value={'Single'}>Single</option>
-              <option value={'Parent'}>Parent</option>
-              <option value={'Child'}>Child</option>
+              {STRUCTURE_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {optionLabel(type)}
+                </option>
+              ))}
             </Select>
           </div>
-          {generalInfo.unitType === 'Child' ? (
+          {generalInfo.unitType === 'child' ? (
             <div className={styles.inputFieldContainer}>
               <Label className={styles.inputLabel}>Parent Listing</Label>
               <Select
@@ -241,6 +249,22 @@ export default function GeneralInfoForm({
               <option value={10}>10 Bathrooms</option>
             </Select>
           </div>
+          <div className={styles.inputFieldContainer}>
+            <Label className={styles.inputLabel}>Area (m²)</Label>
+            <Input
+              className={styles.inputField}
+              type="number"
+              min={0}
+              placeholder="Ex: 120"
+              value={generalInfo.area}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setGeneralInfo((prev) => ({
+                  ...prev,
+                  area: e.target.value === '' ? '' : Math.max(0, Number(e.target.value)),
+                }))
+              }
+            />
+          </div>
         </div>
         <div className={styles.inputCombTitle}>
           <p>Guests</p>
@@ -248,68 +272,29 @@ export default function GeneralInfoForm({
         </div>
         <div className={styles.inputsCombine}>
           <div className={styles.inputFieldContainer}>
-            <Label className={styles.inputLabel}>Max. Adults</Label>
+            <Label className={styles.inputLabel}>Max. Occupancy</Label>
             <Select
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setGeneralInfo((prev) => ({
                   ...prev,
-                  maxAdults: Number(e.target.value),
+                  maxOccupancy: Number(e.target.value),
                 }))
               }
-              value={generalInfo.maxAdults}
+              value={generalInfo.maxOccupancy}
             >
-              <option value={1}>1 Adult</option>
-              <option value={2}>2 Adults</option>
-              <option value={3}>3 Adults</option>
-              <option value={4}>4 Adults</option>
-              <option value={5}>5 Adults</option>
-              <option value={6}>6 Adults</option>
-              <option value={7}>7 Adults</option>
-              <option value={8}>8 Adults</option>
-              <option value={9}>9 Adults</option>
-              <option value={10}>10 Adults</option>
+              <option value={1}>1 Guest</option>
+              <option value={2}>2 Guests</option>
+              <option value={3}>3 Guests</option>
+              <option value={4}>4 Guests</option>
+              <option value={5}>5 Guests</option>
+              <option value={6}>6 Guests</option>
+              <option value={7}>7 Guests</option>
+              <option value={8}>8 Guests</option>
+              <option value={9}>9 Guests</option>
+              <option value={10}>10 Guests</option>
             </Select>
           </div>
-          <div className={styles.inputFieldContainer}>
-            <Label className={styles.inputLabel}>Max. Childs</Label>
-            <Select
-              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                setGeneralInfo((prev) => ({
-                  ...prev,
-                  maxChilds: Number(e.target.value),
-                }))
-              }
-              value={generalInfo.maxChilds}
-            >
-              <option value={10}>Not Specified</option>
-              <option value={0}>0 Childs</option>
-              <option value={1}>1 Child</option>
-              <option value={2}>2 Childs</option>
-              <option value={3}>3 Childs</option>
-              <option value={4}>4 Childs</option>
-              <option value={5}>5 Childs</option>
-            </Select>
-          </div>
-          <div className={styles.inputFieldContainer}>
-            <Label className={styles.inputLabel}>Max. Infants</Label>
-            <Select
-              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                setGeneralInfo((prev) => ({
-                  ...prev,
-                  maxInfs: Number(e.target.value),
-                }))
-              }
-              value={generalInfo.maxInfs}
-            >
-              <option value={10}>Not Specified</option>
-              <option value={0}>0 Infants</option>
-              <option value={1}>1 Infant</option>
-              <option value={2}>2 Infants</option>
-              <option value={3}>3 Infants</option>
-              <option value={4}>4 Infants</option>
-              <option value={5}>5 Infants</option>
-            </Select>
-          </div>
+          <div className={`${styles.inputFieldContainer} ${styles.hide}`}></div>
         </div>
       </div>
     </div>

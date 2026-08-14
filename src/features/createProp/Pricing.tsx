@@ -1,5 +1,5 @@
 import styles from './CreateProperty.module.css'
-import type { PricingInfo, PropertyCardProps } from './CreateProperty'
+import type { PricingInfo, PropertyCardProps } from './types'
 import type { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction } from 'react'
 import { Label } from '@/components/core/Label'
 import { Input } from '@/components/core/Input'

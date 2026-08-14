@@ -7,7 +7,7 @@ import type {
   GeneralInfo,
   PhotosFormState,
   PricingInfo,
-} from './CreateProperty'
+} from './types'
 
 interface ValidatorsProps {
   currentTab: CreatePropertyTab
@@ -47,9 +47,7 @@ export default function Validators({
       parent,
       bedrooms,
       bathrooms,
-      maxAdults,
-      maxChilds,
-      maxInfs,
+      maxOccupancy,
     } = generalInfo
 
     const requiredStrings = [
@@ -63,21 +61,18 @@ export default function Validators({
     const allStringsValid = requiredStrings.every(isNonEmptyString)
 
     const propTypeValid = propType !== null && isNonEmptyString(propType)
-    const unitTypeValid = unitType !== null && isNonEmptyString(unitType)
-    const parentValid = unitType !== 'Child' || (parent !== null && isNonEmptyString(parent))
+const unitTypeValid = unitType !== null && isNonEmptyString(unitType)
+const parentValid = unitType !== 'child' || (parent !== null && isNonEmptyString(parent))
+
 
     const numbersValid =
       typeof bedrooms === 'number' &&
       bedrooms >= 0 &&
       typeof bathrooms === 'number' &&
       bathrooms >= 0 &&
-      typeof maxAdults === 'number' &&
-      maxAdults >= 1 &&
-      typeof maxChilds === 'number' &&
-      maxChilds >= 0 &&
-      typeof maxInfs === 'number' &&
-      maxInfs >= 0
-
+      typeof maxOccupancy === 'number' &&
+      maxOccupancy >= 1 
+     
     const countryValid = isNonEmptyString(country)
 
     return (

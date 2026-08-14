@@ -8,96 +8,16 @@ import AmenitiesFrom from './AmenitiesForm'
 import PhotosForm from './PhotosForm'
 import Pricing from './Pricing'
 import Instructions from './Instructions'
+import type {
+  AmenitiesForm,
+  CreatePropertyTab,
+  GeneralInfo,
+  PhotosFormState,
+  PricingInfo,
+  PropertyCardProps,
+}  from './types'
 
-const PROPERTY_AMENITIES: AmenityType[] = [
-  { icon: 'wifi', label: 'Wi-Fi' },
-  { icon: 'tv', label: 'TV' },
-  { icon: 'parking', label: 'Parking' },
-  { icon: 'ac', label: 'Air Conditioning' },
-  { icon: 'coffee', label: 'Coffee Maker' },
-  { icon: 'kitchen', label: 'Kitchen' },
-  { icon: 'pool', label: 'Swimming Pool' },
-  { icon: 'gym', label: 'Gym' },
-  { icon: 'workspace', label: 'Work Space' },
-  { icon: 'garden', label: 'Garden' },
-  { icon: 'spa', label: 'Spa' },
-  { icon: 'bath', label: 'Hot Tub' },
-  { icon: 'petFriendly', label: 'Pet Friendly' },
-  { icon: 'security', label: '24/7 Security' },
-]
 
-export type PropTypes =
-  'Apartment' | 'Villa' | 'Studio' | 'Loft' | 'Twin House' | 'Pent House' | 'Other'
-export type UnitTypes = 'Single' | 'Parent' | 'Child'
-export type CreatePropertyTab = 'General Info' | 'Amenities' | 'Photos' | 'Pricing' | 'Instructions'
-
-export type PropertySpec = {
-  icon: string
-  label: string
-}
-
-export type PropertyCardProps = {
-  image?: string
-  title?: string
-  location?: string
-  rating?: number
-  price?: number
-  currency?: string
-  unit?: string
-  specs?: PropertySpec[]
-  badge?: string | null
-  favorite?: boolean
-  ctaLabel?: string
-}
-
-export type GeneralInfo = {
-  title: string | ''
-  desc: string | ''
-  location: string | ''
-  address: string | ''
-  city: string | ''
-  country: string | ''
-  zipcode: string | ''
-  propType: PropTypes | null
-  unitType: UnitTypes | null
-  parent?: string | null
-  bedrooms: number
-  bathrooms: number
-  maxAdults: number
-  maxChilds: number
-  maxInfs: number
-}
-
-export type PricingInfo = {
-  base: number | ''
-  extraPerson: number | ''
-  weeklyDisc?: number | ''
-  monthlyDisc?: number | ''
-  applyExtraAfter?: number | ''
-  refundDamageDeposit?: number | ''
-}
-
-export type AmenityType = {
-  icon: string | ''
-  label: string
-}
-
-export type AmenitiesForm = {
-  selectedAmenities: AmenityType[] | []
-  allAmenities?: AmenityType[]
-}
-
-export type PhotoItem = {
-  id: number
-  src: string
-  name: string
-  file: File
-}
-
-export type PhotosFormState = {
-  photos: PhotoItem[]
-  thumbnailId: number | null
-}
 
 export default function CreateProperty() {
   const tabs: CreatePropertyTab[] = [
@@ -132,14 +52,13 @@ export default function CreateProperty() {
     city: 'Cairo',
     country: 'EG',
     zipcode: '',
-    propType: 'Apartment',
-    unitType: 'Single',
+    propType: 'apartment',
+    unitType: 'single',
     parent: null,
     bedrooms: 0,
     bathrooms: 0,
-    maxAdults: 1,
-    maxChilds: 0,
-    maxInfs: 0,
+    maxOccupancy: 1,
+    area: '',
   })
 
   const [pricingInfo, setPricingInfo] = useState<PricingInfo>({
@@ -155,7 +74,6 @@ export default function CreateProperty() {
 
   const [amenitiesForm, setAmenitiesForm] = useState<AmenitiesForm>({
     selectedAmenities: [],
-    allAmenities: PROPERTY_AMENITIES,
   })
   const [photosForm, setPhotosForm] = useState<PhotosFormState>({
     photos: [],
@@ -182,7 +100,7 @@ export default function CreateProperty() {
       specs: [
         { icon: 'bed', label: `${generalInfo.bedrooms}` },
         { icon: 'bath', label: `${generalInfo.bathrooms}` },
-        { icon: 'users', label: `${generalInfo.maxAdults}` },
+        { icon: 'users', label: `${generalInfo.maxOccupancy}` },
       ],
     }))
   }, [generalInfo])

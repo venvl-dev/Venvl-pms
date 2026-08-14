@@ -1,5 +1,5 @@
 import styles from './CreateProperty.module.css'
-import type { CreatePropertyTab } from './CreateProperty'
+import type { CreatePropertyTab } from './types'
 import { Icon } from '@/components/core/Icon'
 
 type tabsBarProps = {

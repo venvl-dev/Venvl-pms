@@ -4,7 +4,7 @@ import { Tag } from '@/components/core/Tag'
 import { Button } from '@/components/core/ButtonProps'
 import { PriceTag } from '@/components/core/PriceTag'
 import styles from './PropertyCard.module.css'
-import type { PropertyCardProps } from './CreateProperty'
+import type { PropertyCardProps } from './types'
 
 export function PropertyCard({
   image,

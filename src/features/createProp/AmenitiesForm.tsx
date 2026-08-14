@@ -1,65 +1,42 @@
-import { Plus, type LucideIcon } from 'lucide-react'
-import type { Dispatch, SetStateAction } from 'react'
-import type { AmenitiesForm, AmenityType } from './CreateProperty'
+import { useState, type Dispatch, type SetStateAction } from 'react'
+import type { AmenitiesForm } from './types'
 import styles from './CreateProperty.module.css'
-import Amenity from './Amenity'
-import {
-  Car,
-  Coffee,
-  Dumbbell,
-  Laptop,
-  Snowflake,
-  Trees,
-  Tv,
-  UtensilsCrossed,
-  Waves,
-  Wifi,
-  Bath,
-  Dog,
-  ShieldCheck,
-  Sparkles,
-} from 'lucide-react'
+import Amenity, { AMENITY_CATEGORIES, amenityLabel, amenityIcon } from './Amenity'
 
 interface AmenitiesFormProps {
   amenitiesForm: AmenitiesForm
   setAmenitiesForm: Dispatch<SetStateAction<AmenitiesForm>>
 }
 
-const iconMap: Record<string, LucideIcon> = {
-  wifi: Wifi,
-  tv: Tv,
-  parking: Car,
-  ac: Snowflake,
-  coffee: Coffee,
-  kitchen: UtensilsCrossed,
-  pool: Waves,
-  gym: Dumbbell,
-  workspace: Laptop,
-  garden: Trees,
-  spa: Sparkles,
-  bath: Bath,
-  petFriendly: Dog,
-  security: ShieldCheck,
-}
-
 export default function AmenitiesFrom({ amenitiesForm, setAmenitiesForm }: AmenitiesFormProps) {
-  const selectedAmenities = amenitiesForm.selectedAmenities ?? []
-  const availableAmenities = (amenitiesForm.allAmenities ?? []).filter(
-    (amenity) => !selectedAmenities.some((selected) => selected.label === amenity.label),
-  )
+  const [search, setSearch] = useState('')
+  const [openCategories, setOpenCategories] = useState<string[]>([])
 
-  const toggleAmenity = (amenity: AmenityType) => {
-    setAmenitiesForm((prev) => {
-      const exists = prev.selectedAmenities.some((item) => item.label === amenity.label)
+  const selected = amenitiesForm.selectedAmenities
+  const query = search.trim().toLowerCase()
 
-      return {
-        ...prev,
-        selectedAmenities: exists
-          ? prev.selectedAmenities.filter((item) => item.label !== amenity.label)
-          : [...prev.selectedAmenities, amenity],
-      }
-    })
-  }
+  const groups = AMENITY_CATEGORIES.map((group) => ({
+    category: group.category,
+    slugs: group.slugs.filter(
+      (slug) =>
+        !selected.includes(slug) &&
+        (!query || amenityLabel(slug).toLowerCase().includes(query)),
+    ),
+  })).filter((group) => group.slugs.length > 0)
+
+  const toggleAmenity = (slug: string) =>
+    setAmenitiesForm((prev) => ({
+      selectedAmenities: prev.selectedAmenities.includes(slug)
+        ? prev.selectedAmenities.filter((item) => item !== slug)
+        : [...prev.selectedAmenities, slug],
+    }))
+
+  const toggleCategory = (category: string) =>
+    setOpenCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((item) => item !== category)
+        : [...prev, category],
+    )
 
   return (
     <div className={styles.formSection}>
@@ -71,20 +48,17 @@ export default function AmenitiesFrom({ amenitiesForm, setAmenitiesForm }: Ameni
               <p>Selected Amenities</p>
               <div className={styles.titleUnderLine}></div>
             </div>
-            <button type="button" className={styles.amenityAddButton}>
-              <Plus size={16} />
-            </button>
           </div>
 
           <div className={styles.amenityStack}>
-            {selectedAmenities.length > 0 ? (
-              selectedAmenities.map((amenity) => (
+            {selected.length > 0 ? (
+              selected.map((slug) => (
                 <Amenity
-                  key={amenity.label}
-                  icon={iconMap[amenity.icon]}
-                  label={amenity.label}
+                  key={slug}
+                  icon={amenityIcon(slug)}
+                  label={amenityLabel(slug)}
                   selected
-                  onClick={() => toggleAmenity(amenity)}
+                  onClick={() => toggleAmenity(slug)}
                 />
               ))
             ) : (
@@ -98,16 +72,42 @@ export default function AmenitiesFrom({ amenitiesForm, setAmenitiesForm }: Ameni
           <div className={styles.titleUnderLine}></div>
         </div>
 
-        <div className={styles.amenityGrid}>
-          {availableAmenities.map((amenity) => (
-            <Amenity
-              key={amenity.label}
-              icon={iconMap[amenity.icon]}
-              label={amenity.label}
-              onClick={() => toggleAmenity(amenity)}
-            />
-          ))}
-        </div>
+        <input
+          className={styles.amenitySearch}
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search amenities"
+        />
+
+        {groups.map((group) => {
+          const isOpen = query.length > 0 || openCategories.includes(group.category)
+
+          return (
+            <div key={group.category}>
+              <button
+                type="button"
+                className={styles.amenityCategoryHeader}
+                onClick={() => toggleCategory(group.category)}
+              >
+                <span>{group.category}</span>
+                <span>{group.slugs.length}</span>
+              </button>
+
+              {isOpen && (
+                <div className={styles.amenityGrid}>
+                  {group.slugs.map((slug) => (
+                    <Amenity
+                      key={slug}
+                      icon={amenityIcon(slug)}
+                      label={amenityLabel(slug)}
+                      onClick={() => toggleAmenity(slug)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

@@ -4,12 +4,11 @@ import {
   useState,
   type Dispatch,
   type DragEvent,
-  type MouseEvent,
   type SetStateAction,
 } from 'react'
 import { CircleEllipsis, Info, Plus, Trash2, UploadCloud } from 'lucide-react'
 import styles from './CreateProperty.module.css'
-import type { PhotosFormState } from './CreateProperty'
+import type { PhotosFormState } from './types'
 
 const MAX_PHOTOS = 20
 
@@ -24,7 +23,7 @@ export default function PhotosForm({
   photosForm,
   setPhotosForm,
   registerPhotoUrl,
-  unregisterPhotoUrl,
+  unregisterPhotoUrl,   
 }: PhotosFormProps) {
   const [isDragging, setIsDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement | null>(null)
