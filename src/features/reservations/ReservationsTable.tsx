@@ -6,15 +6,17 @@ import { cx } from '@/lib/cx'
 import type { Reservation } from './types'
 import { getStatusBadge, formatDate, formatCurrency, renderChannel } from './Constants'
 import styles from './ReservationsView.module.css'
+import { getUnitLabels } from '../properties/mockProperties'
 
 interface Props {
   isLoading: boolean
   items: Reservation[]
   visibleCols: Record<string, boolean>
   rowsPerPage: number
+  onOpen: (id: string) => void
 }
 
-export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage }: Props) {
+export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage, onOpen }: Props) {
   const visibleColCount = Object.values(visibleCols).filter(Boolean).length
 
   return (
@@ -104,15 +106,27 @@ export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage }
                 </td>
               </tr>
             ) : (
-              items.map((res) => (
+              items.map((res) => {
+                const labels = getUnitLabels(res.propertyId)
+                return (
                 <tr key={res.id} className={styles.tr}>
                   {visibleCols.id && (
                     <td className={styles.td}>
                       <span className={styles.cellSecondary}>{res.id}</span>
                     </td>
                   )}
+
                   {visibleCols.guest && (
-                    <td className={styles.td}>
+                    <td
+                      className={styles.td}
+                      style={{ cursor: 'pointer' }}
+                      tabIndex={0}
+                      role="button"
+                      onClick={() => onOpen(res.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') onOpen(res.id)
+                      }}
+                    >
                       <div className={styles.cellPrimary}>{res.guestName}</div>
                     </td>
                   )}
@@ -124,12 +138,16 @@ export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage }
                   )}
                   {visibleCols.property && (
                     <td className={styles.td}>
-                      <div className={styles.cellPrimary}>{res.property}</div>
-                      <div className={styles.cellSecondary}>{res.unit}</div>
+                      <div className={styles.cellPrimary}>{labels.property}</div>
+                      <div className={styles.cellSecondary}>{labels.unit}</div>
                     </td>
                   )}
-                  {visibleCols.channel && <td className={styles.td}>{renderChannel(res.channel)}</td>}
-                  {visibleCols.status && <td className={styles.td}>{getStatusBadge(res.status)}</td>}
+                  {visibleCols.channel && (
+                    <td className={styles.td}>{renderChannel(res.channel)}</td>
+                  )}
+                  {visibleCols.status && (
+                    <td className={styles.td}>{getStatusBadge(res.status)}</td>
+                  )}
                   {visibleCols.amount && (
                     <td className={styles.td}>{formatCurrency(res.totalAmount)}</td>
                   )}
@@ -153,7 +171,8 @@ export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage }
                     </div>
                   </td>
                 </tr>
-              ))
+                )
+              })
             )}
           </tbody>
         </table>

@@ -1,5 +1,6 @@
 import type { BookingChannel } from '@/types/domain'
 export type { PaginatedResponse } from '@/types/domain'
+export type {BookingChannel}
 
 export type ReservationStatus = 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled'
 
@@ -8,8 +9,7 @@ export interface Reservation {
   guestName: string
   checkIn: string
   checkOut: string
-  property: string
-  unit: string
+  propertyId:string
   status: ReservationStatus
   channel: BookingChannel
   totalAmount: number

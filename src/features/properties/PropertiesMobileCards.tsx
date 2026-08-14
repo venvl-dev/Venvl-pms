@@ -10,26 +10,27 @@ interface Props {
   isLoading: boolean
   items: Property[]
   childrenMap: Map<string, Property[]>
+  rowsPerPage: number
   onOpen: (id: string) => void
 }
 
-const mobileSkeletonCards = Array.from({ length: 5 }).map((_, i) => (
-  <div key={`sk-${i}`} className={styles.mobileCardWrap}>
-    <div className={styles.mobileCardTop}>
-      <Skeleton className={styles.mobileCardImage} />
-      <div className={styles.mobileCardInfo}>
-        <Skeleton style={{ height: '0.9rem', width: '65%' }} />
-        <Skeleton style={{ height: '0.75rem', width: '45%', marginTop: '0.35rem' }} />
+export function PropertiesMobileCards({ isLoading, items, childrenMap, rowsPerPage, onOpen }: Props) {
+    const mobileSkeletonCards = Array.from({ length: rowsPerPage }).map((_, i) => (
+    <div key={`sk-${i}`} className={styles.mobileCardWrap}>
+      <div className={styles.mobileCardTop}>
+        <Skeleton className={styles.mobileCardImage} />
+        <div className={styles.mobileCardInfo}>
+          <Skeleton style={{ height: '0.9rem', width: '65%' }} />
+          <Skeleton style={{ height: '0.75rem', width: '45%', marginTop: '0.35rem' }} />
+        </div>
+      </div>
+      <div className={styles.mobileCardBottom}>
+        <Skeleton style={{ height: '1.5rem', width: '70px' }} />
+        <Skeleton style={{ height: '1.5rem', width: '60px' }} />
       </div>
     </div>
-    <div className={styles.mobileCardBottom}>
-      <Skeleton style={{ height: '1.5rem', width: '70px' }} />
-      <Skeleton style={{ height: '1.5rem', width: '60px' }} />
-    </div>
-  </div>
-))
+  ))
 
-export function PropertiesMobileCards({ isLoading, items, childrenMap, onOpen }: Props) {
   return (
     <div className={styles.mobileList}>
       {isLoading ? (
@@ -50,17 +51,17 @@ export function PropertiesMobileCards({ isLoading, items, childrenMap, onOpen }:
 
           return (
             <div key={prop.id} className={styles.mobileCardWrap}>
-              <div className={cx(prop.type === 'parent' && styles.isParent)}>
+              <div className={cx(prop.structureType === 'parent' && styles.isParent)}>
                 <div className={styles.mobileCardTop} onClick={() => onOpen(prop.id)}>
-                  <img src={prop.image} alt="" className={styles.mobileCardImage} />
+                  <img src={prop.thumbnail || undefined} alt="" className={styles.mobileCardImage} />
 
                   <div className={styles.mobileCardInfo}>
                     <div className={styles.mobileCardTitleRow}>
                       <div>
-                        <div className={styles.mobileCardTitle}>{prop.name}</div>
-                        <div className={styles.mobileCardSub}>{prop.location}</div>
+                        <div className={styles.mobileCardTitle}>{prop.title}</div>
+                        <div className={styles.mobileCardSub}>{prop.city || 'No city'}</div>
                       </div>
-                      {prop.type === 'parent' ? (
+                      {prop.structureType === 'parent' ? (
                         <ChevronRightIcon
                           size={20}
                           className={cx(styles.expandIcon, styles.expandIconExpanded)}
@@ -78,7 +79,7 @@ export function PropertiesMobileCards({ isLoading, items, childrenMap, onOpen }:
 
                     <div className={styles.mobileCardMetrics}>
                       <div className={styles.mobileCardMetric}>
-                        <span style={{ textTransform: 'capitalize' }}>{prop.type}</span>
+                        <span style={{ textTransform: 'capitalize' }}>{prop.structureType}</span>
                       </div>
                       <div className={styles.mobileCardMetric}>
                         • {prop.bedrooms} Bed, {prop.bathrooms} Bath
@@ -88,8 +89,8 @@ export function PropertiesMobileCards({ isLoading, items, childrenMap, onOpen }:
                 </div>
 
                 <div className={styles.mobileCardBottom}>
-                  {prop.channels.length > 0 ? (
-                    renderChannelCluster(prop.channels)
+                  {(prop.channelConnections || []).length > 0 ? (
+                    renderChannelCluster(prop.channelConnections)
                   ) : (
                     <span className={styles.mobileCardSub}>No channels</span>
                   )}
@@ -108,12 +109,12 @@ export function PropertiesMobileCards({ isLoading, items, childrenMap, onOpen }:
                       )}
                       onClick={() => onOpen(child.id)}
                     >
-                      <img src={child.image} alt="" className={styles.mobileChildImage} />
+                      <img src={child.thumbnail || undefined} alt="" className={styles.mobileChildImage} />
 
                       <div className={styles.mobileCardInfo}>
                         <div className={styles.mobileCardTitleRow}>
                           <div>
-                            <div className={styles.mobileCardTitle}>{child.name}</div>
+                            <div className={styles.mobileCardTitle}>{child.title}</div>
                             <div className={styles.mobileCardSub}>Unit ID: {child.id}</div>
                           </div>
                           <Button

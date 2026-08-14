@@ -1,55 +1,49 @@
+export type DashboardReservation = {
+  id: string
+  guestName: string
+  propertyName: string
+  unitName: string
+  checkIn: string
+  checkOut: string
+  status: 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled'
+  channel: 'direct' | 'airbnb' | 'booking.com' | 'vrbo' | 'expedia'
+  totalAmount: number
+  balanceDue: number
+}
+
 export const MOCK_DASHBOARD_DATA = {
-  user: { name: "Sara", roleLabel: "Org admin" },
+  user: { name: 'Sara', roleLabel: 'Org admin' },
   metrics: {
     occupancy: 57,
-    adr: "205.00",
-    revpar: "12.00",
-    revenue: "3.27K"
+    adr: '205.00',
+    revpar: '12.00',
+    revenue: '3.27K',
+    checkIns: '124',     
+    confirmed: '42',    
   },
-  operations: {
-    arrivals: [
-      { id: "a1", guest: "Oliver Smith", property: "Downtown Loft", unit: "Apt 4B" },
-      { id: "a2", guest: "Liam Johnson", property: "Nile View Condo", unit: "Floor 12" },
-      { id: "a3", guest: "Isabella Davis", property: "Maadi Retreat", unit: "Villa 2" },
-      { id: "a4", guest: "Sophia Garcia", property: "Zamalek Studio", unit: "Unit 8A" }
-    ],
-    departures: [
-      { id: "d1", guest: "Nour El-Din", property: "Maadi Nile Apartment", unit: "Apt 2A" },
-      { id: "d2", guest: "James Wilson", property: "Zamalek Studio", unit: "Unit 3C" },
-      { id: "d3", guest: "Emma Brown", property: "Downtown Loft", unit: "Apt 5" },
-      { id: "d4", guest: "Lucas Taylor", property: "El Gouna Lagoon", unit: "Chalet 14" },
-      { id: "d5", guest: "Amelia Thomas", property: "Marassi Beachfront", unit: "Villa 9" },
-      { id: "d6", guest: "Mia Martinez", property: "New Cairo Serviced", unit: "Apt 101" }
-    ],
-    upcomingReservations: [
-      { id: "u1", guest: "John Doe", property: "Zayed Family Villa", daysUntil: 2 },
-      { id: "u2", guest: "Jane Smith", property: "Downtown Loft", daysUntil: 3 },
-      { id: "u3", guest: "Ahmed Hassan", property: "Maadi Nile Apartment", daysUntil: 4 },
-      { id: "u4", guest: "Elena Rodriguez", property: "El Gouna Lagoon", daysUntil: 5 },
-      { id: "u5", guest: "Wei Chen", property: "Zamalek Studio", daysUntil: 7 },
-      { id: "u6", guest: "Sarah Williams", property: "Marassi Beachfront", daysUntil: 8 }
-    ],
-    stayingGuests: [
-      { id: "s1", guest: "Emma Smith", property: "El Gouna Lagoon Studio", nightsLeft: 1 },
-      { id: "s2", guest: "Michael Jones", property: "New Cairo Serviced", nightsLeft: 2 },
-      { id: "s3", guest: "David Miller", property: "Downtown Loft", nightsLeft: 3 },
-      { id: "s4", guest: "Sarah Davis", property: "Zamalek Studio", nightsLeft: 4 },
-      { id: "s5", guest: "James Brown", property: "Maadi Nile Apartment", nightsLeft: 5 },
-      { id: "s6", guest: "Robert Wilson", property: "Zayed Family Villa", nightsLeft: 7 },
-      { id: "s7", guest: "Maria Garcia", property: "Marassi Beachfront", nightsLeft: 10 },
-      { id: "s8", guest: "William Taylor", property: "Nile View Condo", nightsLeft: 14 }
-    ]
-  },
-  needsAttention: [
-    { id: "n1", guest: "Sophie Martin", property: "El Gouna Lagoon Studio", balance: "292.00" },
-    { id: "n2", guest: "Maria Rossi", property: "New Cairo Serviced Residences", balance: "152.00" },
-    { id: "n3", guest: "Hana Saleh", property: "Marassi Beachfront Chalet", balance: "417.00" },
-    { id: "n4", guest: "Ahmed Tarek", property: "Zayed Family Villa", balance: "685.00" },
-    { id: "n5", guest: "Oliver White", property: "Downtown Loft", balance: "150.00" },
-    { id: "n6", guest: "Liam Harris", property: "Zamalek Studio", balance: "320.00" },
-    { id: "n7", guest: "Noah Martin", property: "Nile View Condo", balance: "50.00" },
-    { id: "n8", guest: "William Thompson", property: "Maadi Retreat", balance: "890.00" },
-    { id: "n9", guest: "James Garcia", property: "El Gouna Lagoon Studio", balance: "120.00" },
-    { id: "n10", guest: "Benjamin Martinez", property: "Marassi Beachfront", balance: "45.00" }
-  ]
+  reservations: [
+    // ARRIVALS (checkIn: 07-29)
+    { id: 'RES-1001', guestName: 'Oliver Smith', propertyName: 'Downtown Loft', unitName: 'Apt 4B', checkIn: '2026-07-30', checkOut: '2026-08-02', status: 'confirmed', channel: 'airbnb', totalAmount: 850, balanceDue: 0 },
+    { id: 'RES-1002', guestName: 'Liam Johnson', propertyName: 'Nile View Condo', unitName: 'Floor 12', checkIn: '2026-07-30', checkOut: '2026-07-31', status: 'confirmed', channel: 'airbnb', totalAmount: 420, balanceDue: 420 },
+    { id: 'RES-1011', guestName: 'Hassan Ali', propertyName: 'Zamalek Studio', unitName: 'Unit 8A', checkIn: '2026-07-29', checkOut: '2026-08-01', status: 'confirmed', channel: 'booking.com', totalAmount: 300, balanceDue: 0 },
+    { id: 'RES-1012', guestName: 'Sarah Miller', propertyName: 'El Gouna Lagoon', unitName: 'Chalet 14', checkIn: '2026-07-30', checkOut: '2026-08-05', status: 'confirmed', channel: 'vrbo', totalAmount: 1400, balanceDue: 200 },
+    
+    // DEPARTURES (checkOut: 07-29)
+    { id: 'RES-1003', guestName: 'Nour El-Din', propertyName: 'Maadi Nile Apartment', unitName: 'Apt 2A', checkIn: '2026-07-24', checkOut: '2026-07-29', status: 'checked_in', channel: 'booking.com', totalAmount: 1100, balanceDue: 0 },
+    { id: 'RES-1004', guestName: 'James Wilson', propertyName: 'Zamalek Studio', unitName: 'Unit 3C', checkIn: '2026-07-26', checkOut: '2026-07-29', status: 'checked_in', channel: 'airbnb', totalAmount: 500, balanceDue: 0 },
+    { id: 'RES-1013', guestName: 'Chloe Davis', propertyName: 'Downtown Loft', unitName: 'Apt 5', checkIn: '2026-07-25', checkOut: '2026-07-29', status: 'checked_in', channel: 'vrbo', totalAmount: 800, balanceDue: 0 },
+    { id: 'RES-1014', guestName: 'Youssef Tariq', propertyName: 'New Cairo Serviced', unitName: 'Apt 101', checkIn: '2026-07-27', checkOut: '2026-07-29', status: 'checked_in', channel: 'vrbo', totalAmount: 250, balanceDue: 0 },
+    
+    // STAYING (checkIn < 07-29 AND checkOut > 07-29)
+    { id: 'RES-1005', guestName: 'Emma Brown', propertyName: 'El Gouna Lagoon', unitName: 'Chalet 14', checkIn: '2026-07-25', checkOut: '2026-08-05', status: 'checked_in', channel: 'vrbo', totalAmount: 2400, balanceDue: 0 },
+    { id: 'RES-1006', guestName: 'Lucas Taylor', propertyName: 'Marassi Beachfront', unitName: 'Villa 9', checkIn: '2026-07-28', checkOut: '2026-08-01', status: 'checked_in', channel: 'direct', totalAmount: 1600, balanceDue: 0 },
+    { id: 'RES-1015', guestName: 'Fatima Zahra', propertyName: 'Nile View Condo', unitName: 'Floor 10', checkIn: '2026-07-26', checkOut: '2026-08-02', status: 'checked_in', channel: 'airbnb', totalAmount: 950, balanceDue: 0 },
+    { id: 'RES-1016', guestName: 'John Doe', propertyName: 'Zayed Family Villa', unitName: 'Villa 1', checkIn: '2026-07-20', checkOut: '2026-07-30', status: 'checked_in', channel: 'airbnb', totalAmount: 3200, balanceDue: 0 },
+    
+    // UPCOMING (checkIn > 07-29)
+    { id: 'RES-1007', guestName: 'Amelia Thomas', propertyName: 'Zayed Family Villa', unitName: 'Villa 1', checkIn: '2026-07-31', checkOut: '2026-08-04', status: 'confirmed', channel: 'expedia', totalAmount: 950, balanceDue: 150 },
+    { id: 'RES-1008', guestName: 'Mia Martinez', propertyName: 'New Cairo Serviced', unitName: 'Apt 101', checkIn: '2026-08-01', checkOut: '2026-08-10', status: 'confirmed', channel: 'booking.com', totalAmount: 1800, balanceDue: 0 },
+    { id: 'RES-1017', guestName: 'Omar Hassan', propertyName: 'Downtown Loft', unitName: 'Apt 4B', checkIn: '2026-08-03', checkOut: '2026-08-08', status: 'confirmed', channel: 'direct', totalAmount: 700, balanceDue: 350 },
+    { id: 'RES-1018', guestName: 'Elena Rodriguez', propertyName: 'Marassi Beachfront', unitName: 'Villa 9', checkIn: '2026-08-05', checkOut: '2026-08-15', status: 'confirmed', channel: 'airbnb', totalAmount: 4500, balanceDue: 0 },
+  ] as DashboardReservation[],
 }

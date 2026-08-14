@@ -11,6 +11,7 @@ export const directLogo = '/images/venvl-mark.svg'
 export const ALL_COLUMNS = [
   { id: 'listing', label: 'Listing', defaultVisible: true },
   { id: 'id', label: 'Property ID', defaultVisible: false },
+  { id: 'pType', label: 'Property Type', defaultVisible: true },
   { id: 'type', label: 'Unit Type', defaultVisible: true },
   { id: 'capacity', label: 'Beds/Baths', defaultVisible: false },
   { id: 'location', label: 'Location', defaultVisible: true },
@@ -21,6 +22,7 @@ export const ALL_COLUMNS = [
 export const STATUS_OPTIONS = [
   { value: 'all', label: 'All Statuses' },
   { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
   { value: 'draft', label: 'Draft' },
   { value: 'archived', label: 'Archived' },
 ]
@@ -41,10 +43,12 @@ export const getStatusBadge = (status: Property['status']) => {
       return <Badge variant="secondary">Draft</Badge>
     case 'archived':
       return <Badge variant="outline">Archived</Badge>
+    case 'inactive':
+      return <Badge variant="outline">Inactive</Badge>
   }
 }
 
-export const renderChannelCluster = (channels: BookingChannel[]) => {
+export const renderChannelCluster = (channelConnections: BookingChannel[]) => {
   const config: Record<BookingChannel, { color: string; initial: string; logo?: string }> = {
     airbnb: { color: '#FF5A5F', initial: 'A', logo: airbnbLogo },
     'booking.com': { color: '#003580', initial: 'B', logo: bookingLogo },
@@ -55,7 +59,7 @@ export const renderChannelCluster = (channels: BookingChannel[]) => {
 
   return (
     <div className={styles.channelCluster}>
-      {channels.map((ch) => (
+      {channelConnections.map((ch) => (
         <div
           key={ch}
           className={styles.channelDot}
@@ -68,3 +72,19 @@ export const renderChannelCluster = (channels: BookingChannel[]) => {
     </div>
   )
 }
+
+export const AMENITY_LABELS: Record<string, string> = {
+  wifi: 'WiFi',
+  air_conditioning: 'Air conditioning',
+  hot_water: 'Hot water',
+  hair_dryer: 'Hair dryer',
+  body_soap: 'Body soap',
+  shower_gel: 'Shower gel',
+  bed_linens: 'Bed linens',
+  extra_pillows_and_blankets: 'Extra pillows and blankets',
+  room_darkening_shades: 'Room darkening shades',
+  drying_rack_for_clothing: 'Drying rack for clothing',
+  cleaning_products: 'Cleaning products',
+}
+export const amenityLabel = (key: string) =>
+  AMENITY_LABELS[key] ?? key.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase())

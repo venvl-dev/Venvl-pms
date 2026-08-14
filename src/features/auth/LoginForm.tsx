@@ -5,7 +5,7 @@ import { Input } from '@/components/core/Input'
 import { Label } from '@/components/core/Label'
 import { loginSchema } from './schemas'
 import type { LoginValues } from './schemas'
-import { useLogin, useDemoLogin } from './hooks'
+import { useLogin } from './hooks'
 import styles from './AuthForm.module.css'
 
 
@@ -18,7 +18,6 @@ export function LoginForm() {
       } = useForm<LoginValues>({ resolver: zodResolver(loginSchema) })
 
       const{mutate,isPending}=useLogin()
-      const demoLogin = useDemoLogin()
 
 
 return(
@@ -39,10 +38,10 @@ return(
         </Button>
         <div className={styles.divider}><span>or</span></div>
 
-<Button type="button" variant="outline" onClick={demoLogin}>
+{/* <Button type="button" variant="outline" onClick={demoLogin}>
   Use demo account
-</Button>
-<p className={styles.hint}>Demo · admin@venvl.dev · demo1234</p>
+</Button> */}
+{/* <p className={styles.hint}>Demo · admin@venvl.dev · demo1234</p> */}
 
          {/* <p className={styles.switch}>
         No account? <Link to="/register">Create one</Link>

@@ -1,18 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import {  useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { login, register, verifyOtp,  logout } from './api'
-import type { AuthResponse } from './types'
+import { login, register, completeSignup,  logout } from './api'
 import { useAuthStore } from '@/features/auth/authStore'
 
 function useAuthSuccess() {
-  const setAuth = useAuthStore((s) => s.setAuth)
+  const setAuthenticated = useAuthStore((s) => s.setAuthenticated)
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
-  return (data: AuthResponse) => {
-    setAuth(data.accessToken, data.user)
-    queryClient.setQueryData(['auth', 'me'], data.user)
-    navigate('/', { replace: true })
+  return () => {
+    setAuthenticated()
+    navigate('/', { replace: true })  
   }
 }
 
@@ -29,22 +26,25 @@ export function useRegister() {
   const navigate = useNavigate()
   return useMutation({
     mutationFn: register,
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       toast.success('We sent a code to your phone')
-      navigate('/verify-otp', { state: { phone: data.phone } })
+      navigate('/verify-otp', {
+        state: { signupId: data.signupId, phone: variables.phone },
+      })
     },
-    onError: () => toast.error('Could not start registration'),
+        onError: () => toast.error('Could not start registration'),
   })
 }
 
-export function useVerifyOtp() {
+export function useCompleteSignup() {
   const onSuccess = useAuthSuccess()
   return useMutation({
-    mutationFn: verifyOtp,
+    mutationFn: completeSignup,
     onSuccess,
     onError: () => toast.error('Invalid or expired code'),
   })
 }
+
 
 
 export function useLogout(){
@@ -63,21 +63,21 @@ export function useLogout(){
       
 }
 
-export function useDemoLogin() {
-  const setAuth = useAuthStore((s) => s.setAuth)
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
+// export function useDemoLogin() {
+//   const setAuth = useAuthStore((s) => s.setAuth)
+//   const navigate = useNavigate()
+//   const queryClient = useQueryClient()
 
-  return () => {
-    const user = {
-      id: 'demo_1',
-      email: 'admin@venvl.dev',
-      ownerName: 'Demo Admin',
-      orgName: 'VENVL Demo',
-      phone: '+201000000000',
-    }
-    setAuth('demo.access.token', user)
-    queryClient.setQueryData(['auth', 'me'], user)
-    navigate('/', { replace: true })
-  }
-}
+//   return () => {
+//     const user = {
+//       id: 'demo_1',
+//       email: 'admin@venvl.dev',
+//       ownerName: 'Demo Admin',
+//       orgName: 'VENVL Demo',
+//       phone: '+201000000000',
+//     }
+//     setAuth('demo.access.token', user)
+//     queryClient.setQueryData(['auth', 'me'], user)
+//     navigate('/', { replace: true })
+//   }
+// }

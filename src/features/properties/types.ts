@@ -1,11 +1,11 @@
 import type { BookingChannel } from '@/types/domain'
 
 export type { BookingChannel }
-export type PropertyStatus = 'active' | 'draft' | 'archived'
-export type PropertyType = 'parent' | 'child' | 'single'
+
+export type PropertyStatus = 'active' | 'draft' | 'archived' | 'inactive'
+export type StructureType = 'parent' | 'child' | 'single'
 
 export interface PropertyPricing {
-  price: number
   priceForExtraPerson: number
   weeklyDiscount: number
   monthlyDiscount: number
@@ -31,17 +31,31 @@ export interface PropertyAdditionalInfo {
 
 export interface Property {
   id: string
-  parentId?: string
-  name: string
-  image: string
-  type: PropertyType
-  location: string
-  status: PropertyStatus
-  channels: BookingChannel[]
+  title: string
+  description: string | null
+  thumbnail: string | null
+  images: string[]
+  structureType: StructureType
+  propertyType: string
+  parentListingId: string | null
+  area: number | null
   bedrooms: number
   bathrooms: number
-  description?: string
-  amenities?: string[]
+  maxOccupancy: number | null
+  mapsLocation: string | null
+  price: number
+  amenities: string[]
+  address: string | null
+  city: string | null
+  state: string | null
+  country: string | null
+  zipCode: string | null
+  currency: string
+  countOfUnits: number
+  status: PropertyStatus
+  channelConnections: BookingChannel[]
+  children?: Property[]
+
   pricing?: PropertyPricing
   additionalInfo?: PropertyAdditionalInfo
 }
@@ -52,11 +66,11 @@ export interface CreatePropertyResponse {
 }
 
 export interface PaginatedResponse<T> {
+  message?: string
   data: T[]
   meta: {
-    totalCount: number
-    totalPages: number
-    currentPage: number
+    total: number
+    page: number
     limit: number
   }
 }

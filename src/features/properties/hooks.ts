@@ -15,10 +15,10 @@ export const propertyKeys = {
   detail: (id: string) => [...propertyKeys.all, 'detail', id] as const,
 }
 
-export function useProperties() {
+export function useProperties(params: { page: number; limit: number }) {
   return useQuery({
-    queryKey: propertyKeys.list(),
-    queryFn: getProperties,
+    queryKey: [...propertyKeys.list(), params], 
+    queryFn: () => getProperties(params),
   })
 }
 

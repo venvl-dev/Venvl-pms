@@ -6,12 +6,13 @@ import { Input } from '@/components/core/Input'
 import { Label } from '@/components/core/Label'
 import { otpSchema } from './schemas'
 import type { OtpValues } from './schemas'
-import { useVerifyOtp } from './hooks'
 import styles from './AuthForm.module.css'
+import { useCompleteSignup } from './hooks'
+
 
 export function VerifyOtpForm() {
   const location = useLocation()
-  const phone = (location.state as { phone?: string } | null)?.phone
+const { signupId, phone } = (location.state as { signupId?: string; phone?: string } | null) ?? {}
 
   const {
     register,
@@ -19,14 +20,13 @@ export function VerifyOtpForm() {
     formState: { errors },
   } = useForm<OtpValues>({ resolver: zodResolver(otpSchema) })
 
-  const verify = useVerifyOtp()
+  const verify = useCompleteSignup()
 
-  if (!phone) return <Navigate to="/register" replace />
-
+if (!signupId || !phone) return <Navigate to="/register" replace />
   return (
     <form
       className={styles.form}
-      onSubmit={handleSubmit((values) => verify.mutate({ phone, code: values.code }))}
+onSubmit={handleSubmit((values) => verify.mutate({ signupId,  code: values.code }))}
       noValidate
     >
       <p className={styles.switch}>
