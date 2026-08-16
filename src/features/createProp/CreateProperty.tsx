@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styles from './CreateProperty.module.css'
 import TabsBar from './TabsBar'
 import { PropertyCard } from './PropertyCard'
@@ -16,6 +17,7 @@ import type {
   PricingInfo,
   PropertyCardProps,
 }  from './types'
+import { useCreateListing } from './hooks'
 
 
 
@@ -80,6 +82,41 @@ export default function CreateProperty() {
     thumbnailId: null,
   })
   const photoUrlsRef = useRef(new Set<string>())
+
+  const navigate = useNavigate()
+  const { mutate: createProperty, isPending } = useCreateListing()
+
+  const handleSubmit = () => {
+    createProperty(
+      {
+        photos: photosForm,
+        listing: {
+          title: generalInfo.title,
+          description: generalInfo.desc,
+          structureType: generalInfo.unitType ?? 'single',
+          ...(generalInfo.unitType === 'child' && generalInfo.parent
+            ? { parentListingId: generalInfo.parent }
+            : {}),
+          propertyType: generalInfo.propType ?? 'apartment',
+          area: Number(generalInfo.area) || 0,
+          bedrooms: generalInfo.bedrooms,
+          bathrooms: generalInfo.bathrooms,
+          maxOccupancy: generalInfo.maxOccupancy,
+          mapsLocation: generalInfo.location || null,
+          price: Number(pricingInfo.base) || 0,
+          amenities: amenitiesForm.selectedAmenities,
+          address: generalInfo.address,
+          city: generalInfo.city,
+          state: null,
+          country: generalInfo.country,
+          zipCode: generalInfo.zipcode || null,
+          currency: 'USD',
+          countOfUnits: 1,
+        },
+      },
+      { onSuccess: (property) => navigate(`/properties/${property.id}`) },
+    )
+  }
 
   const registerPhotoUrl = (url: string) => {
     photoUrlsRef.current.add(url)
@@ -161,6 +198,8 @@ export default function CreateProperty() {
             amenitiesForm={amenitiesForm}
             photosForm={photosForm}
             pricingInfo={pricingInfo}
+            onSubmit={handleSubmit}
+            isSubmitting={isPending}
           />
         </div>
         <div className={styles.propertyCardHolder}>

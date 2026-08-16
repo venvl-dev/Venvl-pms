@@ -1,13 +1,24 @@
-export const PROPERTY_TYPES = ['apartment','villa','house','condo','cottage','cabin',
-  'loft','studio','townhouse','chalet','bungalow','hotel','other'] as const
+export const PROPERTY_TYPES = [
+  'apartment',
+  'villa',
+  'house',
+  'condo',
+  'cottage',
+  'cabin',
+  'loft',
+  'studio',
+  'townhouse',
+  'chalet',
+  'bungalow',
+  'hotel',
+  'other',
+] as const
 export type PropertyType = (typeof PROPERTY_TYPES)[number]
 
-export const STRUCTURE_TYPES = ['single','parent','child'] as const
+export const STRUCTURE_TYPES = ['single', 'parent', 'child'] as const
 export type StructureType = (typeof STRUCTURE_TYPES)[number]
 
 export type CreatePropertyTab = 'General Info' | 'Amenities' | 'Photos' | 'Pricing' | 'Instructions'
-
-
 
 export type PropertySpec = {
   icon: string
@@ -54,8 +65,6 @@ export type PricingInfo = {
   refundDamageDeposit?: number | ''
 }
 
-
-
 export type AmenitiesForm = {
   selectedAmenities: string[]
 }
@@ -70,4 +79,36 @@ export type PhotoItem = {
 export type PhotosFormState = {
   photos: PhotoItem[]
   thumbnailId: number | null
+}
+
+export type UploadKind = 'thumbnail' | 'gallery'
+export type PresignFile = { type: UploadKind; fileName: string; contentType: string }
+export type PresignRequest = { resourceType: 'listing'; files: PresignFile[] }
+export type PresignedUpload = { type: UploadKind; key: string; uploadUrl: string }
+export type PresignResponse = { uploads: PresignedUpload[] }
+
+export type ListingMedia = { thumbnailKey: string; imageKeys: string[] }
+
+
+export type CreateListingRequest = {
+  title: string
+  description: string
+  media: ListingMedia
+  structureType: StructureType
+  parentListingId?: string
+  propertyType: PropertyType
+  area: number
+  bedrooms: number
+  bathrooms: number
+  maxOccupancy: number
+  mapsLocation: string | null
+  price: number
+  amenities: string[]
+  address: string
+  city: string
+  state: string | null
+  country: string
+  zipCode: string | null
+  currency: string
+  countOfUnits: number
 }

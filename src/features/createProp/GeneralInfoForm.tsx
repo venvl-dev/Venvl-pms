@@ -23,7 +23,7 @@ export default function GeneralInfoForm({
   generalInfo: GeneralInfo
   setGeneralInfo: Dispatch<SetStateAction<GeneralInfo>>
 }) {
-  const { data } = useProperties()
+  const { data } = useProperties({page:1,limit:100})
   const countries = Country.getAllCountries()
   const [countryCode, setCountryCode] = useState('EG')
   const [cities, setCities] = useState(City.getCitiesOfCountry('EG'))
@@ -107,10 +107,10 @@ export default function GeneralInfoForm({
                 value={generalInfo.parent as string}
               >
                 {data?.data
-                  .filter((prop) => prop.type === 'parent')
+                  .filter((prop) => prop.structureType  === 'parent')
                   .map((prop) => (
                     <option key={prop.id} value={prop.id}>
-                      {prop.name}
+                      {prop.title}
                     </option>
                   ))}
               </Select>

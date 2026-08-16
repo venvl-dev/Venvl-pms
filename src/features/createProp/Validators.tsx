@@ -18,6 +18,8 @@ interface ValidatorsProps {
   amenitiesForm: AmenitiesForm
   photosForm: PhotosFormState
   pricingInfo: PricingInfo
+  onSubmit:()=>void
+  isSubmitting:boolean
 }
 
 export default function Validators({
@@ -29,6 +31,8 @@ export default function Validators({
   amenitiesForm,
   photosForm,
   pricingInfo,
+  onSubmit,
+  isSubmitting,
 }: ValidatorsProps) {
   const [canProceed, setCanProceed] = useState(false)
 
@@ -160,6 +164,9 @@ const parentValid = unitType !== 'child' || (parent !== null && isNonEmptyString
       case 'Pricing':
         setCanProceed(validatePricing())
         break
+      case 'Instructions':
+        setCanProceed(true)
+        break
       default:
         setCanProceed(false)
     }
@@ -170,8 +177,15 @@ const parentValid = unitType !== 'child' || (parent !== null && isNonEmptyString
       <Button onClick={handlePreviousButton} variant="outline" disabled={currentTab === tabs[0]}>
         Previous
       </Button>
-      <Button onClick={handleNextButton} disabled={!canProceed}>
-        Next
+      <Button
+        onClick={currentTab === tabs[tabs.length - 1] ? onSubmit : handleNextButton}
+        disabled={!canProceed || isSubmitting}
+      >
+        {currentTab === tabs[tabs.length - 1]
+          ? isSubmitting
+            ? 'Creating…'
+            : 'Create Property'
+          : 'Next'}
       </Button>
     </div>
   )
