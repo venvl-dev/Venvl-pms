@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useProperties } from '@/features/properties/hooks'
 import { useReservations } from '@/features/reservations/hooks'
 import type { Property } from '@/features/properties/types'
-import type { Reservation, BookingChannel } from '@/features/reservations/types'
+import type { Reservation } from '@/features/reservations/types'
 
 export function useCalendarData(startDate: string, endDate: string) {
   const [typeFilter, setTypeFilter] = useState('all')
@@ -42,11 +42,9 @@ export function useCalendarData(startDate: string, endDate: string) {
     return allBookableUnits.filter((u) => {
       const matchType = typeFilter === 'all' || u.structureType === typeFilter
       const matchLoc = locFilter === 'all' || u.city === locFilter
-      const matchChan =
-        channelFilter === 'all' || u.channelConnections.includes(channelFilter as BookingChannel)
-      return matchType && matchLoc && matchChan
+      return matchType && matchLoc
     })
-  }, [allBookableUnits, typeFilter, locFilter, channelFilter])
+  }, [allBookableUnits, typeFilter, locFilter])
 
   // 2. Fetch Reservations for the current timeline window
   const { data: reservationsResponse, isFetching } = useReservations({
