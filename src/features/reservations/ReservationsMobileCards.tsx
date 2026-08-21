@@ -1,6 +1,5 @@
 import { Calendar, MoreHorizontal } from 'lucide-react'
 import { Button } from '@/components/core/Button'
-import { Badge } from '@/components/core/Badge'
 import { Skeleton } from '@/components/core/Skeleton'
 import type { Reservation } from './types'
 import { getStatusBadge, formatDate, renderChannel } from './Constants'
@@ -62,7 +61,7 @@ export function ReservationsMobileCards({ isLoading, items, rowsPerPage,onOpen }
           <div key={res.id} className={styles.mobileCardWrap}>
             <div className={styles.mobileCardHeader} onClick={()=>onOpen(res.id)}>
               <div>
-                <div className={styles.mobileCardTitle}>{res.customer.name}</div>
+           <div className={styles.mobileCardTitle}>{res.customer?.name || 'Unknown Guest'}</div>
                 <div className={styles.mobileCardProperty} >
                   {res.listing?.name || 'Unknown Property'} <span className={styles.mobileCardUnit}>• {res.listing?.location?.city || 'Unknown Unit'}</span>
                 </div>
@@ -81,15 +80,7 @@ export function ReservationsMobileCards({ isLoading, items, rowsPerPage,onOpen }
                   to {formatDate(res.endDate)}
                 </span>
               </div>
-              <div
-                className={styles.mobileCardGridCol}
-                style={{ alignItems: 'flex-end', textAlign: 'right' }}
-              >
-                <span className={styles.mobileCardLabel}>Balance Due</span>
-                <span className={styles.mobileCardValue} style={{ marginTop: '2px' }}>
-                  <Badge variant="success">Paid</Badge>
-                </span>
-              </div>
+             
             </div>
 
             <div className={styles.mobileCardFooter}>

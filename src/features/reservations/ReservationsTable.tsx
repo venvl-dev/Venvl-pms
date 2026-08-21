@@ -1,6 +1,5 @@
 import { Calendar, MoreHorizontal } from 'lucide-react'
 import { Button } from '@/components/core/Button'
-import { Badge } from '@/components/core/Badge'
 import { Skeleton } from '@/components/core/Skeleton'
 import { cx } from '@/lib/cx'
 import type { Reservation } from './types'
@@ -31,7 +30,6 @@ export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage, 
               {visibleCols.channel && <th className={styles.th}>Channel</th>}
               {visibleCols.status && <th className={styles.th}>Status</th>}
               {visibleCols.amount && <th className={styles.th}>Total</th>}
-              {visibleCols.balance && <th className={styles.th}>Balance</th>}
               <th className={styles.th} style={{ textAlign: 'right' }}>
                 Actions
               </th>
@@ -78,11 +76,7 @@ export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage, 
                       <Skeleton style={{ height: '1.25rem', width: '60px' }} />
                     </td>
                   )}
-                  {visibleCols.balance && (
-                    <td className={styles.td}>
-                      <Skeleton style={{ height: '1.5rem', width: '70px', borderRadius: '12px' }} />
-                    </td>
-                  )}
+                 
                   <td className={styles.td}>
                     <div className={styles.actionsCell}>
                       <Skeleton style={{ height: '32px', width: '32px', borderRadius: '8px' }} />
@@ -125,7 +119,7 @@ export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage, 
                         if (e.key === 'Enter') onOpen(res.id)
                       }}
                     >
-                      <div className={styles.cellPrimary}>{res.customer.name}</div>
+                 <div className={styles.cellPrimary}>{res.customer?.name || 'Unknown Guest'}</div>
                     </td>
                   )}
                   {visibleCols.dates && (
@@ -147,13 +141,9 @@ export function ReservationsTable({ isLoading, items, visibleCols, rowsPerPage, 
                     <td className={styles.td}>{getStatusBadge(res.status)}</td>
                   )}
                   {visibleCols.amount && (
-                    <td className={styles.td}>{formatCurrency(res.amount || 0)}</td>
+                 <td className={styles.td}>{formatCurrency(res.amount || 0, res.currency)}</td>
                   )}
-                  {visibleCols.balance && (
-                    <td className={styles.td}>
-                      <Badge variant="success">Paid</Badge>
-                    </td>
-                  )}
+                  
                   <td className={styles.td}>
                     <div className={styles.actionsCell}>
                       <Button variant="secondary" size="icon" aria-label="View in Calendar">

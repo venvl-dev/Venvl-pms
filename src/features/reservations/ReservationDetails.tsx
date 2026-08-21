@@ -12,7 +12,6 @@ import {
   User,
 } from 'lucide-react'
 import { Button } from '@/components/core/Button'
-import { Badge } from '@/components/core/Badge'
 import { Skeleton } from '@/components/core/Skeleton'
 import { formatCurrency, formatDate, getStatusBadge, renderChannel } from './Constants'
 import { useReservationId } from './hooks'
@@ -125,9 +124,7 @@ const ReservationDetails = () => {
   const nights = countNights(reservation.startDate, reservation.endDate)
   
   const amount = reservation.amount || 0
-  const balanceDue = 0 
-  const paid = amount - balanceDue
-  const isPaid = balanceDue <= 0
+  const currency=reservation.currency
   const nightlyRate = nights > 0 ? amount / nights : amount
 
   return (
@@ -151,11 +148,6 @@ const ReservationDetails = () => {
               </span>
               <h1 className={styles.title}>{customerName}</h1>
               {getStatusBadge(reservation.status)}
-              {isPaid ? (
-                <Badge variant="success">Paid</Badge>
-              ) : (
-                <Badge variant="warning">{formatCurrency(balanceDue)} Due</Badge>
-              )}
             </div>
             <div className={styles.metaRow}>
               <span className={styles.meta}>
@@ -205,7 +197,7 @@ const ReservationDetails = () => {
               </div>
               <div>
                 <div className={styles.statLabel}>Total</div>
-                <div className={styles.statValue}>{formatCurrency(amount)}</div>
+                <div className={styles.statValue}>{formatCurrency(amount, currency)}</div>
               </div>
             </div>
           </section>
@@ -279,21 +271,12 @@ const ReservationDetails = () => {
           <section className={styles.card}>
             <h2 className={styles.cardTitle}>Payment</h2>
             <div className={styles.priceGrid}>
-              <PriceRow label="Nightly rate (avg)" value={formatCurrency(nightlyRate)} />
+              <PriceRow label="Nightly rate (avg)" value={formatCurrency(nightlyRate, currency)} />
               <PriceRow
                 label={`${nights} ${nights === 1 ? 'night' : 'nights'}`}
-                value={formatCurrency(amount)}
+                value={formatCurrency(amount, currency)}
               />
-              <PriceRow label="Amount paid" value={formatCurrency(paid)} />
-              <PriceRow label="Balance due" value={formatCurrency(balanceDue)} />
-              <PriceRow label="Total" value={formatCurrency(amount)} emphasis />
-            </div>
-            <div className={styles.payState}>
-              {isPaid ? (
-                <Badge variant="success">Fully paid</Badge>
-              ) : (
-                <Badge variant="warning">{formatCurrency(balanceDue)} outstanding</Badge>
-              )}
+              <PriceRow label="Total" value={formatCurrency(amount, currency)} emphasis />
             </div>
           </section>
 

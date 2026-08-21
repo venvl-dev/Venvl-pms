@@ -6,9 +6,9 @@ import styles from './ReservationsView.module.css'
 
 interface Props {
   currentPage: number
-  totalPages: number
+  totalCount: number|null
+  hasNextPage:boolean
   rowsPerPage: number
-  totalCount: number
   isLoading: boolean
   onPageChange: (page: number) => void
   onRowsPerPageChange: (rows: number) => void
@@ -16,9 +16,9 @@ interface Props {
 
 export function ReservationsPagination({
   currentPage,
-  totalPages,
-  rowsPerPage,
   totalCount,
+  hasNextPage,
+  rowsPerPage,
   isLoading,
   onPageChange,
   onRowsPerPageChange,
@@ -53,7 +53,7 @@ export function ReservationsPagination({
               className={cx(styles.customMenu, styles.alignTop)}
               style={{ minWidth: 'auto', width: '100%' }}
             >
-              {[5, 10, 20, 50].map((num) => (
+              {[10, 20, 50, 100].map((num) => (
                 <div
                   key={num}
                   className={styles.customMenuItem}
@@ -77,26 +77,33 @@ export function ReservationsPagination({
         <Button
           variant="outline"
           size="icon"
+              aria-label="Previous page"
           disabled={currentPage === 1 || isLoading}
           onClick={() => onPageChange(currentPage - 1)}
         >
           <ChevronLeft size={16} />
         </Button>
 
-        <span className={styles.pageInfo}>
-          {totalCount === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1}-
-          {Math.min(currentPage * rowsPerPage, totalCount)} of {totalCount}
-        </span>
+       
+  <span className={styles.pageInfo}>
+    {totalCount === null
+      ? `Page ${currentPage}`
+      : totalCount === 0
+        ? '0 of 0'
+        : `${(currentPage - 1) * rowsPerPage + 1}-${Math.min(currentPage * rowsPerPage, totalCount)} of ${totalCount}`}
+  </span>
 
-        <Button
-          variant="outline"
-          size="icon"
-          disabled={currentPage === totalPages || totalPages === 0 || isLoading}
-          onClick={() => onPageChange(currentPage + 1)}
-        >
-          <ChevronRight size={16} />
-        </Button>
-      </div>
+
+         <Button
+    variant="outline"
+    size="icon"
+    aria-label="Next page"
+    disabled={!hasNextPage || isLoading}
+    onClick={() => onPageChange(currentPage + 1)}
+  >
+    <ChevronRight size={16} />
+  </Button>
+</div>
     </div>
   )
 }

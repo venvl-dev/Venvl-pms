@@ -69,7 +69,7 @@ export interface PaginatedResponse<T> {
   message?: string
   data: T[]
   meta: {
-    total: number
+    total:number|null
     page: number
     limit: number
   }

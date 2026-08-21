@@ -1,18 +1,38 @@
 import type { Reservation } from './types'
-import { getUnitLabels } from '@/features/properties/mockProperties'
-
 
 const HEADERS = [
   'Booking ID',
   'Guest Name',
+  'Guest Email',
   'Check-in',
   'Check-out',
   'Property',
-  'Unit',
+  'City',
   'Channel',
   'Status',
   'Total Amount',
-  'Balance Due',
+  'Currency',
+]
+
+const escapeCsv = (value: unknown): string => {
+  if (value === null || value === undefined) return ''
+  let s = String(value)
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`
+  return /["\n\r,]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+}
+
+const toRow = (res: Reservation) => [
+  res.id,
+  res.customer?.name ?? '',
+  res.customer?.email ?? '',
+  res.startDate,
+  res.endDate,
+  res.listing?.name ?? '',
+  res.listing?.location?.city ?? '',
+  res.customer?.ota ?? 'direct',
+  res.status,
+  res.amount ?? '',
+  res.currency ?? '',
 ]
 
 interface ExportOptions {
@@ -26,26 +46,12 @@ export async function exportReservationsCsv(
 ): Promise<void> {
   const dataToExport = type === 'visible' ? visibleRows : await fetchAll()
 
-  if (!dataToExport || dataToExport.length === 0) return
+  if (!dataToExport?.length) {
+    throw new Error('There are no reservations to export.')
+  }
 
-
-    const rows = dataToExport.map((res) => {
-    const labels = getUnitLabels(res.propertyId)
-    return [
-      res.id,
-      `"${res.guestName}"`,
-      res.checkIn,
-      res.checkOut,
-      `"${labels.property}"`,
-      `"${labels.unit}"`,
-      res.channel,
-      res.status,
-      res.totalAmount,
-      res.balanceDue,
-    ]
-  })
-
-  const csvContent = [HEADERS.join(','), ...rows.map((row) => row.join(','))].join('\n')
+  const lines = [HEADERS, ...dataToExport.map(toRow)].map((row) => row.map(escapeCsv).join(','))
+  const csvContent = '\uFEFF' + lines.join('\r\n')
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
@@ -57,7 +63,6 @@ export async function exportReservationsCsv(
 
   document.body.appendChild(link)
   link.click()
-
-  document.body.removeChild(link)
+  link.remove()
   URL.revokeObjectURL(url)
 }

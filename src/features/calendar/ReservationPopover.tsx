@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { Button } from '@/components/core/Button'
-import { Badge } from '@/components/core/Badge'
 import type { Reservation } from '@/features/reservations/types'
 import { formatDate, formatCurrency, getStatusBadge } from '@/features/reservations/Constants'
 import type { BookingChannel } from '@/types/domain'
@@ -49,7 +48,6 @@ export function ReservationPopover({ reservation, anchorRect, onClose, onNavigat
   const channel = (reservation.customer?.ota || 'direct') as BookingChannel
   const channelConfig = getChannelConfig(channel)
   const amount = reservation.amount || 0
-  const balanceDue = 0 
 
   return (
     <div
@@ -100,16 +98,13 @@ export function ReservationPopover({ reservation, anchorRect, onClose, onNavigat
 
         <div className={styles.popoverRow}>
           <span className={styles.popoverLabel}>Total</span>
-          <span className={styles.popoverValue}>{formatCurrency(amount)}</span>
+          <span className={styles.popoverValue}>
+            {formatCurrency(amount, reservation.currency)}
+          </span>
         </div>
       </div>
 
       <div className={styles.popoverFooter}>
-        {balanceDue > 0 ? (
-          <Badge variant="warning">{formatCurrency(balanceDue)} Due</Badge>
-        ) : (
-          <Badge variant="success">Paid</Badge>
-        )}
         <Button variant="default" size="sm" onClick={onNavigate}>
           More details
         </Button>

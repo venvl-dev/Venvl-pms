@@ -1,17 +1,18 @@
 import { api } from '@/lib/apiClient'
 import type { Reservation, GetReservationsParams, PaginatedResponse } from './types'
 
-export const USE_MOCK = false 
 
 export async function getReservations(params: GetReservationsParams): Promise<PaginatedResponse<Reservation>> {
   const { data } = await api.get<PaginatedResponse<Reservation>>('/booking', { params })
+  const rows=data.data??[]
   
   return {
-    data: data.data || [],
-    meta: data.meta || {
-      total: data.data?.length || 0,
-      page: params.page,
-      limit: params.limit,
+    data: rows,
+    meta:{
+      total: data.meta?.total ?? null,
+      page: data.meta?.page ?? params.page,
+      limit: data.meta?.limit ?? params.limit,
+
     }
   }
 }

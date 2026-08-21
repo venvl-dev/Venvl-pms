@@ -21,10 +21,8 @@ export function ReservationsView() {
   const [sourceFilter, setSourceFilter] = useState('all')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [rowsPerPage, setRowsPerPage] = useState(20)
   const [currentPage, setCurrentPage] = useState(1)
-
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {}
     ALL_COLUMNS.forEach((col) => (initial[col.id] = col.defaultVisible))
@@ -41,6 +39,8 @@ export function ReservationsView() {
     isLoading,
     isError,
     refetch,
+    isFetching,
+    isPlaceholderData,
   } = useReservations({
     page: currentPage,
     limit: rowsPerPage,
@@ -54,9 +54,11 @@ export function ReservationsView() {
   const { mutateAsync: fetchAllForExport, isPending: isExportingAll } = useExportAll()
   
   const reservations = response?.data ?? []
-  
-  const totalCount = response?.meta?.total ?? 0
-  const totalPages = Math.ceil(totalCount / rowsPerPage) || 1
+    const totalCount = response?.meta?.total ?? null
+   const hasNextPage =
+    totalCount === null
+      ? reservations.length === rowsPerPage
+      : currentPage * rowsPerPage < totalCount
 
   const toggleColumn = (id: string) => {
     setVisibleCols((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -70,7 +72,7 @@ export function ReservationsView() {
       })
     } catch (error) {
       console.error('Failed to export reservations:', error)
-      toast.error('Export failed. Please try again.')
+     toast.error(error instanceof Error ? error.message : 'Export failed. Please try again.')
     }
   }
 
@@ -127,6 +129,13 @@ export function ReservationsView() {
         visibleCols={visibleCols}
         onToggleColumn={toggleColumn}
       />
+      <div
+        style={{
+          opacity: isPlaceholderData ? 0.5 : 1,
+          transition: 'opacity 150ms ease',
+        }}
+      >
+        
       <ReservationsTable
         isLoading={isLoading}
         items={reservations}
@@ -134,6 +143,7 @@ export function ReservationsView() {
         rowsPerPage={rowsPerPage}
         onOpen={(id) => navigate(`/reservations/${id}`)}
       />
+       </div>
       <ReservationsMobileCards
         isLoading={isLoading}
         items={reservations}
@@ -142,10 +152,10 @@ export function ReservationsView() {
       />
       <ReservationsPagination
         currentPage={currentPage}
-        totalPages={totalPages}
-        rowsPerPage={rowsPerPage}
         totalCount={totalCount}
-        isLoading={isLoading}
+        hasNextPage={hasNextPage}
+        rowsPerPage={rowsPerPage}
+        isLoading={isLoading||isFetching}
         onPageChange={setCurrentPage}
         onRowsPerPageChange={setRowsPerPage}
       />
