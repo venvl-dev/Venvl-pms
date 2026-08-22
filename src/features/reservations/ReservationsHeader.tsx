@@ -46,9 +46,7 @@ export function ReservationsHeader({ isExporting, onExport }: Props) {
               <div className={styles.customMenuItem} onClick={() => handleExport('visible')}>
                 Export Current Page
               </div>
-              <div className={styles.customMenuItem} onClick={() => handleExport('all')}>
-                Export All Records
-              </div>
+            
             </div>
           )}
         </div>
