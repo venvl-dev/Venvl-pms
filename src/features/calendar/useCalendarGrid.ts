@@ -44,7 +44,10 @@ export function useCalendarGrid(onScrollActivity?: (scrollLeft: number, scrollTo
     if (scrollTimeoutRef.current) return
 
     scrollTimeoutRef.current = setTimeout(() => {
-      if (isShiftingRef.current) return
+      if (isShiftingRef.current){
+        scrollTimeoutRef.current=null
+        return
+      } 
       
       const newIndex = Math.round(scrollLeft / COL_WIDTH)
       
@@ -78,6 +81,19 @@ export function useCalendarGrid(onScrollActivity?: (scrollLeft: number, scrollTo
       scrollTimeoutRef.current = null
     }, 100)
   }
+  const didInitScroll = useRef(false)
+
+    useLayoutEffect(() => {
+    if (viewMode !== 'day' || !scrollRef.current) {
+      didInitScroll.current = false
+      return
+    }
+    if (didInitScroll.current) return
+
+    scrollRef.current.scrollLeft = PAST_BUFFER * COL_WIDTH
+    setVisibleStartIndex(PAST_BUFFER)
+    didInitScroll.current = true
+  }, [viewMode])
 
   useLayoutEffect(() => {
     if (viewMode !== 'day' || !scrollRef.current) return

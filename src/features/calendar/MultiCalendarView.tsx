@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './MultiCalendarView.module.css'
 
@@ -21,7 +21,9 @@ export function MultiCalendarView() {
 
   // 2. Popover Selection 
   const selection = useReservationSelection(grid.scrollRef)
-  scrollActivityCallbackRef.current = selection.handleScrollActivity
+  useLayoutEffect(() => {
+   scrollActivityCallbackRef.current = selection.handleScrollActivity
+  }, [selection.handleScrollActivity])
 
   // 3. API Data & Filters
   const startDate = `${grid.dateArray[0].toISOString().split('T')[0]}T00:00:00.000Z`

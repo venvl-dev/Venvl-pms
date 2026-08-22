@@ -112,8 +112,9 @@ export function DayView({
                     const startIndex = Math.floor(
                       (checkInDate.getTime() - dateArray[0].getTime()) / 86400000,
                     )
-                    const duration = Math.round(
-                      (checkOutDate.getTime() - checkInDate.getTime()) / 86400000,
+                    const duration = Math.max(
+                      1,
+                      Math.round((checkOutDate.getTime() - checkInDate.getTime()) / 86400000)
                     )
 
                     const isClippedLeft = startIndex < 0
