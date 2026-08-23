@@ -1,245 +1,95 @@
-import { useState, useMemo, useRef, useLayoutEffect } from 'react'
-import styles from './MultiCalendarView.module.css'
+import { useLayoutEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ReservationPopover } from './ReservationPopover'
+import styles from './MultiCalendarView.module.css'
 
-import { BOOKABLE_UNITS } from '@/features/properties/mockProperties'
-import { DB as MOCK_RESERVATIONS } from '@/features/reservations/mockDb'
-import type { BookingChannel } from '@/types/domain'
-import type { Reservation } from '@/features/reservations/types'
-
-import { MONTHS, FULL_MONTHS, type ViewMode } from './Constants'
 import { CalendarToolbar } from './CalendarToolBar'
 import { DayView } from './DayView'
 import { MonthView } from './MonthView'
 import { YearView } from './YearView'
+import { ReservationPopover } from './ReservationPopover'
+
+import { useCalendarData } from './useCalendarData'
+import { useCalendarGrid } from './useCalendarGrid'
+import { useReservationSelection } from './useReservationSelection'
 
 export function MultiCalendarView() {
   const navigate = useNavigate()
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [viewMode, setViewMode] = useState<ViewMode>('day')
 
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
-  const [popoverAnchor, setPopoverAnchor] = useState<DOMRect | null>(null)
+  // 1. Grid & Timeline
+  const scrollActivityCallbackRef = useRef<((x: number, y: number) => void) | null>(null)
+  const grid = useCalendarGrid((x, y) => scrollActivityCallbackRef.current?.(x, y))
 
-  const scrollOriginRef = useRef<{ x: number; y: number } | null>(null)
-
-  const handleSelectReservation = (res: Reservation, rect: DOMRect) => {
-    setSelectedReservation(res)
-    setPopoverAnchor(rect)
-    if (scrollRef.current) {
-      scrollOriginRef.current = {
-        x: scrollRef.current.scrollLeft,
-        y: scrollRef.current.scrollTop,
-      }
-    }
-  }
-
-  const closePopover = () => {
-    setSelectedReservation(null)
-    setPopoverAnchor(null)
-    scrollOriginRef.current = null
-  }
-
-  // The central date context
-  const [baseDate, setBaseDate] = useState(() => {
-    const now = new Date()
-    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
-  })
-
-  // Filter States
-  const [typeFilter, setTypeFilter] = useState('all')
-  const [locFilter, setLocFilter] = useState('all')
-  const [channelFilter, setChannelFilter] = useState('all')
-
-  // 1. Data Preparation & Filtering
-  const allBookableUnits = useMemo(() => BOOKABLE_UNITS, [])
-
-  const typeOptions = useMemo(
-    () => ['all', ...Array.from(new Set(allBookableUnits.map((u) => u.structureType)))],
-    [allBookableUnits],
-  )
-   const locOptions = useMemo(
-    () => [
-      'all',
-      ...Array.from(new Set(allBookableUnits.map((u) => u.city).filter((c): c is string => !!c))),
-    ],
-    [allBookableUnits],
-  )
-
-  const filteredUnits = useMemo(() => {
-    return allBookableUnits.filter((u) => {
-      const matchType = typeFilter === 'all' || u.structureType === typeFilter
-      const matchLoc = locFilter === 'all' || u.city === locFilter
-      const matchChan =
-        channelFilter === 'all' || u.channelConnections.includes(channelFilter as BookingChannel)
-      return matchType && matchLoc && matchChan
-    })
-  }, [allBookableUnits, typeFilter, locFilter, channelFilter])
-
-  // Attach reservations to filtered units securely
-  const unitReservations = useMemo(() => {
-    const map = new Map<string, Reservation[]>()
-    filteredUnits.forEach((u) => map.set(u.id, []))
-
-    // Distributed deterministically for the mock
-    MOCK_RESERVATIONS.forEach((res) => {
-      if (channelFilter !== 'all' && res.channel !== channelFilter) return
-
-      if (map.has(res.propertyId)) {
-        map.get(res.propertyId)?.push(res)
-      }
-    })
-    return map
-  }, [filteredUnits, channelFilter])
-
-  // 2. Day View Matrix Settings
-  const COL_WIDTH = 120
-  const BUFFER_SIZE = 120
-  const PAST_BUFFER = 30
-
-  const dateArray = useMemo(() => {
-    return Array.from({ length: BUFFER_SIZE }, (_, i) => {
-      const d = new Date(baseDate)
-      d.setUTCDate(baseDate.getUTCDate() - PAST_BUFFER + i)
-      return d
-    })
-  }, [baseDate])
-
-  const [visibleStartIndex, setVisibleStartIndex] = useState(PAST_BUFFER)
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    if (viewMode !== 'day') return
-    const scrollLeft = e.currentTarget.scrollLeft
-    const scrollTop = e.currentTarget.scrollTop
-    const newIndex = Math.round(scrollLeft / COL_WIDTH)
-    if (newIndex !== visibleStartIndex) setVisibleStartIndex(newIndex)
-
-    if (selectedReservation && scrollOriginRef.current !== null) {
-      const dx = Math.abs(scrollLeft - scrollOriginRef.current.x)
-      const dy = Math.abs(scrollTop - scrollOriginRef.current.y)
-
-      if (dx > 20 || dy > 20) {
-        closePopover()
-      }
-    }
-  }
-
+  // 2. Popover Selection 
+  const selection = useReservationSelection(grid.scrollRef)
   useLayoutEffect(() => {
-    if (viewMode === 'day' && scrollRef.current) {
-      scrollRef.current.scrollLeft = PAST_BUFFER * COL_WIDTH
-      setVisibleStartIndex(PAST_BUFFER)
-    }
-  }, [viewMode, baseDate])
+   scrollActivityCallbackRef.current = selection.handleScrollActivity
+  }, [selection.handleScrollActivity])
 
-  // 3. Navigation Handlers
-  const handlePrev = () => {
-    if (viewMode === 'day') {
-      scrollRef.current?.scrollBy({ left: -(COL_WIDTH * 10), behavior: 'smooth' })
-    } else if (viewMode === 'month') {
-      setBaseDate((d) => {
-        const nd = new Date(d)
-        nd.setUTCMonth(nd.getUTCMonth() - 1)
-        return nd
-      })
-    } else {
-      setBaseDate((d) => {
-        const nd = new Date(d)
-        nd.setUTCFullYear(nd.getUTCFullYear() - 1)
-        return nd
-      })
-    }
-  }
-
-  const handleNext = () => {
-    if (viewMode === 'day') {
-      scrollRef.current?.scrollBy({ left: COL_WIDTH * 10, behavior: 'smooth' })
-    } else if (viewMode === 'month') {
-      setBaseDate((d) => {
-        const nd = new Date(d)
-        nd.setUTCMonth(nd.getUTCMonth() + 1)
-        return nd
-      })
-    } else {
-      setBaseDate((d) => {
-        const nd = new Date(d)
-        nd.setUTCFullYear(nd.getUTCFullYear() + 1)
-        return nd
-      })
-    }
-  }
-
-  const handleToday = () => {
-    const now = new Date()
-    setBaseDate(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())))
-  }
-
-  // Dynamic Range Text Generator
-  const getRangeText = () => {
-    if (viewMode === 'year') return `${baseDate.getUTCFullYear()}`
-    if (viewMode === 'month')
-      return `${FULL_MONTHS[baseDate.getUTCMonth()]} ${baseDate.getUTCFullYear()}`
-
-    const safeIndex = Math.min(Math.max(visibleStartIndex, 0), BUFFER_SIZE - 10)
-    const startD = dateArray[safeIndex]
-    const endD = dateArray[safeIndex + 9]
-    if (!startD || !endD) return ''
-
-    if (startD.getUTCMonth() === endD.getUTCMonth()) {
-      return `${startD.getUTCDate()} - ${endD.getUTCDate()} ${MONTHS[startD.getUTCMonth()]} ${startD.getUTCFullYear()}`
-    }
-    return `${startD.getUTCDate()} ${MONTHS[startD.getUTCMonth()]} - ${endD.getUTCDate()} ${MONTHS[endD.getUTCMonth()]}`
-  }
+  // 3. API Data & Filters
+  const startDate = `${grid.dateArray[0].toISOString().split('T')[0]}T00:00:00.000Z`
+  const endDate = `${grid.dateArray[grid.dateArray.length - 1].toISOString().split('T')[0]}T23:59:59.999Z`
+  
+  const data = useCalendarData(startDate, endDate)
 
   return (
     <div className={styles.page}>
       <CalendarToolbar
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        onPrev={handlePrev}
-        onNext={handleNext}
-        onToday={handleToday}
-        rangeText={getRangeText()}
-        typeFilter={typeFilter}
-        setTypeFilter={setTypeFilter}
-        typeOptions={typeOptions}
-        locFilter={locFilter}
-        setLocFilter={setLocFilter}
-        locOptions={locOptions}
-        channelFilter={channelFilter}
-        setChannelFilter={setChannelFilter}
+        viewMode={grid.viewMode}
+        setViewMode={grid.setViewMode}
+        onPrev={grid.handlePrev}
+        onNext={grid.handleNext}
+        onToday={grid.handleToday}
+        rangeText={grid.rangeText}
+        typeFilter={data.typeFilter}
+        setTypeFilter={data.setTypeFilter}
+        typeOptions={data.typeOptions}
+        locFilter={data.locFilter}
+        setLocFilter={data.setLocFilter}
+        locOptions={data.locOptions}
+        channelFilter={data.channelFilter}
+        setChannelFilter={data.setChannelFilter}
       />
 
-      {viewMode === 'day' && (
+      {grid.viewMode === 'day' && (
         <DayView
-          dateArray={dateArray}
-          filteredUnits={filteredUnits}
-          unitReservations={unitReservations}
-          scrollRef={scrollRef}
-          onScroll={handleScroll}
-          bufferSize={BUFFER_SIZE}
-          onSelectReservation={handleSelectReservation}
+          dateArray={grid.dateArray}
+          filteredUnits={data.filteredUnits}
+          unitReservations={data.unitReservations}
+          scrollRef={grid.scrollRef}
+          onScroll={grid.handleScroll}
+          bufferSize={grid.bufferSize}
+          onSelectReservation={selection.handleSelectReservation}
+          isFetching={data.isFetching}
+          visibleStartIndex={grid.visibleStartIndex}
         />
-      )}
-      {viewMode === 'month' && (
-        <MonthView
-          baseDate={baseDate}
-          filteredUnits={filteredUnits}
-          unitReservations={unitReservations}
-        />
-      )}
-      {viewMode === 'year' && (
-        <YearView baseDate={baseDate} setBaseDate={setBaseDate} setViewMode={setViewMode} filteredUnits={filteredUnits} unitReservations={unitReservations} />
       )}
 
-      {selectedReservation && popoverAnchor && (
+      {grid.viewMode === 'month' && (
+        <MonthView
+          baseDate={grid.baseDate}
+          filteredUnits={data.filteredUnits}
+          unitReservations={data.unitReservations}
+        />
+      )}
+
+      {grid.viewMode === 'year' && (
+        <YearView
+          baseDate={grid.baseDate}
+          setBaseDate={grid.setBaseDate}
+          setViewMode={grid.setViewMode}
+          filteredUnits={data.filteredUnits}
+          unitReservations={data.unitReservations}
+        />
+      )}
+
+      {selection.selectedReservation && selection.popoverAnchor && (
         <ReservationPopover
-          reservation={selectedReservation}
-          anchorRect={popoverAnchor}
-          onClose={closePopover}
+          reservation={selection.selectedReservation}
+          anchorRect={selection.popoverAnchor}
+          onClose={selection.closePopover}
           onNavigate={() => {
-            closePopover()
-            navigate(`/reservations/${selectedReservation.id}`)
+            selection.closePopover()
+            navigate(`/reservations/${selection.selectedReservation!.id}`)
           }}
         />
       )}

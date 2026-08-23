@@ -33,13 +33,13 @@ export function YearView({ baseDate, setBaseDate, setViewMode, filteredUnits, un
               const resList = unitReservations.get(unit.id) || []
               
               resList.forEach((res) => {
-                const checkInTime = parseDate(res.checkIn).getTime()
-                const checkOutTime = parseDate(res.checkOut).getTime()
-
+                const checkInTime = parseDate(res.startDate).getTime()
+                const checkOutTime = parseDate(res.endDate).getTime()
+                
                 // Find the exact overlap window
                 const overlapStart = Math.max(checkInTime, monthStart)
                 const overlapEnd = Math.min(checkOutTime, monthEnd)
-
+                
                 // If the overlap is valid (end is after start), convert ms to days and add to total
                 if (overlapStart < overlapEnd) {
                   soldNights += (overlapEnd - overlapStart) / 86400000 

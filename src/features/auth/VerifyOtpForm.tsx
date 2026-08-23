@@ -26,7 +26,7 @@ if (!signupId || !phone) return <Navigate to="/register" replace />
   return (
     <form
       className={styles.form}
-onSubmit={handleSubmit((values) => verify.mutate({ signupId, phone, code: values.code }))}
+onSubmit={handleSubmit((values) => verify.mutate({ signupId,  code: values.code }))}
       noValidate
     >
       <p className={styles.switch}>

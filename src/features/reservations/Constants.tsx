@@ -1,4 +1,4 @@
-import { Badge } from '@/components/core/Badge'
+import { Badge, type BadgeVariant } from '@/components/core/Badge'
 import type { Reservation } from './types'
 import styles from './ReservationsView.module.css'
 
@@ -9,26 +9,40 @@ export const ALL_COLUMNS = [
   { id: 'property', label: 'Property & Unit', defaultVisible: true },
   { id: 'channel', label: 'Channel', defaultVisible: false },
   { id: 'status', label: 'Status', defaultVisible: true },
-  { id: 'amount', label: 'Total', defaultVisible: false },
-  { id: 'balance', label: 'Balance Due', defaultVisible: true },
+  { id: 'amount', label: 'Total', defaultVisible: true },
 ]
 
 export const STATUS_OPTIONS = [
   { value: 'all', label: 'All Statuses' },
   { value: 'confirmed', label: 'Confirmed' },
-  { value: 'checked_in', label: 'Checked In' },
-  { value: 'checked_out', label: 'Checked Out' },
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
-export const formatDate = (dateStr: string) => {
-  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(
-    new Date(dateStr),
-  )
-}
+export const SOURCE_OPTIONS = [
+  { value: 'all', label: 'All Sources' },
+  { value: 'direct', label: 'Direct Booking' },
+  { value: 'airbnb', label: 'Airbnb' },
+  { value: 'booking.com', label: 'Booking.com' },
+  { value: 'vrbo', label: 'Vrbo' },
+  { value: 'expedia', label: 'Expedia' },
+]
 
-export const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+
+export const formatDate = (dateStr: string) =>
+  new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(dateStr))
+
+export const formatCurrency = (amount: number, currency?: string | null) => {
+  const code = currency?.toUpperCase() || 'USD'
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: code }).format(amount)
+  } catch {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+  }
 }
 
 const CHANNEL_CONFIG: Record<string, { logo: string }> = {
@@ -48,15 +62,15 @@ export const renderChannel = (channel: string) => {
   )
 }
 
+const STATUS_BADGE: Record<string, { variant: BadgeVariant; label: string }> = {
+  confirmed: { variant: 'info', label: 'Confirmed' },
+  checked_in: { variant: 'success', label: 'Checked In' },
+  checked_out: { variant: 'secondary', label: 'Checked Out' },
+  cancelled: { variant: 'destructive', label: 'Cancelled' },
+}
+
 export const getStatusBadge = (status: Reservation['status']) => {
-  switch (status) {
-    case 'confirmed':
-      return <Badge variant="info">Confirmed</Badge>
-    case 'checked_in':
-      return <Badge variant="success">Checked In</Badge>
-    case 'checked_out':
-      return <Badge variant="secondary">Checked Out</Badge>
-    case 'cancelled':
-      return <Badge variant="destructive">Cancelled</Badge>
-  }
+  const config = STATUS_BADGE[status]
+  if (config) return <Badge variant={config.variant}>{config.label}</Badge>
+  return <Badge variant="outline">{String(status).replace(/_/g, ' ')}</Badge>
 }

@@ -6,14 +6,15 @@ export function useReservations(params: GetReservationsParams) {
   return useQuery({
     queryKey: ['reservations', params],
     queryFn: () => getReservations(params),
-    placeholderData: keepPreviousData, 
+    placeholderData: keepPreviousData,
   })
 }
-export function useReservationId(id:string|undefined){
+
+export function useReservationId(id: string | undefined) {
   return useQuery({
-    queryKey:['reservation',id],
-    queryFn:()=>getReservationById(id!),
-    enabled:!!id,
+    queryKey: ['reservation', id],
+    queryFn: () => getReservationById(id!),
+    enabled: !!id,
   })
 }
 

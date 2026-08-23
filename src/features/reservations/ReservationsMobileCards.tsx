@@ -1,11 +1,9 @@
 import { Calendar, MoreHorizontal } from 'lucide-react'
 import { Button } from '@/components/core/Button'
-import { Badge } from '@/components/core/Badge'
 import { Skeleton } from '@/components/core/Skeleton'
 import type { Reservation } from './types'
-import { getStatusBadge, formatDate, formatCurrency, renderChannel } from './Constants'
+import { getStatusBadge, formatDate, renderChannel } from './Constants'
 import styles from './ReservationsView.module.css'
-import { getUnitLabels } from '../properties/mockProperties'
 
 
 interface Props {
@@ -59,14 +57,13 @@ export function ReservationsMobileCards({ isLoading, items, rowsPerPage,onOpen }
         </div>
       ) : (
         items.map((res) => {
-          const labels = getUnitLabels(res.propertyId)
           return (
           <div key={res.id} className={styles.mobileCardWrap}>
             <div className={styles.mobileCardHeader} onClick={()=>onOpen(res.id)}>
               <div>
-                <div className={styles.mobileCardTitle}>{res.guestName}</div>
+           <div className={styles.mobileCardTitle}>{res.customer?.name || 'Unknown Guest'}</div>
                 <div className={styles.mobileCardProperty} >
-                  {labels.property} <span className={styles.mobileCardUnit}>• {labels.unit}</span>
+                  {res.listing?.name || 'Unknown Property'} <span className={styles.mobileCardUnit}>• {res.listing?.location?.city || 'Unknown Unit'}</span>
                 </div>
               </div>
               <div>{getStatusBadge(res.status)}</div>
@@ -75,33 +72,21 @@ export function ReservationsMobileCards({ isLoading, items, rowsPerPage,onOpen }
             <div className={styles.mobileCardGrid}>
               <div className={styles.mobileCardGridCol}>
                 <span className={styles.mobileCardLabel}>Check-in / Out</span>
-                <span className={styles.mobileCardValue}>{formatDate(res.checkIn)}</span>
+                <span className={styles.mobileCardValue}>{formatDate(res.startDate)}</span>
                 <span
                   className={styles.mobileCardValue}
                   style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}
                 >
-                  to {formatDate(res.checkOut)}
+                  to {formatDate(res.endDate)}
                 </span>
               </div>
-              <div
-                className={styles.mobileCardGridCol}
-                style={{ alignItems: 'flex-end', textAlign: 'right' }}
-              >
-                <span className={styles.mobileCardLabel}>Balance Due</span>
-                <span className={styles.mobileCardValue} style={{ marginTop: '2px' }}>
-                  {res.balanceDue > 0 ? (
-                    <Badge variant="warning">{formatCurrency(res.balanceDue)} Due</Badge>
-                  ) : (
-                    <Badge variant="success">Paid</Badge>
-                  )}
-                </span>
-              </div>
+             
             </div>
 
             <div className={styles.mobileCardFooter}>
               <div className={styles.mobileCardMeta}>
                 <span className={styles.mobileCardId}>{res.id}</span>
-                {renderChannel(res.channel)}
+                {renderChannel(res.customer?.ota || 'direct')}
               </div>
               <div className={styles.mobileCardActions}>
                 <Button variant="secondary" size="icon" aria-label="View in Calendar">

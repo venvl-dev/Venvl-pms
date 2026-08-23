@@ -5,7 +5,13 @@ import styles from './MultiCalendarView.module.css'
 export type ViewMode = 'day' | 'month' | 'year'
 
 // Standardization helpers
-export const parseDate = (d: string) => new Date(`${d}T00:00:00Z`)
+export const parseDate = (d: string) => {
+  // If it already has a time attached, parse it directly
+  if (d.includes('T')) return new Date(d)
+  
+  // Otherwise, fallback to appending the time for simple YYYY-MM-DD strings
+  return new Date(`${d}T00:00:00Z`)
+}
 
 export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 export const FULL_MONTHS = [

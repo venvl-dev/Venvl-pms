@@ -253,6 +253,23 @@
   color: var(--muted-foreground);
 }
 
+.childListingCell {
+  padding-left: 1.5rem;
+  background-color: color-mix(in oklab, var(--muted) 30%, var(--card));
+}
+
+.childBranchIcon {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  margin-top: -16px; 
+  margin-right: -4px;
+}
+
+.childImage {
+  width: 40px; 
+  height: 40px;
+}
+
 .statusDot {
   width: 6px;
   height: 6px;
@@ -414,6 +431,27 @@
 }
 .channel_direct .channelIcon {
   color: var(--primary);
+}
+
+.skeletonPillWrap {
+  z-index: 4;
+}
+
+.skeletonPill {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-xl);
+  background: color-mix(in oklab, var(--muted) 80%, var(--border));
+  animation: calendarPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes calendarPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* ==========================================================================

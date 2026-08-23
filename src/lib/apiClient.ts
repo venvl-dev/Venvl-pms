@@ -10,12 +10,19 @@ export const api = axios.create({
 
 let refreshPromise: Promise<void> | null = null
 
-export async function refreshSession(): Promise<void> {
+async function requestRefresh(): Promise<void> {
   await axios.post(
-    `${import.meta.env.VITE_API_URL}/auth/organization/refresh`,
+    `${import.meta.env.VITE_API_URL}/auth/refresh`,
     {},
     { withCredentials: true },
   )
+}
+
+export function refreshSession(): Promise<void> {
+  refreshPromise ??= requestRefresh().finally(() => {
+    refreshPromise = null
+  })
+  return refreshPromise
 }
 
 api.interceptors.response.use(
@@ -25,10 +32,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true
       try {
-        refreshPromise ??= refreshSession().finally(() => {
-          refreshPromise = null
-        })
-        await refreshPromise
+        await refreshSession()
+        useAuthStore.getState().setAuthenticated()
         return api(original)
       } catch (refreshError) {
         useAuthStore.getState().clearAuth()
