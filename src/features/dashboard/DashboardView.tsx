@@ -19,11 +19,14 @@ import styles from './DashboardView.module.css'
 import { OperationsList } from './OperationsList'
 import { ReservationDrawer } from './ReservationDrawer'
 import { ReservationRow } from './ReservationRow'
-import { MOCK_DASHBOARD_DATA as MOCK_DATA, type DashboardReservation } from './mockData'
+import { MOCK_DASHBOARD_DATA as MOCK_DATA } from './mockData'
+
+import { useReservations } from '@/features/reservations/hooks'
+import type { Reservation } from '@/features/reservations/types'
 
 const CHANNEL_COLORS: Record<string, string> = {
   airbnb: '#ff385c',
-  'booking.com': '#003580',
+  'booking': '#003580',
   vrbo: '#00aaff',
   expedia: '#F1CF31',
   direct: 'var(--primary)',
@@ -32,23 +35,66 @@ const CHANNEL_COLORS: Record<string, string> = {
 export function DashboardView() {
   const navigate = useNavigate()
   const [showBanner, setShowBanner] = useState(true)
-  const [selectedRes, setSelectedRes] = useState<DashboardReservation | null>(null)
+  
+  const [selectedRes, setSelectedRes] = useState<Reservation | null>(null)
 
-  const TODAY = new Date().toISOString().split('T')[0] 
+  const { startDate, endDate, todayStr } = useMemo(() => {
+    const now = new Date()
+    const todayStr = now.toISOString().split('T')[0]
 
-  const arrivals = MOCK_DATA.reservations.filter((r) => r.checkIn === TODAY)
-  const departures = MOCK_DATA.reservations.filter((r) => r.checkOut === TODAY)
-  const staying = MOCK_DATA.reservations.filter((r) => r.checkIn < TODAY && r.checkOut > TODAY)
-  const upcoming = MOCK_DATA.reservations
-    .filter((r) => r.checkIn > TODAY)
-    .sort((a, b) => a.checkIn.localeCompare(b.checkIn))
+    const past = new Date(now)
+    past.setDate(now.getDate() - 14) 
+
+    const future = new Date(now)
+    future.setDate(now.getDate() + 30) 
+
+    return {
+      todayStr,
+      startDate: `${past.toISOString().split('T')[0]}T00:00:00.000Z`,
+      endDate: `${future.toISOString().split('T')[0]}T23:59:59.999Z`
+    }
+  }, [])
+
+  const { data: resResponse } = useReservations({
+    page: 1,
+    limit: 100,
+    startDate,
+    endDate
+  })
+
+  const liveReservations = useMemo(() => resResponse?.data ?? [], [resResponse?.data])
+
+  const { arrivals, departures, staying, upcoming } = useMemo(() => {
+    const arr: Reservation[] = []
+    const dep: Reservation[] = []
+    const stay: Reservation[] = []
+    const upc: Reservation[] = []
+
+    liveReservations.forEach((res) => {
+      const checkIn = res.startDate.split('T')[0]
+      const checkOut = res.endDate.split('T')[0]
+
+      if (checkIn === todayStr) arr.push(res)
+      if (checkOut === todayStr) dep.push(res)
+      if (checkIn < todayStr && checkOut > todayStr) stay.push(res)
+      if (checkIn > todayStr) upc.push(res)
+    })
+
+    upc.sort((a, b) => a.startDate.localeCompare(b.startDate))
+
+    return { arrivals: arr, departures: dep, staying: stay, upcoming: upc }
+  }, [liveReservations, todayStr])
 
   const channelDistribution = useMemo(() => {
+    if (liveReservations.length === 0) return []
+
     const counts: Record<string, number> = {}
-    MOCK_DATA.reservations.forEach((res) => {
-      counts[res.channel] = (counts[res.channel] || 0) + 1
+    liveReservations.forEach((res) => {
+      const channel = res.customer?.ota || 'direct'
+      counts[channel] = (counts[channel] || 0) + 1
     })
-    const total = MOCK_DATA.reservations.length
+
+    const total = liveReservations.length
     return Object.entries(counts)
       .map(([channel, count]) => ({
         channel,
@@ -57,7 +103,7 @@ export function DashboardView() {
         color: CHANNEL_COLORS[channel] || 'var(--muted-foreground)',
       }))
       .sort((a, b) => b.percentage - a.percentage)
-  }, [])
+  }, [liveReservations])
 
   return (
     <div className={styles.page}>
@@ -65,10 +111,10 @@ export function DashboardView() {
         <div className={styles.titleRow}>
           <h1 className={styles.title}>Welcome back, {MOCK_DATA.user.name}</h1>
           <Badge variant="success">MVP</Badge>
-          <span className={styles.meta}>{TODAY}</span>
+          <span className={styles.meta}>{todayStr}</span>
         </div>
         <p className={styles.subtitle}>
-          Today across your portfolio 
+          Today across your portfolio
         </p>
       </header>
 
@@ -125,8 +171,8 @@ export function DashboardView() {
           ))}
         </div>
       </section>
+
       <section className={styles.metricsGrid}>
-        
         <Card className={styles.occCard}>
           <svg className={styles.occChart} viewBox="0 0 36 36">
             <path className={styles.occBg} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
@@ -139,14 +185,10 @@ export function DashboardView() {
         </Card>
         <StatCard label="ADR" value={`$${MOCK_DATA.metrics.adr}`} icon={<TrendingUp size={16}/>} />
         <StatCard label="RevPAR (30d)" value={`$${MOCK_DATA.metrics.revpar}`} icon={<Calendar size={16}/>} />
-        
         <StatCard label="Revenue (30d)" value={`$${MOCK_DATA.metrics.revenue}`} icon={<Wallet size={16}/>} />
         <StatCard label="Check-ins (30d)" value={MOCK_DATA.metrics.checkIns} icon={<LogIn size={16}/>} />
         <StatCard label="Confirmed (30d)" value={MOCK_DATA.metrics.confirmed} icon={<CheckCircle size={16}/>} />
-        
       </section>
-
-      
 
       <section className={styles.operationsGrid}>
         <OperationsList

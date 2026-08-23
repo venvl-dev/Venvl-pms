@@ -2,9 +2,10 @@ import { Calendar } from 'lucide-react'
 import { Button } from '@/components/core/Button'
 import { cx } from '@/lib/cx'
 import styles from './DashboardView.module.css'
-import type { DashboardReservation } from './mockData'
+import type { Reservation } from '@/features/reservations/types'
 
 const getInitials = (name: string) => {
+  if (!name) return '?'
   return name
     .split(' ')
     .map((n) => n[0])
@@ -14,18 +15,21 @@ const getInitials = (name: string) => {
 }
 
 interface Props {
-  item: DashboardReservation
-  onClick: (item: DashboardReservation) => void
+  item: Reservation
+  onClick: (item: Reservation) => void
 }
 
 export function ReservationRow({ item, onClick }: Props) {
+  const guestName = item.customer?.name || 'Unknown Guest'
+  const propertyName = item.listing?.name || 'Unknown Property'
+
   return (
     <div className={cx(styles.row, styles.rowInteractive)} onClick={() => onClick(item)}>
       <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', width: '100%' }}>
-        <div className={styles.guestAvatar}>{getInitials(item.guestName)}</div>
+        <div className={styles.guestAvatar}>{getInitials(guestName)}</div>
         <div className={styles.rowDetails}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className={styles.rowPrimary}>{item.guestName}</span>
+            <span className={styles.rowPrimary}>{guestName}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
               <Button
                 variant="secondary"
@@ -41,9 +45,7 @@ export function ReservationRow({ item, onClick }: Props) {
             </div>
           </div>
           <div className={styles.rowMeta}>
-            <span>
-              {item.propertyName} • {item.unitName}
-            </span>
+            <span>{propertyName}</span>
           </div>
         </div>
       </div>
