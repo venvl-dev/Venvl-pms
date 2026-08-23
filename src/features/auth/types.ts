@@ -44,3 +44,10 @@ export interface ApiErrorBody{
   error:string
   statusCode:number
 }
+
+export interface AcceptInviteRequest{
+  token:string
+  email:string
+  password:string
+  confirmPassword:string
+}

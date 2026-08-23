@@ -1,4 +1,3 @@
-import type { RoleType } from './Settings'
 
 export interface InviteBody {
   name: string

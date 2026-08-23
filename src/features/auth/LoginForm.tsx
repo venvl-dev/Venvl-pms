@@ -5,19 +5,21 @@ import { Input } from '@/components/core/Input'
 import { Label } from '@/components/core/Label'
 import { loginSchema } from './schemas'
 import type { LoginValues } from './schemas'
-import { useLogin } from './hooks'
+import { useLogin,useEmployeeLogin } from './hooks'
 import styles from './AuthForm.module.css'
 
 
 
-export function LoginForm() {
+export function LoginForm({ variant = 'org' }: { variant?: 'org' | 'employee' }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
       } = useForm<LoginValues>({ resolver: zodResolver(loginSchema) })
 
-      const{mutate,isPending}=useLogin()
+   const orgLogin = useLogin()
+  const empLogin = useEmployeeLogin()
+  const { mutate, isPending } = variant === 'employee' ? empLogin : orgLogin
 
 
 return(
