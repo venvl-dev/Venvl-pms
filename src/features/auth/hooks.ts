@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {  useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { login, register, completeSignup,  logout } from './api'
+import { login, register, completeSignup,  logout,employeeLogin,acceptInvite } from './api'
 import { useAuthStore } from '@/features/auth/authStore'
+import { apiErrorMessages } from '@/lib/apiError'
 
 function useAuthSuccess() {
   const setAuthenticated = useAuthStore((s) => s.setAuthenticated)
@@ -45,6 +46,28 @@ export function useCompleteSignup() {
   })
 }
 
+export function useEmployeeLogin(){
+  const onSuccess=useAuthSuccess()
+    return useMutation({
+      mutationFn:employeeLogin,
+      onSuccess,
+      onError:()=>toast.error("Invalid email or password please try again ")
+    })
+}
+
+export function useAcceptInvite(){
+  const onSuccess=useAuthSuccess()
+  return useMutation({
+    mutationFn:acceptInvite,
+onSuccess: () => {
+      toast.success('Welcome aboard!')
+      onSuccess()
+    },
+   onError: (err) => {
+      const [message] = apiErrorMessages(err)
+      toast.error(message ?? 'This invite is invalid or has expired')
+    }  })
+}
 
 
 export function useLogout(){
@@ -63,21 +86,3 @@ export function useLogout(){
       
 }
 
-// export function useDemoLogin() {
-//   const setAuth = useAuthStore((s) => s.setAuth)
-//   const navigate = useNavigate()
-//   const queryClient = useQueryClient()
-
-//   return () => {
-//     const user = {
-//       id: 'demo_1',
-//       email: 'admin@venvl.dev',
-//       ownerName: 'Demo Admin',
-//       orgName: 'VENVL Demo',
-//       phone: '+201000000000',
-//     }
-//     setAuth('demo.access.token', user)
-//     queryClient.setQueryData(['auth', 'me'], user)
-//     navigate('/', { replace: true })
-//   }
-// }

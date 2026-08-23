@@ -1,0 +1,211 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-bottom: var(--space-10);
+  position: relative;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.meta {
+  font-size: var(--text-xs);
+  color: var(--muted-foreground);
+  font-weight: var(--font-medium);
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+}
+
+.settingsDivider {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.formContainer {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  /* gap: var(--space-3); */
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.formHeading {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.formContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fieldContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.formLabel {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.formFieldsCombine {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.formFieldsCombine .fieldContainer {
+  width: 100%;
+}
+
+.actionButton {
+  font-size: 13px;
+}
+
+.teamMembers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.teamMember {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.memberName p {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 0px;
+}
+
+.memberName span {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.memberActions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+select {
+  font-size: 13px !important;
+}
+
+.actionDelete {
+  padding: 5px 10px;
+}
+
+.actionDelete:hover {
+  background-color: #ffe2e2;
+}
+
+.openInviteBackdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.inviteMemberContainer {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 50;
+  display: grid;
+  width: calc(100% - 2rem);
+  max-width: 32rem; /* 512px */
+  transform: translate(-50%, -50%);
+  gap: 1rem; /* 16px */
+  border-radius: 1rem; /* 16px */
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  padding: 1.5rem; /* 24px */
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.closeInviteButton {
+  padding: 5px 10px;
+  border: none;
+  box-shadow: none;
+}
+
+.inviteMemberContainer .formHeading {
+  font-size: 1.2em;
+}
+
+.inviteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.lastTeamMember {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+@media (max-width: 650px) {
+  .settingsDivider {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 330px) {
+  input,
+  select {
+    font-size: 12px !important;
+  }
+}

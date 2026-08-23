@@ -15,6 +15,10 @@ import ReservationDetails from '@/features/reservations/ReservationDetails'
 import { RouteError } from '@/components/common/RouterError'
 import ChannelManager from '@/features/booking-manager/ChannelManager'
 import BookingSites from '@/features/booking-manager/BookingSites'
+import Settings from '@/features/settings/Settings'
+import { AcceptInviteView } from '@/features/auth/AcceptInviteView'
+import { EmployeeLoginView } from '@/features/auth/EmployeeLoginView'
+
 
 const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/') return { index: true as const, element: <DashboardView /> }
@@ -23,6 +27,7 @@ const moduleRoutes = MODULES.map((m) => {
   if (m.path === '/channels') return { path: 'channels', element: <ChannelManager /> }
   if (m.path === '/booking-sites') return { path: 'booking-sites', element: <BookingSites /> }
   if (m.path === '/calendar') return { path: 'calendar', element: <MultiCalendarView /> }
+  if (m.path === '/settings') return { path: 'settings', element: <Settings /> }
   return { path: m.path.slice(1), element: <ModulePlaceholder /> }
 })
 
@@ -30,6 +35,9 @@ export const router = createBrowserRouter([
   { path: '/login', element: <LoginView />, errorElement: <RouteError /> },
   { path: '/register', element: <RegisterView />, errorElement: <RouteError /> },
   { path: '/verify-otp', element: <VerifyOtpView />, errorElement: <RouteError /> },
+  { path: '/accept-invite', element: <AcceptInviteView />, errorElement: <RouteError /> },
+{ path: '/employee/login', element: <EmployeeLoginView />, errorElement: <RouteError /> },
+
   {
     path: '/',
     element: <RequireAuth />,
