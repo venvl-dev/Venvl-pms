@@ -1,5 +1,4 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Search, Bell } from 'lucide-react'
 import { sectionsFor, findModuleByPath, DEMO_ROLE } from '@/app/modules'
 import { cx } from '@/lib/cx'
 import styles from './TopNav.module.css'
@@ -65,8 +64,6 @@ export function TopNav() {
     </div>
   </>
 )}
-
-
     </header>
   )
 }
